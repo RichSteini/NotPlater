@@ -9,7 +9,8 @@ Feature rich nameplate addon for TBC 2.4.3 that was designed based on the modern
     - Number on threat font
 - Fully customizable look, every bar / text is movable / scalable
 - Textual health font for enemy healthbar in different configurations (percent, min / max, both)
-- Textual casting font for enemy castbar in different configurations (spellname, time remaining, time taken, both)
+- Textual casting font for enemy castbar in different configurations (spellname, time remaining, time taken, both)\
+
 If you find any bugs feel free to message me (Hardc0re#6291 on discord) or send me a pull request.
 
 ## Threat display feature description
