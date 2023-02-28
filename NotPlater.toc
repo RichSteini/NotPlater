@@ -1,0 +1,31 @@
+## Interface: 20400
+## Title: NotPlater
+## Notes: Feature rich nameplate addon based on Nameplates Modifier (Design inspired by Plater)
+## Author: RichSteini
+## Version: $Revision$
+## SavedVariables: NotPlaterDB
+## OptionalDeps: LibStub, Ace3
+
+libs\LibStub-1.0\LibStub-1.0.xml
+libs\CallbackHandler-1.0\CallbackHandler-1.0.xml
+libs\AceAddon-3.0\AceAddon-3.0.xml
+libs\AceEvent-3.0\AceEvent-3.0.xml
+libs\AceHook-3.0\AceHook-3.0.xml
+libs\AceDB-3.0\AceDB-3.0.xml
+libs\AceDBOptions-3.0\AceDBOptions-3.0.xml
+libs\AceGUI-3.0\AceGUI-3.0.xml
+libs\AceConfig-3.0\AceConfig-3.0.xml
+libs\LibSharedMedia-3.0\lib.xml
+libs\AceComm-3.0\AceComm-3.0.xml
+libs\AceTimer-3.0\AceTimer-3.0.xml
+libs\AceBucket-3.0\AceBucket-3.0.xml
+libs\AceSerializer-3.0\AceSerializer-3.0.xml
+libs\Threat-2.0\lib.xml
+
+localization.enUS.lua
+localization.deDE.lua
+localization.frFR.lua
+
+NotPlater.lua
+config.lua
+bindings.lua
