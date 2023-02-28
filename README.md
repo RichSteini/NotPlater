@@ -17,12 +17,12 @@ If you find any bugs feel free to message me (Hardc0re#6291 on discord) or send 
 ![Threat display features](/images/demo4.png)
 
 The picture above shows all the threat features that are available. They can be independently enabled / disabled. There exist two different modes, namely dps / healer and tank mode. For each mode the colors of the fonts and bars can be set individually.
-- Threat color coding
+- Threat color coding\
   Three different threat colors of the healthbar based on the colors of Plater, but can be changed settings.
-- Threat differential
+- Threat differential\
   This shows the threat differential between you and second on threat if you are first on threat. If you are not first on threat then it shows the threat differential between the first on threat and you. Colors can be changed for each mode, default colors have the following intend, respective to the meaning of the modes: Green - save zone, Red - danger, Orange - close to danger. The font is fully customizable.
-- Threat number
-  This shows the number you are on threat. There are three different colors which display, depending on the mode with respective colors: First on threat, upper 20% on threat and lower 80% on threat. The font fully customizable.
+- Threat number\
+  This shows the number you are on threat. There are three different colors which display, depending on the mode with respective colors: First on threat, upper 20% on threat and lower 80% on threat. The font is fully customizable.
 
 
 ## Settings (/np or /notplater)
