@@ -1,5 +1,5 @@
 local Threat = LibStub("Threat-2.0")
-NotPlater = LibStub("AceAddon-3.0"):NewAddon("NotPlater", "AceEvent-3.0", "AceTimer-3.0", "AceHook-3.0", "AceBucket-3.0", "AceConsole-3.0")
+NotPlater = LibStub("AceAddon-3.0"):NewAddon("NotPlater", "AceEvent-3.0", "AceHook-3.0")
 
 local frames = {}
 local SML

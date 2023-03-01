@@ -1,4 +1,4 @@
-# NotPlater addon for TBC 2.4.3
+# NotPlater addon for TBC 2.4.3 (REQUIRES: Compatibility addon)
 
 ![NotPlater addon demo (non targeted vs. targeted enemy)](/images/demo.png)
 
