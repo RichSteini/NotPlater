@@ -5,7 +5,7 @@
 ## Version: $Revision$
 ## SavedVariables: NotPlaterDB
 ## OptionalDeps: LibStub, Ace3
-## Dependencies: Compatibility
+## Dependencies: !Compatibility
 
 libs\LibStub-1.0\LibStub-1.0.xml
 libs\CallbackHandler-1.0\CallbackHandler-1.0.xml

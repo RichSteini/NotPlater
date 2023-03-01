@@ -6,7 +6,6 @@ local L = NotPlaterLocals
 local SML, registered, options, config, dialog
 
 function Config:OnInitialize()
-	console = LibStub("AceConsole-3.0")
 	config = LibStub("AceConfig-3.0")
 	dialog = LibStub("AceConfigDialog-3.0")
 	
@@ -1512,7 +1511,7 @@ register:SetScript("OnShow", function(self)
 		args = {
 			help = {
 				type = "description",
-				name = string.format("NotPlater r%d is a basic nameplate modifier.", NotPlater.revision or 0),
+				name = string.format("NotPlater r%d is a feature rich nameplate addon based on Nameplates Modifier (Design inspired by Plater).", NotPlater.revision or 0),
 			},
 		},
 	})
