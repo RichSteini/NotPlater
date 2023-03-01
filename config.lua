@@ -6,6 +6,7 @@ local L = NotPlaterLocals
 local SML, registered, options, config, dialog
 
 function Config:OnInitialize()
+	console = LibStub("AceConsole-3.0")
 	config = LibStub("AceConfig-3.0")
 	dialog = LibStub("AceConfigDialog-3.0")
 	
