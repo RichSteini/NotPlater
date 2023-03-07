@@ -1355,7 +1355,6 @@ local function loadOptions()
 			},
 		},
 	}
-
 	options.args.levelText = {
 		order = 5,
 		type = "group",
@@ -1476,10 +1475,156 @@ local function loadOptions()
 			},
 		},
 	}
+	options.args.raidIcon = {
+		order = 6,
+		type = "group",
+		name = L["Raid icon"],
+		get = get,
+		set = set,
+		handler = Config,
+		args = {
+			general = {
+				order = 1,
+				type = "group",
+				inline = true,
+				name = L["General"],
+				args = {
+					fontOpacity = {
+						order = 2,
+						type = "range",
+						name = L["Opacity"],
+						min = 0, max = 1, step = 0.01,
+						set = setNumber,
+						arg = "raidIcon.opacity",
+					},
+				},
+			},
+			position = {
+				order = 2,
+				type = "group",
+				inline = true,
+				name = L["Positioning / Scaling"],
+				args = {
+					anker = {
+						order = 1,
+						type = "select",
+						name = L["Anker"],
+						values = ankers,
+						arg = "raidIcon.anker",
+					},
+					xOffset = {
+						order = 2,
+						type = "range",
+						name = L["Offset X"],
+						min = -100, max = 100, step = 1,
+						set = setNumber,
+						arg = "raidIcon.xOffset",
+					},
+					yOffset = {
+						order = 3,
+						type = "range",
+						name = L["Offset Y"],
+						min = -100, max = 100, step = 1,
+						set = setNumber,
+						arg = "raidIcon.yOffset",
+					},
+					xSize = {
+						order = 4,
+						type = "range",
+						name = L["Size X"],
+						min = 0, max = 500, step = 1,
+						set = setNumber,
+						arg = "raidIcon.xSize",
+					},
+					ySize = {
+						order = 5,
+						type = "range",
+						name = L["Size Y"],
+						min = 0, max = 500, step = 1,
+						set = setNumber,
+						arg = "raidIcon.ySize",
+					},
+				},
+			},
+		},
+	}
+	options.args.bossIcon = {
+		order = 7,
+		type = "group",
+		name = L["Boss icon"],
+		get = get,
+		set = set,
+		handler = Config,
+		args = {
+			general = {
+				order = 1,
+				type = "group",
+				inline = true,
+				name = L["General"],
+				args = {
+					fontOpacity = {
+						order = 2,
+						type = "range",
+						name = L["Opacity"],
+						min = 0, max = 1, step = 0.01,
+						set = setNumber,
+						arg = "bossIcon.opacity",
+					},
+				},
+			},
+			position = {
+				order = 2,
+				type = "group",
+				inline = true,
+				name = L["Positioning / Scaling"],
+				args = {
+					anker = {
+						order = 1,
+						type = "select",
+						name = L["Anker"],
+						values = ankers,
+						arg = "bossIcon.anker",
+					},
+					xOffset = {
+						order = 2,
+						type = "range",
+						name = L["Offset X"],
+						min = -100, max = 100, step = 1,
+						set = setNumber,
+						arg = "bossIcon.xOffset",
+					},
+					yOffset = {
+						order = 3,
+						type = "range",
+						name = L["Offset Y"],
+						min = -100, max = 100, step = 1,
+						set = setNumber,
+						arg = "bossIcon.yOffset",
+					},
+					xSize = {
+						order = 4,
+						type = "range",
+						name = L["Size X"],
+						min = 0, max = 500, step = 1,
+						set = setNumber,
+						arg = "bossIcon.xSize",
+					},
+					ySize = {
+						order = 5,
+						type = "range",
+						name = L["Size Y"],
+						min = 0, max = 500, step = 1,
+						set = setNumber,
+						arg = "bossIcon.ySize",
+					},
+				},
+			},
+		},
+	}
 
 	-- DB Profiles
 	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(NotPlater.db)
-	options.args.profile.order = 6
+	options.args.profile.order = 8
 end
 
 -- Slash commands
@@ -1521,6 +1666,12 @@ register:SetScript("OnShow", function(self)
 	
 	config:RegisterOptionsTable("NotPlater-Profile", options.args.profile)
 	dialog:AddToBlizOptions("NotPlater-Profile", options.args.profile.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-BossIcon", options.args.bossIcon)
+	dialog:AddToBlizOptions("NotPlater-BossIcon", options.args.bossIcon.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-RaidIcon", options.args.raidIcon)
+	dialog:AddToBlizOptions("NotPlater-RaidIcon", options.args.raidIcon.name, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-NameText", options.args.nameText)
 	dialog:AddToBlizOptions("NotPlater-NameText", options.args.nameText.name, "NotPlater")

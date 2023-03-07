@@ -46,6 +46,8 @@ NotPlaterLocals = {
 	["Hide target border"] = "Hide target border",
 	["Hide border"] = "Hide border",
 	["Set the anker for the healthbar."] = "Set the anker for the healthbar.",
+	["Raid icon"] = "Raid icon",
+	["Boss icon"] = "Boss icon",
 
 	
 	["Custom texture to use for health and cast bars in name plates."] = "Custom texture to use for health and cast bars in name plates.",

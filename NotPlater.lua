@@ -176,6 +176,24 @@ function NotPlater:OnInitialize()
 				fontShadowXOffset = 0, 
 				fontShadowYOffset = 0
 			},
+			raidIcon = 
+			{ 
+				opacity = 1,
+				anker = "LEFT",
+				xOffset = 0,
+				yOffset = 12,
+				xSize = 20,
+				ySize = 20,
+			},
+			bossIcon = 
+			{ 
+				opacity = 1,
+				anker = "LEFT",
+				xOffset = 0,
+				yOffset = 12,
+				xSize = 20
+				ySize = 20,
+			},
 		},
 	}
 
@@ -392,6 +410,7 @@ function NotPlater:PrepareFrame(frame)
 	local healthBorder, castBorder, spellIcon, highlightTexture, nameText, levelText, bossIcon, raidIcon = frame:GetRegions()
 	local health, cast = frame:GetChildren()
 
+
 	-- Configs
 	local healthBarConfig = self.db.profile.healthBar
 	local castBarConfig = self.db.profile.castBar
@@ -565,6 +584,20 @@ function NotPlater:PrepareFrame(frame)
 	self:SetupFontString(health.threatNumberText, threatConfig.threatNumberText)
 	health.threatDifferentialText:SetText("")
 	health.threatNumberText:SetText("")
+
+	if raidIcon then
+		local raidIconConfig = self.db.profile.raidIcon
+		raidIcon:ClearAllPoints()
+		raidIcon:SetSize(raidIconConfig.xSize, raidIconConfig.ySize)
+		raidIcon:SetPoint(raidIconConfig.anker, frame, raidIconConfig.xOffset, raidIconConfig.yOffset)
+		raidIcon:SetAlpha(raidIconConfig.opacity)
+	elseif bossIcon then
+		local bossIconConfig = self.db.profile.bossIcon
+		raidIcon:ClearAllPoints()
+		raidIcon:SetSize(bossIconConfig.xSize, bossIconConfig.ySize)
+		raidIcon:SetPoint(bossIconConfig.anker, frame, bossIconConfig.xOffset, bossIconConfig.yOffset)
+		raidIcon:SetAlpha(bossIconConfig.opacity)
+	end
 
 	-- Update everything
 	self:HealthOnValueChanged(health, health:GetValue())
