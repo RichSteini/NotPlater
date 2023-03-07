@@ -191,7 +191,7 @@ function NotPlater:OnInitialize()
 				anker = "LEFT",
 				xOffset = 0,
 				yOffset = 12,
-				xSize = 20
+				xSize = 20,
 				ySize = 20,
 			},
 		},
