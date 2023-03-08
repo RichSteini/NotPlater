@@ -118,6 +118,46 @@ local function loadOptions()
 	options.type = "group"
 	options.name = "NotPlater"
 	options.args = {}
+	options.args.general = {
+		order = 0,
+		type = "group",
+		name = L["General"],
+		get = get,
+		set = set,
+		handler = Config,
+		args = {
+			nameplateStacking = {
+				order = 0,
+				type = "group",
+				inline = true,
+				name = L["Nameplate stacking"],
+				args = {
+					fontEnabled = {
+						order = 0,
+						type = "toggle",
+						name = L["Overlapping castbars"],
+						arg = "general.nameplateStacking.overlappingCastbars",
+					},
+					xMargin = {
+						order = 1,
+						type = "range",
+						name = L["X stacking margin"],
+						min = 0, max = 10, step = 1,
+						set = setNumber,
+						arg = "general.nameplateStacking.xMargin",
+					},
+					yMargin = {
+						order = 2,
+						type = "range",
+						name = L["Y stacking margin"],
+						min = 0, max = 10, step = 1,
+						set = setNumber,
+						arg = "general.nameplateStacking.yMargin",
+					},
+				},
+			},
+		},
+	}
 	options.args.threat = {
 		order = 0,
 		type = "group",
@@ -667,29 +707,6 @@ local function loadOptions()
 						inline = true,
 						name = L["Positioning / Scaling"],
 						args = {
-							anker = {
-								order = 1,
-								type = "select",
-								name = L["Anker"],
-								values = ankers,
-								arg = "healthBar.position.anker",
-							},
-							xOffset = {
-								order = 2,
-								type = "range",
-								name = L["Offset X"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "healthBar.position.xOffset",
-							},
-							yOffset = {
-								order = 3,
-								type = "range",
-								name = L["Offset Y"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "healthBar.position.yOffset",
-							},
 							xSize = {
 								order = 4,
 								type = "range",
@@ -1663,9 +1680,13 @@ register:SetScript("OnShow", function(self)
 	
 	dialog:SetDefaultSize("NotPlater-Bliz", 800, 600)
 	dialog:AddToBlizOptions("NotPlater-Bliz", "NotPlater")
+
 	
 	config:RegisterOptionsTable("NotPlater-Profile", options.args.profile)
 	dialog:AddToBlizOptions("NotPlater-Profile", options.args.profile.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-Profile", options.args.general)
+	dialog:AddToBlizOptions("NotPlater-Profile", options.args.profile.general, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-BossIcon", options.args.bossIcon)
 	dialog:AddToBlizOptions("NotPlater-BossIcon", options.args.bossIcon.name, "NotPlater")

@@ -48,6 +48,10 @@ NotPlaterLocals = {
 	["Set the anker for the healthbar."] = "Set the anker for the healthbar.",
 	["Raid icon"] = "Raid icon",
 	["Boss icon"] = "Boss icon",
+	["Nameplate stacking"] = "Nameplate stacking",
+	["X stacking margin"] = "X stacking margin",
+	["Y stacking margin"] = "Y stacking margin",
+	["Overlapping castbars"] = "Overlapping castbars",
 
 	
 	["Custom texture to use for health and cast bars in name plates."] = "Custom texture to use for health and cast bars in name plates.",

@@ -13,6 +13,15 @@ local targetCheckElapsed = 0
 function NotPlater:OnInitialize()
 	self.defaults = {
 		profile = {
+			general = 
+			{ 
+				nameplateStacking =
+				{
+					overlappingCastbars = true,
+					xMargin = 0,
+					yMargin = 0
+				}
+			},
 			threat = 
 			{ 
 				mode = "hdps",
@@ -75,9 +84,6 @@ function NotPlater:OnInitialize()
 				hideTargetBorder = false, 
 				position = 
 				{
-					anker = "TOP",
-					xOffset = 0,
-					yOffset = 0,
 					xSize = 112,
 					ySize = 15,
 				},
@@ -103,7 +109,7 @@ function NotPlater:OnInitialize()
 				backgroundColor = {r = 0, g = 0, b = 0, a = 0.7}, 
 				position = 
 				{
-					anker = "TOP",
+					anker = "CENTER",
 					xOffset = 0,
 					yOffset = -15,
 					xSize = 112,
@@ -153,7 +159,7 @@ function NotPlater:OnInitialize()
 				fontEnabled = true,
 				anker = "CENTER",
 				xOffset = 0,
-				yOffset = 0,
+				yOffset = -15,
 				fontName = "Arial Narrow", 
 				fontSize = 11, 
 				fontBorder = "", 
@@ -166,7 +172,7 @@ function NotPlater:OnInitialize()
 			{ 
 				fontOpacity = 0.7,
 				anker = "TOPRIGHT",
-				xOffset = -25,
+				xOffset = -5,
 				yOffset = 10,
 				fontName = "Arial Narrow", 
 				fontSize = 8, 
@@ -180,8 +186,8 @@ function NotPlater:OnInitialize()
 			{ 
 				opacity = 1,
 				anker = "LEFT",
-				xOffset = 0,
-				yOffset = 12,
+				xOffset = -10,
+				yOffset = 0,
 				xSize = 20,
 				ySize = 20,
 			},
@@ -189,8 +195,8 @@ function NotPlater:OnInitialize()
 			{ 
 				opacity = 1,
 				anker = "LEFT",
-				xOffset = 0,
-				yOffset = 12,
+				xOffset = -10,
+				yOffset = 0,
 				xSize = 20,
 				ySize = 20,
 			},
@@ -410,13 +416,13 @@ function NotPlater:PrepareFrame(frame)
 	local healthBorder, castBorder, spellIcon, highlightTexture, nameText, levelText, bossIcon, raidIcon = frame:GetRegions()
 	local health, cast = frame:GetChildren()
 
-
 	-- Configs
 	local healthBarConfig = self.db.profile.healthBar
 	local castBarConfig = self.db.profile.castBar
 	local threatConfig = self.db.profile.threat
 	local nameTextConfig = self.db.profile.nameText
 	local levelTextConfig = self.db.profile.levelText
+	local generalConfig = self.db.profile.general
 
 	-- Hooks and creation (only once that way settings can be applied while frame is visible)
 	if not frame.npHooked then
@@ -458,11 +464,19 @@ function NotPlater:PrepareFrame(frame)
 			health.npHealthOverlay:Hide()
 		end)
 
+		self:HookScript(frame, "OnShow", function(frame)
+			if generalConfig.nameplateStacking.overlappingCastbars then
+				frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+			else
+				frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+			end
+		end)
+
 		self:HookScript(health, "OnShow", function(health)
 			-- Set point for healthbar
 			health:ClearAllPoints()
 			health:SetSize(healthBarConfig.position.xSize, healthBarConfig.position.ySize)
-			health:SetPoint(healthBarConfig.position.anker, healthBarConfig.position.xOffset, healthBarConfig.position.yOffset)
+			health:SetPoint("TOPLEFT", generalConfig.nameplateStacking.xMargin, generalConfig.nameplateStacking.yMargin)
 			if(not healthBarConfig.hideBorder) then
 				health.npHealthOverlay:Show()
 			end
@@ -476,7 +490,7 @@ function NotPlater:PrepareFrame(frame)
 			-- Set points for castbar
 			cast:ClearAllPoints()
 			cast:SetSize(castBarConfig.position.xSize, castBarConfig.position.ySize)
-			cast:SetPoint(castBarConfig.position.anker, castBarConfig.position.xOffset, castBarConfig.position.yOffset)
+			cast:SetPoint(castBarConfig.position.anker, health, castBarConfig.position.xOffset, castBarConfig.position.yOffset)
 			cast:SetFrameLevel(frame:GetFrameLevel() + 1)
 			spellIcon:ClearAllPoints()
 			spellIcon:SetSize(castBarConfig.castSpellIcon.xSize, castBarConfig.castSpellIcon.ySize)
@@ -514,6 +528,13 @@ function NotPlater:PrepareFrame(frame)
 		end
 	end
 
+	-- Set the clickable frame size
+	if generalConfig.nameplateStacking.overlappingCastbars then
+		frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+	else
+		frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+	end
+
 	-- Set textures for health- and castbar
 	health:SetStatusBarTexture(SML:Fetch(SML.MediaType.STATUSBAR, healthBarConfig.texture))
 	cast:SetStatusBarTexture(SML:Fetch(SML.MediaType.STATUSBAR, castBarConfig.texture))
@@ -530,9 +551,9 @@ function NotPlater:PrepareFrame(frame)
 
 	-- Set point for the system default texts
 	nameText:ClearAllPoints()
-	nameText:SetPoint(nameTextConfig.anker, nameTextConfig.xOffset, nameTextConfig.yOffset)
+	nameText:SetPoint(nameTextConfig.anker, health, nameTextConfig.xOffset, nameTextConfig.yOffset)
 	levelText:ClearAllPoints()
-	levelText:SetPoint(levelTextConfig.anker, levelTextConfig.xOffset, levelTextConfig.yOffset)
+	levelText:SetPoint(levelTextConfig.anker, health, levelTextConfig.xOffset, levelTextConfig.yOffset)
 
 	-- Set threat text
 	health.threatDifferentialText:ClearAllPoints()
@@ -543,7 +564,7 @@ function NotPlater:PrepareFrame(frame)
 	-- Set point for healthbar
 	health:ClearAllPoints()
 	health:SetSize(healthBarConfig.position.xSize, healthBarConfig.position.ySize)
-	health:SetPoint(healthBarConfig.position.anker, healthBarConfig.position.xOffset, healthBarConfig.position.yOffset)
+	health:SetPoint("TOPLEFT", generalConfig.nameplateStacking.xMargin, generalConfig.nameplateStacking.yMargin)
 
 	-- Set point for castbar
 	cast:ClearAllPoints()
@@ -598,6 +619,7 @@ function NotPlater:PrepareFrame(frame)
 		raidIcon:SetPoint(bossIconConfig.anker, frame, bossIconConfig.xOffset, bossIconConfig.yOffset)
 		raidIcon:SetAlpha(bossIconConfig.opacity)
 	end
+
 
 	-- Update everything
 	self:HealthOnValueChanged(health, health:GetValue())
