@@ -132,7 +132,15 @@ local function loadOptions()
 				inline = true,
 				name = L["Nameplate stacking"],
 				args = {
-					fontEnabled = {
+					enabled = {
+						order = 0,
+						type = "toggle",
+						name = L["Enabled"],
+						width = "full",
+						desc = L["Only works if the nameplate is visible before you are in combat"],
+						arg = "general.nameplateStacking.enabled",
+					},
+					overlappingCastbars = {
 						order = 0,
 						type = "toggle",
 						name = L["Overlapping castbars"],

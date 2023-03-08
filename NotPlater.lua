@@ -17,6 +17,7 @@ function NotPlater:OnInitialize()
 			{ 
 				nameplateStacking =
 				{
+					enabled = false,
 					overlappingCastbars = true,
 					xMargin = 0,
 					yMargin = 0
@@ -464,19 +465,21 @@ function NotPlater:PrepareFrame(frame)
 			health.npHealthOverlay:Hide()
 		end)
 
-		self:HookScript(frame, "OnShow", function(frame)
-			if generalConfig.nameplateStacking.overlappingCastbars then
-				frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
-			else
-				frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
-			end
-		end)
+		if generalConfig.nameplateStacking.enabled then
+			self:HookScript(frame, "OnShow", function(frame)
+				if generalConfig.nameplateStacking.overlappingCastbars then
+					frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+				else
+					frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+				end
+			end)
+		end
 
 		self:HookScript(health, "OnShow", function(health)
 			-- Set point for healthbar
 			health:ClearAllPoints()
 			health:SetSize(healthBarConfig.position.xSize, healthBarConfig.position.ySize)
-			health:SetPoint("TOPLEFT", generalConfig.nameplateStacking.xMargin, generalConfig.nameplateStacking.yMargin)
+			health:SetPoint("TOP", 0, generalConfig.nameplateStacking.yMargin)
 			if(not healthBarConfig.hideBorder) then
 				health.npHealthOverlay:Show()
 			end
@@ -528,11 +531,13 @@ function NotPlater:PrepareFrame(frame)
 		end
 	end
 
-	-- Set the clickable frame size
-	if generalConfig.nameplateStacking.overlappingCastbars then
-		frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
-	else
-		frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+	if generalConfig.nameplateStacking.enabled then
+		-- Set the clickable frame size
+		if generalConfig.nameplateStacking.overlappingCastbars then
+			frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+		else
+			frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+		end
 	end
 
 	-- Set textures for health- and castbar
@@ -564,7 +569,7 @@ function NotPlater:PrepareFrame(frame)
 	-- Set point for healthbar
 	health:ClearAllPoints()
 	health:SetSize(healthBarConfig.position.xSize, healthBarConfig.position.ySize)
-	health:SetPoint("TOPLEFT", generalConfig.nameplateStacking.xMargin, generalConfig.nameplateStacking.yMargin)
+	health:SetPoint("TOP", 0, generalConfig.nameplateStacking.yMargin)
 
 	-- Set point for castbar
 	cast:ClearAllPoints()

@@ -8,6 +8,7 @@ NotPlaterLocals = {
 	["All name plates are now hidden."] = "All name plates are now hidden.",
 	
 	-- GUI
+	["Enabled"] = "Enabled",
 	["General"] = "General",
 	["Position"] = "Position",
 	["Bars"] = "Bars",
@@ -52,6 +53,7 @@ NotPlaterLocals = {
 	["X stacking margin"] = "X stacking margin",
 	["Y stacking margin"] = "Y stacking margin",
 	["Overlapping castbars"] = "Overlapping castbars",
+	["Only works if the nameplate is visible before you are in combat"] = "Only works if the nameplate is visible before you are in combat",
 
 	
 	["Custom texture to use for health and cast bars in name plates."] = "Custom texture to use for health and cast bars in name plates.",
