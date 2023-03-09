@@ -467,10 +467,12 @@ function NotPlater:PrepareFrame(frame)
 
 		if generalConfig.nameplateStacking.enabled then
 			self:HookScript(frame, "OnShow", function(frame)
-				if generalConfig.nameplateStacking.overlappingCastbars then
-					frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
-				else
-					frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+				if not UnitAffectingCombat("player") then
+					if generalConfig.nameplateStacking.overlappingCastbars then
+						frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+					else
+						frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+					end
 				end
 			end)
 		end
@@ -531,7 +533,7 @@ function NotPlater:PrepareFrame(frame)
 		end
 	end
 
-	if generalConfig.nameplateStacking.enabled then
+	if generalConfig.nameplateStacking.enabled and not UnitAffectingCombat("player") then
 		-- Set the clickable frame size
 		if generalConfig.nameplateStacking.overlappingCastbars then
 			frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
