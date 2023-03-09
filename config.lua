@@ -1689,12 +1689,11 @@ register:SetScript("OnShow", function(self)
 	dialog:SetDefaultSize("NotPlater-Bliz", 800, 600)
 	dialog:AddToBlizOptions("NotPlater-Bliz", "NotPlater")
 
-	
 	config:RegisterOptionsTable("NotPlater-Profile", options.args.profile)
 	dialog:AddToBlizOptions("NotPlater-Profile", options.args.profile.name, "NotPlater")
 
-	config:RegisterOptionsTable("NotPlater-Profile", options.args.general)
-	dialog:AddToBlizOptions("NotPlater-Profile", options.args.profile.general, "NotPlater")
+	config:RegisterOptionsTable("NotPlater-General", options.args.general)
+	dialog:AddToBlizOptions("NotPlater-General", options.args.profile.general, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-BossIcon", options.args.bossIcon)
 	dialog:AddToBlizOptions("NotPlater-BossIcon", options.args.bossIcon.name, "NotPlater")
