@@ -1693,7 +1693,7 @@ register:SetScript("OnShow", function(self)
 	dialog:AddToBlizOptions("NotPlater-Profile", options.args.profile.name, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-General", options.args.general)
-	dialog:AddToBlizOptions("NotPlater-General", options.args.profile.general, "NotPlater")
+	dialog:AddToBlizOptions("NotPlater-General", options.args.general.name, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-BossIcon", options.args.bossIcon)
 	dialog:AddToBlizOptions("NotPlater-BossIcon", options.args.bossIcon.name, "NotPlater")
