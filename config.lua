@@ -112,6 +112,9 @@ end
 
 local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick outline"], ["MONOCHROME"] = L["Monochrome"]}
 local ankers = {["CENTER"] = L["center"], ["BOTTOM"] = L["bottom"], ["TOP"] = L["top"], ["LEFT"] = L["left"], ["RIGHT"] = L["right"], ["BOTTOMLEFT"] = L["bottomleft"], ["TOPRIGHT"] = L["topright"], ["BOTTOMRIGHT"] = L["bottomright"], ["TOPLEFT"] = L["topleft"]}
+local frameStratas = {["Inherited"] = L["inherited"], ["BACKGROUND"] = L["background"], ["LOW"] = L["low"], ["MEDIUM"] = L["medium"], ["HIGH"] = L["high"], ["DIALOG"] = L["dialog"], ["FULLSCREEN"] = L["fullscreen"], ["FULLSCREEN_DIALOG"] = L["fullscreen dialog"], ["TOOLTIP"] = L["tooltip"]}
+local strataSort = {"Inherited", "BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"}
+local drawLayers = {["BACKGROUND"] = L["background"], ["BORDER"] = L["border"], ["ARTWORK"] = L["artwork"], ["OVERLAY"] = L["overlay"], ["HIGHLIGHT"] = L["highlight"]}
 
 local function loadOptions()
 	options = {}
@@ -126,8 +129,13 @@ local function loadOptions()
 		set = set,
 		handler = Config,
 		args = {
-			nameplateStacking = {
+			header = {
 				order = 0,
+				name = L["Note: All settings here only work out of combat, because the frame cannot be changed in combat."],
+				type = "header",
+			},
+			nameplateStacking = {
+				order = 1,
 				type = "group",
 				inline = true,
 				name = L["Nameplate stacking"],
@@ -161,6 +169,30 @@ local function loadOptions()
 						min = 0, max = 10, step = 1,
 						set = setNumber,
 						arg = "general.nameplateStacking.yMargin",
+					},
+				},
+			},
+			frameStrata = {
+				order = 2,
+				type = "group",
+				inline = true,
+				name = L["Frame Strata"],
+				args = {
+					frame = {
+						order = 0,
+						type = "select",
+						name = L["Frame"],
+						values = frameStratas,
+						sorting = strataSort,
+						arg = "general.frameStrata.frame",
+					},
+					targetFrame = {
+						order = 1,
+						type = "select",
+						name = L["Target Frame"],
+						values = frameStratas,
+						sorting = strataSort,
+						arg = "general.frameStrata.targetFrame",
 					},
 				},
 			},

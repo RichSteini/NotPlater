@@ -15,6 +15,11 @@ function NotPlater:OnInitialize()
 		profile = {
 			general = 
 			{ 
+				frameStrata =
+				{
+					frame = "LOW",
+					targetFrame = "MEDIUM"
+				},
 				nameplateStacking =
 				{
 					enabled = false,
@@ -507,8 +512,6 @@ function NotPlater:PrepareFrame(frame)
 			self:HookScript(frame, 'OnUpdate', function(_, elapsed)
 				targetCheckElapsed = targetCheckElapsed + elapsed
 				if (targetCheckElapsed >= 0.1) then
-		
-				if (true) then
 					if (self:IsTarget(frame)) then
 						if (not frame.npTargetHighlight) then
 							frame.npTargetHighlight = frame:CreateTexture(nil, 'ARTWORK')
@@ -521,13 +524,22 @@ function NotPlater:PrepareFrame(frame)
 						if (not frame.npTargetHighlight:IsVisible()) then
 							frame.npTargetHighlight:Show()
 						end
+						if generalConfig.nameplateStacking.enabled and not UnitAffectingCombat("player") then
+							if frame:GetFrameStrata() ~= generalConfig.frameStrata.targetFrame then
+								frame:SetFrameStrata(generalConfig.frameStrata.targetFrame)
+							end
+						end
 					else
 						if (frame.npTargetHighlight and frame.npTargetHighlight:IsVisible()) then
 							frame.npTargetHighlight:Hide()
 						end
+						if generalConfig.nameplateStacking.enabled and not UnitAffectingCombat("player") then
+							if frame:GetFrameStrata() ~= generalConfig.frameStrata.frame then
+								frame:SetFrameStrata(generalConfig.frameStrata.frame)
+							end
+						end
 					end
-				end
-				targetCheckElapsed = 0
+					targetCheckElapsed = 0
 				end
 			end)
 		end
