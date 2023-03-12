@@ -191,8 +191,8 @@ function NotPlater:OnInitialize()
 			raidIcon = 
 			{ 
 				opacity = 1,
-				anker = "LEFT",
-				xOffset = -10,
+				anker = "RIGHT",
+				xOffset = 25,
 				yOffset = 0,
 				xSize = 20,
 				ySize = 20,
@@ -201,7 +201,7 @@ function NotPlater:OnInitialize()
 			{ 
 				opacity = 1,
 				anker = "LEFT",
-				xOffset = -10,
+				xOffset = -25,
 				yOffset = 0,
 				xSize = 20,
 				ySize = 20,
@@ -629,13 +629,15 @@ function NotPlater:PrepareFrame(frame)
 		local raidIconConfig = self.db.profile.raidIcon
 		raidIcon:ClearAllPoints()
 		raidIcon:SetSize(raidIconConfig.xSize, raidIconConfig.ySize)
-		raidIcon:SetPoint(raidIconConfig.anker, frame, raidIconConfig.xOffset, raidIconConfig.yOffset)
+		raidIcon:SetPoint(raidIconConfig.anker, health, raidIconConfig.xOffset, raidIconConfig.yOffset)
 		raidIcon:SetAlpha(raidIconConfig.opacity)
-	elseif bossIcon then
+	end
+
+	if bossIcon then
 		local bossIconConfig = self.db.profile.bossIcon
 		raidIcon:ClearAllPoints()
 		raidIcon:SetSize(bossIconConfig.xSize, bossIconConfig.ySize)
-		raidIcon:SetPoint(bossIconConfig.anker, frame, bossIconConfig.xOffset, bossIconConfig.yOffset)
+		raidIcon:SetPoint(bossIconConfig.anker, health, bossIconConfig.xOffset, bossIconConfig.yOffset)
 		raidIcon:SetAlpha(bossIconConfig.opacity)
 	end
 
