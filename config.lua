@@ -183,7 +183,7 @@ local function loadOptions()
 						type = "select",
 						name = L["Frame"],
 						values = frameStratas,
-						sorting = strataSort,
+						--sorting = strataSort,
 						arg = "general.frameStrata.frame",
 					},
 					targetFrame = {
@@ -191,7 +191,7 @@ local function loadOptions()
 						type = "select",
 						name = L["Target Frame"],
 						values = frameStratas,
-						sorting = strataSort,
+						--sorting = strataSort,
 						arg = "general.frameStrata.targetFrame",
 					},
 				},

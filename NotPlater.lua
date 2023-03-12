@@ -625,14 +625,6 @@ function NotPlater:PrepareFrame(frame)
 	health.threatDifferentialText:SetText("")
 	health.threatNumberText:SetText("")
 
-	if raidIcon then
-		local raidIconConfig = self.db.profile.raidIcon
-		raidIcon:ClearAllPoints()
-		raidIcon:SetSize(raidIconConfig.xSize, raidIconConfig.ySize)
-		raidIcon:SetPoint(raidIconConfig.anker, health, raidIconConfig.xOffset, raidIconConfig.yOffset)
-		raidIcon:SetAlpha(raidIconConfig.opacity)
-	end
-
 	if bossIcon then
 		local bossIconConfig = self.db.profile.bossIcon
 		raidIcon:ClearAllPoints()
@@ -641,6 +633,13 @@ function NotPlater:PrepareFrame(frame)
 		raidIcon:SetAlpha(bossIconConfig.opacity)
 	end
 
+	if raidIcon then
+		local raidIconConfig = self.db.profile.raidIcon
+		raidIcon:ClearAllPoints()
+		raidIcon:SetSize(raidIconConfig.xSize, raidIconConfig.ySize)
+		raidIcon:SetPoint(raidIconConfig.anker, health, raidIconConfig.xOffset, raidIconConfig.yOffset)
+		raidIcon:SetAlpha(raidIconConfig.opacity)
+	end
 
 	-- Update everything
 	self:HealthOnValueChanged(health, health:GetValue())
