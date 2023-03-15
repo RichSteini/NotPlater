@@ -44,7 +44,7 @@ function NotPlater:OnInitialize()
 				threatDifferentialText = 
 				{
 					enabled = false,
-					anker = "LEFT",
+					anchor = "LEFT",
 					xOffset = -35,
 					yOffset = 0,
 					fontName = "Arial Narrow", 
@@ -64,7 +64,7 @@ function NotPlater:OnInitialize()
 				threatNumberText = 
 				{
 					enabled = false,
-					anker = "RIGHT",
+					anchor = "RIGHT",
 					xOffset = 25,
 					yOffset = 0,
 					fontName = "Arial Narrow", 
@@ -97,7 +97,7 @@ function NotPlater:OnInitialize()
 				{
 					type = "both", 
 					fontColor = {r = 1, g = 1, b = 1, a = 1},
-					anker = "CENTER",
+					anchor = "CENTER",
 					xOffset = 0,
 					yOffset = 0,
 					fontName = "Arial Narrow", 
@@ -115,7 +115,7 @@ function NotPlater:OnInitialize()
 				backgroundColor = {r = 0, g = 0, b = 0, a = 0.7}, 
 				position = 
 				{
-					anker = "CENTER",
+					anchor = "CENTER",
 					xOffset = 0,
 					yOffset = -15,
 					xSize = 112,
@@ -124,7 +124,7 @@ function NotPlater:OnInitialize()
 				castSpellIcon =
 				{
 					opacity = 1,
-					anker = "LEFT",
+					anchor = "LEFT",
 					xOffset = -15,
 					yOffset = 0,
 					xSize = 15,
@@ -134,7 +134,7 @@ function NotPlater:OnInitialize()
 				{
 					type = "timeleft", 
 					fontColor = {r = 1, g = 1, b = 1, a = 1},
-					anker = "RIGHT",
+					anchor = "RIGHT",
 					xOffset = -5,
 					yOffset = 0,
 					fontName = "Arial Narrow", 
@@ -148,7 +148,7 @@ function NotPlater:OnInitialize()
 				castNameText = 
 				{
 					fontColor = {r = 1, g = 1, b = 1, a = 1},
-					anker = "CENTER",
+					anchor = "CENTER",
 					xOffset = 0,
 					yOffset = 0,
 					fontName = "Arial Narrow", 
@@ -163,7 +163,7 @@ function NotPlater:OnInitialize()
 			nameText = 
 			{ 
 				fontEnabled = true,
-				anker = "CENTER",
+				anchor = "CENTER",
 				xOffset = 0,
 				yOffset = -15,
 				fontName = "Arial Narrow", 
@@ -177,7 +177,7 @@ function NotPlater:OnInitialize()
 			levelText = 
 			{ 
 				fontOpacity = 0.7,
-				anker = "TOPRIGHT",
+				anchor = "TOPRIGHT",
 				xOffset = -5,
 				yOffset = 10,
 				fontName = "Arial Narrow", 
@@ -191,7 +191,7 @@ function NotPlater:OnInitialize()
 			raidIcon = 
 			{ 
 				opacity = 1,
-				anker = "RIGHT",
+				anchor = "RIGHT",
 				xOffset = 25,
 				yOffset = 0,
 				xSize = 20,
@@ -200,7 +200,7 @@ function NotPlater:OnInitialize()
 			bossIcon = 
 			{ 
 				opacity = 1,
-				anker = "LEFT",
+				anchor = "LEFT",
 				xOffset = -25,
 				yOffset = 0,
 				xSize = 20,
@@ -490,6 +490,8 @@ function NotPlater:PrepareFrame(frame)
 			if(not healthBarConfig.hideBorder) then
 				health.npHealthOverlay:Show()
 			end
+			levelText:ClearAllPoints()
+			levelText:SetPoint(levelTextConfig.anchor, health, levelTextConfig.xOffset, levelTextConfig.yOffset)
 			levelText:SetAlpha(levelTextConfig.fontOpacity)
 			health.threatDifferentialText:SetText("")
 			health.threatNumberText:SetText("")
@@ -500,11 +502,11 @@ function NotPlater:PrepareFrame(frame)
 			-- Set points for castbar
 			cast:ClearAllPoints()
 			cast:SetSize(castBarConfig.position.xSize, castBarConfig.position.ySize)
-			cast:SetPoint(castBarConfig.position.anker, health, castBarConfig.position.xOffset, castBarConfig.position.yOffset)
+			cast:SetPoint(castBarConfig.position.anchor, health, castBarConfig.position.xOffset, castBarConfig.position.yOffset)
 			cast:SetFrameLevel(frame:GetFrameLevel() + 1)
 			spellIcon:ClearAllPoints()
 			spellIcon:SetSize(castBarConfig.castSpellIcon.xSize, castBarConfig.castSpellIcon.ySize)
-			spellIcon:SetPoint(castBarConfig.castSpellIcon.anker, cast, castBarConfig.castSpellIcon.xOffset, castBarConfig.castSpellIcon.yOffset)
+			spellIcon:SetPoint(castBarConfig.castSpellIcon.anchor, cast, castBarConfig.castSpellIcon.xOffset, castBarConfig.castSpellIcon.yOffset)
 			spellIcon:SetAlpha(castBarConfig.castSpellIcon.opacity)
 		end)
 
@@ -560,25 +562,25 @@ function NotPlater:PrepareFrame(frame)
 
 	-- Set health text
 	health.npHealthText:ClearAllPoints()
-	health.npHealthText:SetPoint(healthBarConfig.healthText.anker, health, healthBarConfig.healthText.xOffset, healthBarConfig.healthText.yOffset)
+	health.npHealthText:SetPoint(healthBarConfig.healthText.anchor, health, healthBarConfig.healthText.xOffset, healthBarConfig.healthText.yOffset)
 
 	-- Set cast text
 	cast.npCastTimeText:ClearAllPoints()
-	cast.npCastTimeText:SetPoint(castBarConfig.castTimeText.anker, cast, castBarConfig.castTimeText.xOffset, castBarConfig.castTimeText.yOffset)
+	cast.npCastTimeText:SetPoint(castBarConfig.castTimeText.anchor, cast, castBarConfig.castTimeText.xOffset, castBarConfig.castTimeText.yOffset)
 	cast.npCastNameText:ClearAllPoints()
-	cast.npCastNameText:SetPoint(castBarConfig.castNameText.anker, cast, castBarConfig.castNameText.xOffset, castBarConfig.castNameText.yOffset)
+	cast.npCastNameText:SetPoint(castBarConfig.castNameText.anchor, cast, castBarConfig.castNameText.xOffset, castBarConfig.castNameText.yOffset)
 
 	-- Set point for the system default texts
 	nameText:ClearAllPoints()
-	nameText:SetPoint(nameTextConfig.anker, health, nameTextConfig.xOffset, nameTextConfig.yOffset)
+	nameText:SetPoint(nameTextConfig.anchor, health, nameTextConfig.xOffset, nameTextConfig.yOffset)
 	levelText:ClearAllPoints()
-	levelText:SetPoint(levelTextConfig.anker, health, levelTextConfig.xOffset, levelTextConfig.yOffset)
+	levelText:SetPoint(levelTextConfig.anchor, health, levelTextConfig.xOffset, levelTextConfig.yOffset)
 
 	-- Set threat text
 	health.threatDifferentialText:ClearAllPoints()
-	health.threatDifferentialText:SetPoint(threatConfig.threatDifferentialText.anker, health, threatConfig.threatDifferentialText.xOffset, threatConfig.threatDifferentialText.yOffset)
+	health.threatDifferentialText:SetPoint(threatConfig.threatDifferentialText.anchor, health, threatConfig.threatDifferentialText.xOffset, threatConfig.threatDifferentialText.yOffset)
 	health.threatNumberText:ClearAllPoints()
-	health.threatNumberText:SetPoint(threatConfig.threatNumberText.anker, health, threatConfig.threatNumberText.xOffset, threatConfig.threatNumberText.yOffset)
+	health.threatNumberText:SetPoint(threatConfig.threatNumberText.anchor, health, threatConfig.threatNumberText.xOffset, threatConfig.threatNumberText.yOffset)
 
 	-- Set point for healthbar
 	health:ClearAllPoints()
@@ -588,13 +590,13 @@ function NotPlater:PrepareFrame(frame)
 	-- Set point for castbar
 	cast:ClearAllPoints()
 	cast:SetSize(castBarConfig.position.xSize, castBarConfig.position.ySize)
-	cast:SetPoint(castBarConfig.position.anker, castBarConfig.position.xOffset, castBarConfig.position.yOffset)
+	cast:SetPoint(castBarConfig.position.anchor, castBarConfig.position.xOffset, castBarConfig.position.yOffset)
 	cast:SetFrameLevel(frame:GetFrameLevel() + 1)
 
 	-- Set point for castbar icon
 	spellIcon:ClearAllPoints()
 	spellIcon:SetSize(castBarConfig.castSpellIcon.xSize, castBarConfig.castSpellIcon.ySize)
-	spellIcon:SetPoint(castBarConfig.castSpellIcon.anker, cast, castBarConfig.castSpellIcon.xOffset, castBarConfig.castSpellIcon.yOffset)
+	spellIcon:SetPoint(castBarConfig.castSpellIcon.anchor, cast, castBarConfig.castSpellIcon.xOffset, castBarConfig.castSpellIcon.yOffset)
 	spellIcon:SetAlpha(castBarConfig.castSpellIcon.opacity)
 
 	-- Set point for overlays / borders
@@ -629,7 +631,7 @@ function NotPlater:PrepareFrame(frame)
 		local bossIconConfig = self.db.profile.bossIcon
 		raidIcon:ClearAllPoints()
 		raidIcon:SetSize(bossIconConfig.xSize, bossIconConfig.ySize)
-		raidIcon:SetPoint(bossIconConfig.anker, health, bossIconConfig.xOffset, bossIconConfig.yOffset)
+		raidIcon:SetPoint(bossIconConfig.anchor, health, bossIconConfig.xOffset, bossIconConfig.yOffset)
 		raidIcon:SetAlpha(bossIconConfig.opacity)
 	end
 
@@ -637,7 +639,7 @@ function NotPlater:PrepareFrame(frame)
 		local raidIconConfig = self.db.profile.raidIcon
 		raidIcon:ClearAllPoints()
 		raidIcon:SetSize(raidIconConfig.xSize, raidIconConfig.ySize)
-		raidIcon:SetPoint(raidIconConfig.anker, health, raidIconConfig.xOffset, raidIconConfig.yOffset)
+		raidIcon:SetPoint(raidIconConfig.anchor, health, raidIconConfig.xOffset, raidIconConfig.yOffset)
 		raidIcon:SetAlpha(raidIconConfig.opacity)
 	end
 

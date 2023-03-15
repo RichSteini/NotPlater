@@ -111,7 +111,7 @@ function Config:GetFonts()
 end
 
 local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick outline"], ["MONOCHROME"] = L["Monochrome"]}
-local ankers = {["CENTER"] = L["center"], ["BOTTOM"] = L["bottom"], ["TOP"] = L["top"], ["LEFT"] = L["left"], ["RIGHT"] = L["right"], ["BOTTOMLEFT"] = L["bottomleft"], ["TOPRIGHT"] = L["topright"], ["BOTTOMRIGHT"] = L["bottomright"], ["TOPLEFT"] = L["topleft"]}
+local anchors = {["CENTER"] = L["center"], ["BOTTOM"] = L["bottom"], ["TOP"] = L["top"], ["LEFT"] = L["left"], ["RIGHT"] = L["right"], ["BOTTOMLEFT"] = L["bottomleft"], ["TOPRIGHT"] = L["topright"], ["BOTTOMRIGHT"] = L["bottomright"], ["TOPLEFT"] = L["topleft"]}
 local frameStratas = {["Inherited"] = L["inherited"], ["BACKGROUND"] = L["background"], ["LOW"] = L["low"], ["MEDIUM"] = L["medium"], ["HIGH"] = L["high"], ["DIALOG"] = L["dialog"], ["FULLSCREEN"] = L["fullscreen"], ["FULLSCREEN_DIALOG"] = L["fullscreen dialog"], ["TOOLTIP"] = L["tooltip"]}
 local strataSort = {"Inherited", "BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"}
 local drawLayers = {["BACKGROUND"] = L["background"], ["BORDER"] = L["border"], ["ARTWORK"] = L["artwork"], ["OVERLAY"] = L["overlay"], ["HIGHLIGHT"] = L["highlight"]}
@@ -356,12 +356,12 @@ local function loadOptions()
 						inline = true,
 						name = L["Position"],
 						args = {
-							anker = {
+							anchor = {
 								order = 1,
 								type = "select",
-								name = L["Anker"],
-								values = ankers,
-								arg = "threat.threatDifferentialText.anker",
+								name = L["Anchor"],
+								values = anchors,
+								arg = "threat.threatDifferentialText.anchor",
 							},
 							xOffset = {
 								order = 2,
@@ -550,12 +550,12 @@ local function loadOptions()
 						inline = true,
 						name = L["Position"],
 						args = {
-							anker = {
+							anchor = {
 								order = 1,
 								type = "select",
-								name = L["Anker"],
-								values = ankers,
-								arg = "threat.threatNumberText.anker",
+								name = L["Anchor"],
+								values = anchors,
+								arg = "threat.threatNumberText.anchor",
 							},
 							xOffset = {
 								order = 2,
@@ -827,12 +827,12 @@ local function loadOptions()
 						inline = true,
 						name = L["Position"],
 						args = {
-							anker = {
+							anchor = {
 								order = 1,
 								type = "select",
-								name = L["Anker"],
-								values = ankers,
-								arg = "healthBar.healthText.anker",
+								name = L["Anchor"],
+								values = anchors,
+								arg = "healthBar.healthText.anchor",
 							},
 							xOffset = {
 								order = 2,
@@ -932,12 +932,12 @@ local function loadOptions()
 						inline = true,
 						name = L["Positioning / Scaling"],
 						args = {
-							anker = {
+							anchor = {
 								order = 1,
 								type = "select",
-								name = L["Anker"],
-								values = ankers,
-								arg = "castBar.position.anker",
+								name = L["Anchor"],
+								values = anchors,
+								arg = "castBar.position.anchor",
 							},
 							xOffset = {
 								order = 2,
@@ -1003,12 +1003,12 @@ local function loadOptions()
 						inline = true,
 						name = L["Position"],
 						args = {
-							anker = {
+							anchor = {
 								order = 1,
 								type = "select",
-								name = L["Anker"],
-								values = ankers,
-								arg = "castBar.castSpellIcon.anker",
+								name = L["Anchor"],
+								values = anchors,
+								arg = "castBar.castSpellIcon.anchor",
 							},
 							xOffset = {
 								order = 2,
@@ -1106,12 +1106,12 @@ local function loadOptions()
 						inline = true,
 						name = L["Position"],
 						args = {
-							anker = {
+							anchor = {
 								order = 1,
 								type = "select",
-								name = L["Anker"],
-								values = ankers,
-								arg = "castBar.castTimeText.anker",
+								name = L["Anchor"],
+								values = anchors,
+								arg = "castBar.castTimeText.anchor",
 							},
 							xOffset = {
 								order = 2,
@@ -1225,12 +1225,12 @@ local function loadOptions()
 						inline = true,
 						name = L["Position"],
 						args = {
-							anker = {
+							anchor = {
 								order = 1,
 								type = "select",
-								name = L["Anker"],
-								values = ankers,
-								arg = "castBar.castNameText.anker",
+								name = L["Anchor"],
+								values = anchors,
+								arg = "castBar.castNameText.anchor",
 							},
 							xOffset = {
 								order = 2,
@@ -1345,12 +1345,12 @@ local function loadOptions()
 				inline = true,
 				name = L["Position"],
 				args = {
-					anker = {
+					anchor = {
 						order = 1,
 						type = "select",
-						name = L["Anker"],
-						values = ankers,
-						arg = "nameText.anker",
+						name = L["Anchor"],
+						values = anchors,
+						arg = "nameText.anchor",
 					},
 					xOffset = {
 						order = 2,
@@ -1465,12 +1465,12 @@ local function loadOptions()
 				inline = true,
 				name = L["Position"],
 				args = {
-					anker = {
+					anchor = {
 						order = 1,
 						type = "select",
-						name = L["Anker"],
-						values = ankers,
-						arg = "levelText.anker",
+						name = L["Anchor"],
+						values = anchors,
+						arg = "levelText.anchor",
 					},
 					xOffset = {
 						order = 2,
@@ -1562,12 +1562,12 @@ local function loadOptions()
 				inline = true,
 				name = L["Positioning / Scaling"],
 				args = {
-					anker = {
+					anchor = {
 						order = 1,
 						type = "select",
-						name = L["Anker"],
-						values = ankers,
-						arg = "raidIcon.anker",
+						name = L["Anchor"],
+						values = anchors,
+						arg = "raidIcon.anchor",
 					},
 					xOffset = {
 						order = 2,
@@ -1635,12 +1635,12 @@ local function loadOptions()
 				inline = true,
 				name = L["Positioning / Scaling"],
 				args = {
-					anker = {
+					anchor = {
 						order = 1,
 						type = "select",
-						name = L["Anker"],
-						values = ankers,
-						arg = "bossIcon.anker",
+						name = L["Anchor"],
+						values = anchors,
+						arg = "bossIcon.anchor",
 					},
 					xOffset = {
 						order = 2,

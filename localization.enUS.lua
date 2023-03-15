@@ -42,7 +42,7 @@ NotPlaterLocals = {
 	["Offset Y"] = "Offset Y",
 	["Size X"] = "Size X",
 	["Size Y"] = "Size Y",
-	["Anker"] = "Anker",
+	["Anchor"] = "Anchor",
 	["Opacity"] = "Opacity",
 	["Hide target border"] = "Hide target border",
 	["Hide border"] = "Hide border",
@@ -70,7 +70,7 @@ NotPlaterLocals = {
 	["Frame Strata"] = "Frame Strata",
 	["Frame"] = "Frame",
 	["Target Frame"] = "Target Frame",
-	["Note: All settings here only work out of combat, because the frame cannot be changed in combat."] = "Note: All settings here only work out of combat (frame cannot be changed in combat).",
+	["Note: All settings here only work out of combat, because the frame cannot be changed in combat."] = "Note: All settings here only work out of combat (frame cannot be changed in combat!).",
 
 	
 	["Custom texture to use for health and cast bars in name plates."] = "Custom texture to use for health and cast bars in name plates.",
