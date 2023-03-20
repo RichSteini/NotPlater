@@ -418,6 +418,11 @@ function NotPlater:IsTarget(frame)
     end
 end
 
+function NotPlater:SetSize(frame, width, height)
+	frame:SetWidth(width)
+	frame:SetHeight(height)
+end
+
 function NotPlater:PrepareFrame(frame)
 	local healthBorder, castBorder, spellIcon, highlightTexture, nameText, levelText, bossIcon, raidIcon = frame:GetRegions()
 	local health, cast = frame:GetChildren()
@@ -474,9 +479,9 @@ function NotPlater:PrepareFrame(frame)
 			self:HookScript(frame, "OnShow", function(frame)
 				if not UnitAffectingCombat("player") then
 					if generalConfig.nameplateStacking.overlappingCastbars then
-						frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+						self:SetSize(frame, healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
 					else
-						frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+						self:SetSize(frame, healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
 					end
 				end
 			end)
@@ -485,7 +490,7 @@ function NotPlater:PrepareFrame(frame)
 		self:HookScript(health, "OnShow", function(health)
 			-- Set point for healthbar
 			health:ClearAllPoints()
-			health:SetSize(healthBarConfig.position.xSize, healthBarConfig.position.ySize)
+			self:SetSize(health, healthBarConfig.position.xSize, healthBarConfig.position.ySize)
 			health:SetPoint("TOP", 0, generalConfig.nameplateStacking.yMargin)
 			if(not healthBarConfig.hideBorder) then
 				health.npHealthOverlay:Show()
@@ -501,11 +506,11 @@ function NotPlater:PrepareFrame(frame)
 		self:HookScript(cast, "OnShow", function(cast)
 			-- Set points for castbar
 			cast:ClearAllPoints()
-			cast:SetSize(castBarConfig.position.xSize, castBarConfig.position.ySize)
+			self:SetSize(cast, castBarConfig.position.xSize, castBarConfig.position.ySize)
 			cast:SetPoint(castBarConfig.position.anchor, health, castBarConfig.position.xOffset, castBarConfig.position.yOffset)
 			cast:SetFrameLevel(frame:GetFrameLevel() + 1)
 			spellIcon:ClearAllPoints()
-			spellIcon:SetSize(castBarConfig.castSpellIcon.xSize, castBarConfig.castSpellIcon.ySize)
+			self:SetSize(spellIcon, castBarConfig.castSpellIcon.xSize, castBarConfig.castSpellIcon.ySize)
 			spellIcon:SetPoint(castBarConfig.castSpellIcon.anchor, cast, castBarConfig.castSpellIcon.xOffset, castBarConfig.castSpellIcon.yOffset)
 			spellIcon:SetAlpha(castBarConfig.castSpellIcon.opacity)
 		end)
@@ -550,9 +555,9 @@ function NotPlater:PrepareFrame(frame)
 	if generalConfig.nameplateStacking.enabled and not UnitAffectingCombat("player") then
 		-- Set the clickable frame size
 		if generalConfig.nameplateStacking.overlappingCastbars then
-			frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+			self:SetSize(frame, healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
 		else
-			frame:SetSize(healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
+			self:SetSize(frame, healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
 		end
 	end
 
@@ -584,18 +589,18 @@ function NotPlater:PrepareFrame(frame)
 
 	-- Set point for healthbar
 	health:ClearAllPoints()
-	health:SetSize(healthBarConfig.position.xSize, healthBarConfig.position.ySize)
+	self:SetSize(health, healthBarConfig.position.xSize, healthBarConfig.position.ySize)
 	health:SetPoint("TOP", 0, generalConfig.nameplateStacking.yMargin)
 
 	-- Set point for castbar
 	cast:ClearAllPoints()
-	cast:SetSize(castBarConfig.position.xSize, castBarConfig.position.ySize)
+	self:SetSize(cast, castBarConfig.position.xSize, castBarConfig.position.ySize)
 	cast:SetPoint(castBarConfig.position.anchor, castBarConfig.position.xOffset, castBarConfig.position.yOffset)
 	cast:SetFrameLevel(frame:GetFrameLevel() + 1)
 
 	-- Set point for castbar icon
 	spellIcon:ClearAllPoints()
-	spellIcon:SetSize(castBarConfig.castSpellIcon.xSize, castBarConfig.castSpellIcon.ySize)
+	self:SetSize(spellIcon, castBarConfig.castSpellIcon.xSize, castBarConfig.castSpellIcon.ySize)
 	spellIcon:SetPoint(castBarConfig.castSpellIcon.anchor, cast, castBarConfig.castSpellIcon.xOffset, castBarConfig.castSpellIcon.yOffset)
 	spellIcon:SetAlpha(castBarConfig.castSpellIcon.opacity)
 
@@ -629,16 +634,16 @@ function NotPlater:PrepareFrame(frame)
 
 	if bossIcon then
 		local bossIconConfig = self.db.profile.bossIcon
-		raidIcon:ClearAllPoints()
-		raidIcon:SetSize(bossIconConfig.xSize, bossIconConfig.ySize)
-		raidIcon:SetPoint(bossIconConfig.anchor, health, bossIconConfig.xOffset, bossIconConfig.yOffset)
-		raidIcon:SetAlpha(bossIconConfig.opacity)
+		bossIcon:ClearAllPoints()
+		self:SetSize(bossIcon, bossIconConfig.xSize, bossIconConfig.ySize)
+		bossIcon:SetPoint(bossIconConfig.anchor, health, bossIconConfig.xOffset, bossIconConfig.yOffset)
+		bossIcon:SetAlpha(bossIconConfig.opacity)
 	end
 
 	if raidIcon then
 		local raidIconConfig = self.db.profile.raidIcon
 		raidIcon:ClearAllPoints()
-		raidIcon:SetSize(raidIconConfig.xSize, raidIconConfig.ySize)
+		self:SetSize(raidIcon, raidIconConfig.xSize, raidIconConfig.ySize)
 		raidIcon:SetPoint(raidIconConfig.anchor, health, raidIconConfig.xOffset, raidIconConfig.yOffset)
 		raidIcon:SetAlpha(raidIconConfig.opacity)
 	end
