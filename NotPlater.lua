@@ -68,7 +68,7 @@ function NotPlater:OnInitialize()
 					xOffset = 25,
 					yOffset = 0,
 					fontName = "Arial Narrow", 
-					fontSize = 15, 
+					fontSize = 20, 
 					fontBorder = "OUTLINE", 
 					fontShadowEnabled = false, 
 					fontShadowColor = { r = 0, g = 0, b = 0, a = 1 }, 
@@ -279,22 +279,18 @@ function NotPlater:ThreatCheck(health, healthValue)
 			local player = UnitGUID("player")
 			local playerThreat = Threat:GetThreat(player, unit)
 			local playerThreatNumber = 1
-			local highestThreat = playerThreat
+			local highestThreat, highestThreatMember = Threat:GetMaxThreatOnTarget(unit)
 			local secondHighestThreat = 0
 			if playerThreat ~=0 then
 				for gMember,_ in pairs(group) do
-					if gMember ~= player then
-						local gMemberThreat = Threat:GetThreat(gMember, unit)
-						if gMemberThreat then
-							if gMemberThreat > highestThreat then
-								highestThreat = gMemberThreat
-							elseif gMemberThreat > secondHighestThreat then
-								secondHighestThreat = gMemberThreat
-							end
+					local gMemberThreat = Threat:GetThreat(gMember, unit)
+					if gMemberThreat then
+						if gMemberThreat ~= highestThreat and gMemberThreat > secondHighestThreat then
+							secondHighestThreat = gMemberThreat
+						end
 
-							if gMemberThreat > playerThreat then
-								playerThreatNumber = playerThreatNumber + 1
-							end
+						if gMemberThreat > playerThreat then
+							playerThreatNumber = playerThreatNumber + 1
 						end
 					end
 				end
