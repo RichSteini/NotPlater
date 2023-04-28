@@ -128,16 +128,16 @@ local function loadOptions()
 		get = get,
 		set = set,
 		handler = Config,
+		childGroups = "tab",
 		args = {
 			header = {
 				order = 0,
-				name = L["Note: All settings here only work out of combat, because the frame cannot be changed in combat."],
+				name = L["Note: All settings here only work out of combat."],
 				type = "header",
 			},
 			nameplateStacking = {
 				order = 1,
 				type = "group",
-				inline = true,
 				name = L["Nameplate stacking"],
 				args = {
 					enabled = {
@@ -175,7 +175,6 @@ local function loadOptions()
 			frameStrata = {
 				order = 2,
 				type = "group",
-				inline = true,
 				name = L["Frame Strata"],
 				args = {
 					frame = {
@@ -204,6 +203,7 @@ local function loadOptions()
 		name = L["Threat"],
 		get = get,
 		set = set,
+		childGroups = "tab",
 		handler = Config,
 		args = {
 			general = {
@@ -704,6 +704,7 @@ local function loadOptions()
 		get = get,
 		set = set,
 		handler = Config,
+		childGroups = "tab",
 		args = {
 			general = {
 				order = 0,
@@ -902,6 +903,7 @@ local function loadOptions()
 		name = L["Castbar"],
 		get = get,
 		set = set,
+		childGroups = "tab",
 		handler = Config,
 		args = {
 			general = {
@@ -1685,16 +1687,16 @@ local function loadOptions()
 end
 
 -- Slash commands
-SLASH_NAMEPLATES1 = "/notplater"
-SLASH_NAMEPLATES2 = "/np"
-SlashCmdList["NAMEPLATES"] = function(msg)
+SLASH_NOTPLATER1 = "/notplater"
+SLASH_NOTPLATER2 = "/np"
+SlashCmdList["NOTPLATER"] = function(msg)
 	if( not registered ) then
 		if( not options ) then
 			loadOptions()
 		end
 
 		config:RegisterOptionsTable("NotPlater", options)
-		dialog:SetDefaultSize("NotPlater", 800, 600)
+		dialog:SetDefaultSize("NotPlater", 830, 600)
 		registered = true
 	end
 
@@ -1718,7 +1720,7 @@ register:SetScript("OnShow", function(self)
 		},
 	})
 	
-	dialog:SetDefaultSize("NotPlater-Bliz", 800, 600)
+	dialog:SetDefaultSize("NotPlater-Bliz", 830, 600)
 	dialog:AddToBlizOptions("NotPlater-Bliz", "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-Profile", options.args.profile)

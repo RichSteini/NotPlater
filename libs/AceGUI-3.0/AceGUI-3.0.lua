@@ -1,10 +1,10 @@
---[[ $Id: AceGUI-3.0.lua 65669 2008-03-25 08:59:22Z nevcairiel $ ]]
-local ACEGUI_MAJOR, ACEGUI_MINOR = "AceGUI-3.0", 7
+--[[ $Id: AceGUI-3.0.lua 681 2008-09-06 13:01:59Z nargiddley $ ]]
+local ACEGUI_MAJOR, ACEGUI_MINOR = "AceGUI-3.0", 16
 local AceGUI, oldminor = LibStub:NewLibrary(ACEGUI_MAJOR, ACEGUI_MINOR)
 
 if not AceGUI then return end -- No upgrade needed
 
-local con = LibStub("AceConsole-3.0",true)
+--local con = LibStub("AceConsole-3.0",true)
 
 AceGUI.WidgetRegistry = AceGUI.WidgetRegistry or {}
 AceGUI.LayoutRegistry = AceGUI.LayoutRegistry or {}
@@ -99,6 +99,12 @@ do
 		if not objPools[type] then
 			objPools[type] = {}
 		end
+		for i,v in ipairs(objPools[type]) do
+			if v == obj then
+				error("Attempt to Release Widget that is already released")
+				return
+			end
+		end
 		tinsert(objPools[type],obj)
 	end
 end
@@ -110,22 +116,28 @@ end
 
 -- Gets a widget Object
 
-local warned = {}
 function AceGUI:Create(type)
 	local reg = WidgetRegistry
 	if reg[type] then
 		local widget = new(type,reg[type])
-		if widget.Acquire then
-			widget:Acquire()
-		elseif widget.Aquire then
-			if not warned[type] then
-				DEFAULT_CHAT_FRAME:AddMessage(("AceGUI: Warning, Widget type %s uses the deprecated Aquire, this should be updated to Acquire"):format(type))
-				warned[type] = true
-			end
-			widget.Acquire = widget.Aquire
-			widget:Acquire()
+
+		if rawget(widget,'Acquire') then
+			widget.OnAcquire = widget.Acquire
+			widget.Acquire = nil
+		elseif rawget(widget,'Aquire') then
+			widget.OnAcquire = widget.Aquire
+			widget.Aquire = nil
+		end
+		
+		if rawget(widget,'Release') then
+			widget.OnRelease = rawget(widget,'Release') 
+			widget.Release = nil
+		end
+		
+		if widget.OnAcquire then
+			widget:OnAcquire()
 		else
-			error(("Widget type %s doesn't supply an Acquire Function"):format(type))
+			error(("Widget type %s doesn't supply an OnAcquire Function"):format(type))
 		end		
 		safecall(widget.ResumeLayout, widget)
 		return widget
@@ -137,14 +149,19 @@ function AceGUI:Release(widget)
 	safecall( widget.PauseLayout, widget )
 	widget:Fire("OnRelease")
 	safecall( widget.ReleaseChildren, widget )
+
+	if widget.OnRelease then
+		widget:OnRelease()
+	else
+		error(("Widget type %s doesn't supply an OnRelease Function"):format(type))
+	end
 	for k in pairs(widget.userdata) do
 		widget.userdata[k] = nil
 	end
 	for k in pairs(widget.events) do
 		widget.events[k] = nil
 	end
-	widget.width = nil
-	widget:Release()
+	widget.width = nil	
 	--widget.frame:SetParent(nil)
 	widget.frame:ClearAllPoints()
 	widget.frame:Hide()
@@ -156,14 +173,39 @@ function AceGUI:Release(widget)
 	del(widget,widget.type)
 end
 
+-----------
+-- Focus --
+-----------
+
+-----
+-- Called when a widget has taken focus
+-- e.g. Dropdowns opening, Editboxes gaining kb focus
+-----
+function AceGUI:SetFocus(widget)
+	if self.FocusedWidget and self.FocusedWidget ~= widget then
+		safecall(self.FocusedWidget.ClearFocus, self.FocusedWidget)
+	end
+	self.FocusedWidget = widget
+end
+
+-----
+-- Called when something has happened that could cause widgets with focus to drop it
+-- e.g. titlebar of a frame being clicked
+-----
+function AceGUI:ClearFocus()
+	if self.FocusedWidget then
+		safecall(self.FocusedWidget.ClearFocus, self.FocusedWidget)
+		self.FocusedWidget = nil
+	end
+end
 
 -------------
 -- Widgets --
 -------------
 --[[
 	Widgets must provide the following functions
-		Acquire() - Called when the object is acquired, should set everything to a default hidden state
-		Release() - Called when the object is Released, should remove any anchors and hide the Widget
+		OnAcquire() - Called when the object is acquired, should set everything to a default hidden state
+		OnRelease() - Called when the object is Released, should remove any anchors and hide the Widget
 		
 	And the following members
 		frame - the frame or derivitive object that will be treated as the widget for size and anchoring purposes
@@ -177,7 +219,12 @@ end
 		content - frame or derivitive that children will be anchored to
 		
 	The Widget can supply the following Optional Members
-
+		:OnWidthSet(width) - Called when the width of the widget is changed
+		:OnHeightSet(height) - Called when the height of the widget is changed
+			Widgets should not use the OnSizeChanged events of thier frame or content members, use these methods instead
+			AceGUI already sets a handler to the event
+		:OnLayoutFinished(width, height) - called after a layout has finished, the width and height will be the width and height of the
+			area used for controls. These can be nil if the layout used the existing size to layout the controls.
 
 ]]
 
@@ -236,7 +283,71 @@ do
 			self:OnHeightSet(height)
 		end
 	end
+
+	WidgetBase.IsVisible = function(self)
+		return self.frame:IsVisible()
+	end
+	
+	WidgetBase.IsShown= function(self)
+		return self.frame:IsShown()
+	end
 		
+	WidgetBase.Release = function(self)
+		AceGUI:Release(self)
+	end
+	
+	WidgetBase.SetPoint = function(self, ...)
+		return self.frame:SetPoint(...)
+	end
+	
+	WidgetBase.ClearAllPoints = function(self)
+		return self.frame:ClearAllPoints()
+	end
+	
+	WidgetBase.GetNumPoints = function(self)
+		return self.frame:GetNumPoints()
+	end
+	
+	WidgetBase.GetPoint = function(self, ...)
+		return self.frame:GetPoint(...)
+	end	
+	
+	WidgetBase.GetUserDataTable = function(self)
+		return self.userdata
+	end
+	
+	WidgetBase.SetUserData = function(self, key, value)
+		self.userdata[key] = value
+	end
+	
+	WidgetBase.GetUserData = function(self, key)
+		return self.userdata[key]
+	end
+	
+	WidgetBase.IsFullHeight = function(self)
+		return self.height == "fill"
+	end
+	
+	WidgetBase.SetFullHeight = function(self, isFull)
+		if isFull then
+			self.height = "fill"
+		else
+			self.height = nil
+		end
+	end
+	
+	WidgetBase.IsFullWidth = function(self)
+		return self.width == "fill"
+	end
+		
+	WidgetBase.SetFullWidth = function(self, isFull)
+		if isFull then
+			self.width = "fill"
+		else
+			self.width = nil
+		end
+	end
+	
 --	local function LayoutOnUpdate(this)
 --		this:SetScript("OnUpdate",nil)
 --		this.obj:PerformLayout()
@@ -286,15 +397,25 @@ do
 		self.LayoutFunc = AceGUI:GetLayout(Layout)
 	end
 
+	local function FrameResize(this)
+		local self = this.obj
+		if this:GetWidth() and this:GetHeight() then
+			if self.OnWidthSet then
+				self:OnWidthSet(this:GetWidth())
+			end
+			if self.OnHeightSet then
+				self:OnHeightSet(this:GetHeight())
+			end
+		end
+	end
 	
 	local function ContentResize(this)
-		if this.lastwidth ~= this:GetWidth() then
+		if this:GetWidth() and this:GetHeight() then
 			this.width = this:GetWidth()
 			this.height = this:GetHeight()
 			this.obj:DoLayout()
 		end
 	end
-
 
 	setmetatable(WidgetContainerBase,{__index=WidgetBase})
 
@@ -304,7 +425,10 @@ do
 		widget.userdata = {}
 		widget.events = {}
 		widget.base = WidgetContainerBase
+		widget.content.obj = widget
+		widget.frame.obj = widget
 		widget.content:SetScript("OnSizeChanged",ContentResize)
+		widget.frame:SetScript("OnSizeChanged",FrameResize)
 		setmetatable(widget,{__index=WidgetContainerBase})
 		widget:SetLayout("List")
 	end
@@ -313,6 +437,8 @@ do
 		widget.userdata = {}
 		widget.events = {}
 		widget.base = WidgetBase
+		widget.frame.obj = widget
+		widget.frame:SetScript("OnSizeChanged",FrameResize)
 		setmetatable(widget,{__index=WidgetBase})
 	end
 end
@@ -351,6 +477,16 @@ function AceGUI:GetLayout(Name)
 	return LayoutRegistry[Name]
 end
 
+AceGUI.counts = AceGUI.counts or {}
+
+function AceGUI:GetNextWidgetNum(type)
+	if not self.counts[type] then
+		self.counts[type] = 0
+	end
+	self.counts[type] = self.counts[type] + 1
+	return self.counts[type]
+end
+
 --[[ Widget Template
 
 --------------------------
@@ -359,11 +495,11 @@ end
 do
 	local Type = "Type"
 	
-	local function Acquire(self)
+	local function OnAcquire(self)
 
 	end
 	
-	local function Release(self)
+	local function OnRelease(self)
 		self.frame:ClearAllPoints()
 		self.frame:Hide()
 	end
@@ -374,8 +510,8 @@ do
 		local self = {}
 		self.type = Type
 
-		self.Release = Release
-		self.Acquire = Acquire
+		self.OnRelease = OnRelease
+		self.OnAcquire = OnAcquire
 		
 		self.frame = frame
 		frame.obj = self
@@ -411,6 +547,7 @@ AceGUI:RegisterLayout("List",
 	 function(content, children)
 	 
 	 	local height = 0
+	 	local width = content.width or content:GetWidth() or 0
 		for i, child in ipairs(children) do
 			
 			
@@ -424,6 +561,7 @@ AceGUI:RegisterLayout("List",
 			end
 			
 			if child.width == "fill" then
+				child:SetWidth(width)
 				frame:SetPoint("RIGHT",content,"RIGHT")
 				if child.OnWidthSet then
 					child:OnWidthSet(content.width or content:GetWidth())
@@ -443,7 +581,9 @@ AceGUI:RegisterLayout("List",
 AceGUI:RegisterLayout("Fill",
 	 function(content, children)
 		if children[1] then
-			children[1].frame:SetAllPoints(content)	
+			children[1]:SetWidth(content:GetWidth() or 0)
+			children[1]:SetHeight(content:GetHeight() or 0)
+			children[1].frame:SetAllPoints(content)
 			children[1].frame:Show()
 			safecall( content.obj.LayoutFinished, content.obj, nil, children[1].frame:GetHeight() )
 		end
@@ -471,8 +611,9 @@ AceGUI:RegisterLayout("Flow",
 	 	
 	 	local frameoffset
 	 	local lastframeoffset
+	 	local oversize 
 		for i, child in ipairs(children) do
-			
+			oversize = nil
 			local frame = child.frame
 			local frameheight = frame.height or frame:GetHeight() or 0
 			local framewidth = frame.width or frame:GetWidth() or 0
@@ -489,6 +630,9 @@ AceGUI:RegisterLayout("Flow",
 				rowstart = frame
 				rowstartoffset = frameoffset
 				usedwidth = framewidth
+				if usedwidth > width then
+					oversize = true
+				end
 			else
 				-- if there isn't available width for the control start a new row
 				-- if a control is "fill" it will be on a row of its own full width
@@ -502,6 +646,9 @@ AceGUI:RegisterLayout("Flow",
 					rowheight = frameheight
 					rowoffset = frameoffset
 					usedwidth = frame.width or frame:GetWidth()
+					if usedwidth > width then
+						oversize = true
+					end
 				-- put the control on the current row, adding it to the width and checking if the height needs to be increased
 				else
 					--handles cases where the new height is higher than either control because of the offsets
@@ -530,6 +677,10 @@ AceGUI:RegisterLayout("Flow",
 				rowheight = frame.height or frame:GetHeight() or 0
 				rowoffset = child.alignoffset or (rowheight / 2)
 				rowstartoffset = rowoffset
+			elseif oversize then
+				if width > 1 then
+					frame:SetPoint("RIGHT",content,"RIGHT",0,0)
+				end
 			end
 			
 			if child.height == "fill" then

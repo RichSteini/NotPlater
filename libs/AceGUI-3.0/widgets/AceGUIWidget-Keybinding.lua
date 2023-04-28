@@ -3,9 +3,12 @@ local AceGUI = LibStub("AceGUI-3.0")
 --------------------------
 -- Keybinding  		    --
 --------------------------
+
+local WotLK = select(4, GetBuildInfo()) >= 30000
+
 do
 	local Type = "Keybinding"
-	local Version = 6
+	local Version = 10
 
 	local ControlBackdrop  = {
 		bgFile = "Interface\\Tooltips\\UI-Tooltip-Background",
@@ -42,6 +45,7 @@ do
 				self.waitingForKey = true
 			end
 		end
+		AceGUI:ClearFocus()
 	end
 
 	local ignoreKeys = nil
@@ -72,14 +76,15 @@ do
 				end
 			end
 	
-			if not self.disabled then
-				self:Fire("OnKeyChanged",keyPressed)
-			end
-	
 			this:EnableKeyboard(false)
 			self.msgframe:Hide()
 			this:UnlockHighlight()
-			self.waitingForKey = nil
+			self.waitingForKey = nil	
+			
+			if not self.disabled then
+				self:SetKey(keyPressed)
+				self:Fire("OnKeyChanged",keyPressed)
+			end
 		end
 	end
 	
@@ -96,10 +101,12 @@ do
 		Keybinding_OnKeyDown(this, button)
 	end
 	
-	local function Acquire(self)
+	local function OnAcquire(self)
+		self:SetLabel("")
+		self:SetKey("")
 	end
 	
-	local function Release(self)
+	local function OnRelease(self)
 		self.frame:ClearAllPoints()
 		self.frame:Hide()
 		self.waitingForKey = nil
@@ -118,22 +125,43 @@ do
 	end
 	
 	local function SetKey(self, key)
-		self.button:SetText(key or "")
+		if (key or "") == "" then
+			self.button:SetText(NOT_BOUND)
+			if WotLK then
+				self.button:SetNormalFontObject("GameFontNormal")
+			else
+				self.button:SetTextFontObject("GameFontNormal")
+			end
+		else
+			self.button:SetText(key)
+			if WotLK then
+				self.button:SetNormalFontObject("GameFontHighlight")
+			else
+				self.button:SetTextFontObject("GameFontHighlight")
+			end
+		end
 	end
 	
 	local function SetLabel(self, label)
 		self.label:SetText(label or "")
+		if (label or "") == "" then
+			self.alignoffset = nil
+			self:SetHeight(24)
+		else
+			self.alignoffset = 30
+			self:SetHeight(44)
+		end
 	end
 
-	local count = 0
 	local function Constructor()
-		count = count + 1
+		local num  = AceGUI:GetNextWidgetNum(Type)
 		local frame = CreateFrame("Frame",nil,UIParent)
 		
-		local button = CreateFrame("Button","AceGUI-3.0 KeybindingButton"..count,frame,"UIPanelButtonTemplate2")
+		local button = CreateFrame("Button","AceGUI-3.0 KeybindingButton"..num,frame,"UIPanelButtonTemplate2")
 		
 		local self = {}
 		self.type = Type
+		self.num = num
 
 		local text = button:GetFontString()
 		text:SetPoint("LEFT",button,"LEFT",7,0)
@@ -181,8 +209,8 @@ do
 		msgframe:SetPoint("BOTTOM",button,"TOP",0,0)
 		msgframe:Hide()
 	
-		self.Release = Release
-		self.Acquire = Acquire
+		self.OnRelease = OnRelease
+		self.OnAcquire = OnAcquire
 		self.SetLabel = SetLabel
 		self.SetDisabled = SetDisabled
 		self.SetKey = SetKey

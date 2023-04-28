@@ -24,12 +24,15 @@ local AceGUI = LibStub("AceGUI-3.0")
 
 ]]
 
+local WotLK = select(4, GetBuildInfo()) >= 30000
+
 --------------------------
 -- Tab Group            --
 --------------------------
+
 do
 	local Type = "TabGroup"
-	local Version = 4
+	local Version = 15
 
 	local PaneBackdrop  = {
 		bgFile = "Interface\\ChatFrame\\ChatFrameBackground",
@@ -38,47 +41,37 @@ do
 		insets = { left = 3, right = 3, top = 5, bottom = 3 }
 	}
 	
-	local function Acquire(self)
+	local function OnAcquire(self)
 
 	end
 	
-	local function Release(self)
+	local function OnRelease(self)
 		self.frame:ClearAllPoints()
 		self.frame:Hide()
 		self.status = nil
 		for k in pairs(self.localstatus) do
 			self.localstatus[k] = nil
 		end
-	end
-	
-	local function Tab_FixWidth(self)
-		self:SetScript("OnUpdate",nil)
-		self:SetWidth(self.text:GetWidth()+20)
+		self.tablist = nil
 	end
 	
 	local function Tab_SetText(self, text)
-		self.text:SetText(text)
-		self:SetScript("OnUpdate",Tab_FixWidth)
+		self:_SetText(text)
+		-- TODO: Remove when 3.0 hits live
+		if WotLK then
+			PanelTemplates_TabResize(self, 0)
+		else
+			PanelTemplates_TabResize(0, self)
+		end
 	end
 	
 	local function UpdateTabLook(self)
-		if self.selected then
-			self.left:SetAlpha(1)
-			self.right:SetAlpha(1)
-			self.middle:SetAlpha(1)
-			self.text:SetTextColor(1,1,1)
-			self:GetHighlightTexture():Hide()
-		else
-			self.left:SetAlpha(0.5)
-			self.right:SetAlpha(0.5)
-			self.middle:SetAlpha(0.5)
-			self.text:SetTextColor(1,0.82,0)
-			self:GetHighlightTexture():Show()
-		end
-		
 		if self.disabled then
-			self.text:SetTextColor(0.5,0.5,0.5)
-			self:GetHighlightTexture():Hide()
+			PanelTemplates_SetDisabledTabState(self)
+		elseif self.selected then
+			PanelTemplates_SelectTab(self)
+		else
+			PanelTemplates_DeselectTab(self)
 		end
 	end
 	
@@ -98,57 +91,30 @@ do
 		UpdateTabLook(self)
 	end
 	
+	local function Tab_OnEnter(this)
+		local self = this.obj
+		self:Fire("OnTabEnter", self.tabs[this.id].value, this)
+	end
+	
+	local function Tab_OnLeave(this)
+		local self = this.obj
+		self:Fire("OnTabLeave", self.tabs[this.id].value, this)
+	end
+	
 	local function CreateTab(self, id)
-		local tab = CreateFrame("Button",nil,self.border)
+		local tabname = "AceGUITabGroup"..self.num.."Tab"..id
+		local tab = CreateFrame("Button",tabname,self.border,"OptionsFrameTabButtonTemplate")
 		tab.obj = self
 		tab.id = id
-		tab:SetWidth(64)
-		tab:SetHeight(32)
 		
 		tab:SetScript("OnClick",Tab_OnClick)
+		tab:SetScript("OnEnter",Tab_OnEnter)
+		tab:SetScript("OnLeave",Tab_OnLeave)
 		
-		tab:SetHighlightTexture("Interface\\PaperDollInfoFrame\\UI-Character-Tab-Highlight")
-		tab:GetHighlightTexture():SetBlendMode("ADD")
-		tab:GetHighlightTexture():SetPoint("TOPLEFT",tab,"TOPLEFT",2,-7)
-		tab:GetHighlightTexture():SetPoint("BOTTOMRIGHT",tab,"BOTTOMRIGHT",-2,-3)
-		local left = tab:CreateTexture(nil,"BACKGROUND")
-		local middle = tab:CreateTexture(nil,"BACKGROUND")
-		local right = tab:CreateTexture(nil,"BACKGROUND")
-		local text = tab:CreateFontString(nil,"BACKGROUND","GameFontNormalSmall")
-		
-		tab.text = text
-		tab.left = left
-		tab.right = right
-		tab.middle = middle
+		tab._SetText = tab.SetText
 		tab.SetText = Tab_SetText
 		tab.SetSelected = Tab_SetSelected
 		tab.SetDisabled = Tab_SetDisabled
-		
-		text:SetPoint("LEFT",tab,"LEFT",5,-4)
-		text:SetPoint("RIGHT",tab,"RIGHT",-5,-4)
-		text:SetHeight(18)
-		text:SetText("")
-		
-		left:SetTexture("Interface\\ChatFrame\\ChatFrameTab")
-		middle:SetTexture("Interface\\ChatFrame\\ChatFrameTab")
-		right:SetTexture("Interface\\ChatFrame\\ChatFrameTab")
-		
-		left:SetWidth(16)
-		left:SetHeight(32)
-		middle:SetWidth(44)
-		middle:SetHeight(32)
-		right:SetWidth(16)
-		right:SetHeight(32)
-		
-		left:SetTexCoord(0,0.25,0,1)
-		middle:SetTexCoord(0.25,0.75,0,1)
-		right:SetTexCoord(0.75,1,0,1)
-		
-		left:SetPoint("TOPLEFT",tab,"TOPLEFT",0,0)
-		right:SetPoint("TOPRIGHT",tab,"TOPRIGHT",0,0)
-		
-		middle:SetPoint("LEFT",left,"RIGHT",0,0)
-		middle:SetPoint("RIGHT",right,"LEFT",0,0)
 		
 		return tab
 	end
@@ -186,34 +152,116 @@ do
 		self:BuildTabs()
 	end
 	
+
+	local widths = {}
+	local rowwidths = {}
+	local rowends = {}		
 	local function BuildTabs(self)
 		local status = self.status or self.localstatus
 		local tablist = self.tablist
-
+		
 		local tabs = self.tabs
 		
 		for i, v in ipairs(tabs) do
 			v:Hide()
 		end
+		if not tablist then return end
+
+		
+		local width = self.frame.width or self.frame:GetWidth() or 0
+		
+		for i = #widths, 1, -1 do 
+			widths[i] = nil 
+		end
+		for i = #rowwidths, 1, -1 do
+			rowwidths[i] = nil 
+		end
+		for i = #rowends, 1, -1 do 
+			rowends[i] = nil 
+		end
+		
+		--Place Text into tabs and get thier initial width
 		for i, v in ipairs(tablist) do
 			local tab = tabs[i]
 			if not tab then
 				tab = self:CreateTab(i)
 				tabs[i] = tab
-				if i == 1 then
-					tab:SetPoint("BOTTOMLEFT",self.border,"TOPLEFT",0,-3)
-				else
-					tab:SetPoint("LEFT",tabs[i-1],"RIGHT",-3,0)
-				end					
 			end
+		
 			tab:Show()
 			tab:SetText(v.text)
 			tab:SetDisabled(v.disabled)
 			tab.value = v.value
+			
+			widths[i] = tab:GetWidth() - 10 --tabs are anchored 10 pixels from the right side of the previous one to reduce spacing
 		end
-		if #tablist > 1 then
-			self:SelectTab(status.selected or tablist[1].value)
+		
+		--First pass, find the minimum number of rows needed to hold all tabs and the initial tab layout
+		local numtabs = #tablist
+		local numrows = 1
+		local usedwidth = 0
+
+		for i = 1, #tablist do
+			--If this is not the first tab of a row and there isn't room for it
+			if usedwidth ~= 0 and (width - usedwidth - widths[i]) < 0 then
+				rowwidths[numrows] = usedwidth + 10 --first tab in each row takes up an extra 10px
+				rowends[numrows] = i - 1
+				numrows = numrows + 1
+				usedwidth = 0		
+			end
+			usedwidth = usedwidth + widths[i]
 		end
+		rowwidths[numrows] = usedwidth + 10 --first tab in each row takes up an extra 10px
+		rowends[numrows] = #tablist
+		
+		--Fix for single tabs being left on the last row, move a tab from the row above if applicable
+		if numrows > 1 then
+			--if the last row has only one tab
+			if rowends[numrows-1] == numtabs-1 then
+				--if there are more than 2 tabs in the 2nd last row
+				if (numrows == 2 and rowends[numrows-1] > 2) or (rowends[numrows] - rowends[numrows-1] > 2) then
+					--move 1 tab from the second last row to the last
+					rowends[numrows-1] = rowends[numrows-1] - 1
+					rowwidths[numrows] = rowwidths[numrows] + widths[numtabs-1]
+					rowwidths[numrows-1] = rowwidths[numrows-1] - widths[numtabs-1]
+				end
+			end
+		end
+
+		--anchor the rows as defined and resize tabs to fill thier row
+		local starttab = 1
+		for row, endtab in ipairs(rowends) do
+			local first = true
+			for tabno = starttab, endtab do
+				local tab = tabs[tabno]
+				tab:ClearAllPoints()
+				if first then
+					tab:SetPoint("TOPLEFT",self.frame,"TOPLEFT",0,-7-(row-1)*20 )
+					first = false
+				else
+					tab:SetPoint("LEFT",tabs[tabno-1],"RIGHT",-10,0)
+				end
+			end
+			--equal padding for each tab to fill the available width
+			local padding = (width - rowwidths[row]) / (endtab - starttab+1)
+			for i = starttab, endtab do
+				-- TODO: Remove when 3.0 hits live
+				if WotLK then
+					PanelTemplates_TabResize(tabs[i], padding)
+				else
+					PanelTemplates_TabResize(padding, tabs[i])
+				end
+			end	
+			starttab = endtab + 1
+		end
+		
+		self.borderoffset = 10+((numrows)*20)
+		self.border:SetPoint("TOPLEFT",self.frame,"TOPLEFT",3,-self.borderoffset)
+	end
+	
+	local function BuildTabsOnUpdate(this)
+		BuildTabs(this.obj)
+		this:SetScript("OnUpdate", nil)
 	end
 	
 	local function OnWidthSet(self, width)
@@ -224,29 +272,32 @@ do
 		end
 		content:SetWidth(contentwidth)
 		content.width = contentwidth
+		BuildTabs(self)
+		self.frame:SetScript("OnUpdate", BuildTabsOnUpdate)
 	end
 	
 	
 	local function OnHeightSet(self, height)
 		local content = self.content
-		local contentheight = height - 26
+		local contentheight = height - (self.borderoffset + 23)
 		if contentheight < 0 then
 			contentheight = 0
 		end
 		content:SetHeight(contentheight)
 		content.height = contentheight
 	end
-	
 
 	local function Constructor()
 		local frame = CreateFrame("Frame",nil,UIParent)
 		local self = {}
 		self.type = Type
+		
+		self.num = AceGUI:GetNextWidgetNum(Type)
 
 		self.localstatus = {}
 		
-		self.Release = Release
-		self.Acquire = Acquire
+		self.OnRelease = OnRelease
+		self.OnAcquire = OnAcquire
 		self.SetTitle = SetTitle
 		self.CreateTab = CreateTab
 		self.SelectTab = SelectTab
@@ -274,7 +325,8 @@ do
 		
 		local border = CreateFrame("Frame",nil,frame)
 		self.border = border
-		border:SetPoint("TOPLEFT",frame,"TOPLEFT",3,-37)
+		self.borderoffset = 27
+		border:SetPoint("TOPLEFT",frame,"TOPLEFT",3,-27)
 		border:SetPoint("BOTTOMRIGHT",frame,"BOTTOMRIGHT",-3,3)
 		
 		border:SetBackdrop(PaneBackdrop)

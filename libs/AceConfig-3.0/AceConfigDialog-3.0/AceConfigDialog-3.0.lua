@@ -3,7 +3,7 @@ AceConfigDialog-3.0
 
 ]]
 local LibStub = LibStub
-local MAJOR, MINOR = "AceConfigDialog-3.0", 17
+local MAJOR, MINOR = "AceConfigDialog-3.0", 25
 local lib = LibStub:NewLibrary(MAJOR, MINOR)
 
 if not lib then return end
@@ -11,6 +11,9 @@ if not lib then return end
 lib.OpenFrames = lib.OpenFrames or {}
 lib.Status = lib.Status or {}
 lib.frame = lib.frame or CreateFrame("Frame")
+
+lib.frame.apps = lib.frame.apps or {}
+lib.frame.closing = lib.frame.closing or {}
 
 local gui = LibStub("AceGUI-3.0")
 local reg = LibStub("AceConfigRegistry-3.0")
@@ -37,6 +40,13 @@ local xpcall = xpcall
 local function errorhandler(err)
 	return geterrorhandler()(err)
 end
+
+local function wipe(t)
+	for k,v in pairs(t) do
+		table.remove(t, k)
+	end
+end
+
 
 local function CreateDispatcher(argCount)
 	local code = [[
@@ -226,6 +236,7 @@ local function GetOptionsMemberValue(membername, option, options, path, appName,
 		end
 		
 		info.options = options
+		info.appName = appName
 		info[0] = appName
 		info.arg = option.arg
 		info.handler = handler
@@ -383,33 +394,36 @@ local function DelTree(tree)
 end
 
 local function CleanUserData(widget, event)
-	local user = widget.userdata
+	
+	local user = widget:GetUserDataTable()
 
 	if user.path then
 		del(user.path)
 	end
 
 	if widget.type == "TreeGroup" then
-		local tree = widget.tree
+		local tree = user.tree
+		widget:SetTree(nil)
 		if tree then
 			for i = 1, #tree do
 				DelTree(tree[i])
 				del(tree[i])
 			end
 			del(tree)
-			widget.tree = nil
 		end
 	end
 
 	if widget.type == "TabGroup" then
-		del(widget.tablist)
-		widget.tablist = nil
+		widget:SetTabs(nil)
+		if user.tablist then
+			del(user.tablist)
+		end
 	end
 
 	if widget.type == "DropdownGroup" then
-		if widget.dropdown.list then
-			del(widget.dropdown.list)
-			widget.dropdown.list = nil
+		widget:SetGroupList(nil)
+		if user.grouplist then
+			del(user.grouplist)
 		end
 	end
 end
@@ -443,9 +457,76 @@ function lib:GetStatusTable(appName, path)
 	return status.status
 end
 
+--[[
+	Sets the given path to be selected
+]]
+function lib:SelectGroup(appName, ...)
+	local path = new()
+
+	
+	local app = reg:GetOptionsTable(appName)
+	if not app then
+		error(("%s isn't registed with AceConfigRegistry, unable to open config"):format(appName), 2)
+	end
+	local options = app("dialog", MAJOR)
+	local group = options
+	local status = self:GetStatusTable(appName, path)
+	if not status.groups then
+		status.groups = {}
+	end
+	status = status.groups
+	local treevalue 
+	local treestatus 
+	
+	for n = 1, select('#',...) do
+		local key = select(n, ...)
+
+		if group.childGroups == "tab" or group.childGroups == "select" then
+			--if this is a tab or select group, select the group
+			status.selected = key
+			--children of this group are no longer extra levels of a tree
+			treevalue = nil
+		else
+			--tree group by default
+			if treevalue then
+				--this is an extra level of a tree group, build a uniquevalue for it
+				treevalue = treevalue.."\001"..key
+			else
+				--this is the top level of a tree group, the uniquevalue is the same as the key
+				treevalue = key
+				if not status.groups then
+					status.groups = {}
+				end
+				--save this trees status table for any extra levels or groups
+				treestatus = status
+			end
+			--make sure that the tree entry is open, and select it.
+			--the selected group will be overwritten if a child is the final target but still needs to be open
+			treestatus.selected = treevalue
+			treestatus.groups[treevalue] = true
+			
+		end
+		
+		--move to the next group in the path
+		group = GetSubOption(group, key)
+		if not group then 
+			break
+		end
+		tinsert(path, key)
+		status = self:GetStatusTable(appName, path)
+		if not status.groups then
+			status.groups = {}
+		end
+		status = status.groups
+	end
+	
+	del(path)
+	reg:NotifyChange(appName)
+end	
+
 local function OptionOnMouseOver(widget, event)
 	--show a tooltip/set the status bar to the desc text
-	local user = widget.userdata
+	local user = widget:GetUserDataTable()
 	local opt = user.option
 	local options = user.options
 	local path = user.path
@@ -483,7 +564,7 @@ local function GetFuncName(option)
 		return 'set'
 	end
 end
-local function confirmPopup(appName, rootframe, info, message, func, ...)
+local function confirmPopup(appName, rootframe, basepath, info, message, func, ...)
 	if not StaticPopupDialogs["ACECONFIGDIALOG30_CONFIRM_DIALOG"] then
 		StaticPopupDialogs["ACECONFIGDIALOG30_CONFIRM_DIALOG"] = {}
 	end
@@ -500,7 +581,7 @@ local function confirmPopup(appName, rootframe, info, message, func, ...)
 		if dialog and oldstrata then
 			dialog:SetFrameStrata(oldstrata)
 		end
-		lib:Open(appName, rootframe)
+		lib:Open(appName, rootframe, basepath and unpack(basepath))
 		del(info)
 	end
 	t.OnCancel = function()
@@ -525,8 +606,8 @@ end
 
 local function ActivateControl(widget, event, ...)
 	--This function will call the set / execute handler for the widget
-	--widget.userdata contains the needed info
-	local user = widget.userdata
+	--widget:GetUserDataTable() contains the needed info
+	local user = widget:GetUserDataTable()
 	local option = user.option
 	local options = user.options
 	local path = user.path
@@ -563,7 +644,7 @@ local function ActivateControl(widget, event, ...)
 	end
 
 	info.options = options
-	info[0] = user.appName
+	info.appName = user.appName
 	info.arg = option.arg
 	info.handler = handler
 	info.option = option
@@ -638,7 +719,7 @@ local function ActivateControl(widget, event, ...)
 		--call confirm func/method
 		if type(confirm) == "string" then
 			if handler and handler[confirm] then
-				success, confirm = safecall(handler[confirm],handler, info)
+				success, confirm = safecall(handler[confirm], handler, info, ...)
 				if success and type(confirm) == "string" then
 					confirmText = confirm
 					confirm = true
@@ -649,7 +730,7 @@ local function ActivateControl(widget, event, ...)
 				error(string.format("Method %s doesn't exist in handler for type confirm", confirm))
 			end
 		elseif type(confirm) == "function" then
-			success, confirm = safecall(confirm,info)
+			success, confirm = safecall(confirm, info, ...)
 			if success and type(confirm) == "string" then
 				confirmText = confirm
 				confirm = true
@@ -675,19 +756,21 @@ local function ActivateControl(widget, event, ...)
 					end
 				end
 				
-				local iscustom = user.rootframe.userdata.iscustom
+				local iscustom = user.rootframe:GetUserData('iscustom')
 				local rootframe
+				
 				if iscustom then
 					rootframe = user.rootframe
 				end
+				local basepath = user.rootframe:GetUserData('basepath')
 				if type(func) == "string" then
 					if handler and handler[func] then
-						confirmPopup(user.appName, rootframe, info, confirmText, handler[func], handler, info, ...)
+						confirmPopup(user.appName, rootframe, basepath, info, confirmText, handler[func], handler, info, ...)
 					else
 						error(string.format("Method %s doesn't exist in handler for type func", func))
 					end
 				elseif type(func) == "function" then
-					confirmPopup(user.appName, rootframe, info, confirmText, func, info, ...)
+					confirmPopup(user.appName, rootframe, basepath, info, confirmText, func, info, ...)
 				end
 				--func will be called and info deleted when the confirm dialog is responded to
 				return
@@ -707,29 +790,34 @@ local function ActivateControl(widget, event, ...)
 
 
 
-		local iscustom = user.rootframe.userdata.iscustom
+		local iscustom = user.rootframe:GetUserData('iscustom')
+		local basepath = user.rootframe:GetUserData('basepath')
 		--full refresh of the frame, some controls dont cause this on all events
 		if option.type == "color" then
 			if event == "OnValueConfirmed" then
+				
 				if iscustom then
-					lib:Open(user.appName, user.rootframe)
+					lib:Open(user.appName, user.rootframe, basepath and unpack(basepath))
 				else
-					lib:Open(user.appName)
+					lib:Open(user.appName, basepath and unpack(basepath))
 				end
 			end
 		elseif option.type == "range" then
 			if event == "OnMouseUp" then
 				if iscustom then
-					lib:Open(user.appName, user.rootframe)
+					lib:Open(user.appName, user.rootframe, basepath and unpack(basepath))
 				else
-					lib:Open(user.appName)
+					lib:Open(user.appName, basepath and unpack(basepath))
 				end
 			end
+		--multiselects don't cause a refresh on 'OnValueChanged' only 'OnClosed'
+		elseif option.type == "multiselect" then
+			user.valuechanged = true
 		else
 			if iscustom then
-				lib:Open(user.appName, user.rootframe)
+				lib:Open(user.appName, user.rootframe, basepath and unpack(basepath))
 			else
-				lib:Open(user.appName)
+				lib:Open(user.appName, basepath and unpack(basepath))
 			end
 		end
 
@@ -738,7 +826,7 @@ local function ActivateControl(widget, event, ...)
 end
 
 local function ActivateSlider(widget, event, value)
-	local option = widget.userdata.option
+	local option = widget:GetUserData('option')
 	local min, max, step = option.min or 0, option.max or 100, option.step
 	if step then
 		value = math.floor((value - min) / step + 0.5) * step + min
@@ -748,12 +836,35 @@ local function ActivateSlider(widget, event, value)
 	ActivateControl(widget,event,value)
 end
 
+--called from a checkbox that is part of an internally created multiselect group
+--this type is safe to refresh on activation of one control
 local function ActivateMultiControl(widget, event, ...)
-	ActivateControl(widget, event, widget.userdata.value, ...)
+	ActivateControl(widget, event, widget:GetUserData('value'), ...)
+	local user = widget:GetUserDataTable()
+	local iscustom = user.rootframe:GetUserData('iscustom')
+	local basepath = user.rootframe:GetUserData('basepath')
+	if iscustom then
+		lib:Open(user.appName, user.rootframe, basepath and unpack(basepath))
+	else
+		lib:Open(user.appName, basepath and unpack(basepath))
+	end
+end
+
+local function MultiControlOnClosed(widget, event, ...)
+	local user = widget:GetUserDataTable()
+	if user.valuechanged then
+		local iscustom = user.rootframe:GetUserData('iscustom')
+		local basepath = user.rootframe:GetUserData('basepath')
+		if iscustom then
+			lib:Open(user.appName, user.rootframe, basepath and unpack(basepath))
+		else
+			lib:Open(user.appName, basepath and unpack(basepath))
+		end
+	end
 end
 
 local function FrameOnClose(widget, event)
-	local appName = widget.userdata.appName
+	local appName = widget:GetUserData('appName')
 	lib.OpenFrames[appName] = nil
 	gui:Release(widget)
 end
@@ -899,7 +1010,7 @@ local function BuildGroups(group, options, path, appName, recurse)
 end
 
 local function InjectInfo(control, options, option, path, rootframe, appName)
-	local user = control.userdata
+	local user = control:GetUserDataTable()
 	for i = 1, #path do
 		user[i] = path[i]
 	end
@@ -1022,22 +1133,51 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 
 				elseif v.type == "multiselect" then
 					local values = GetOptionsMemberValue("values", v, options, path, appName)
-					
-					control = gui:Create("InlineGroup")
-					control:SetLayout("Flow")
-					control:SetTitle(name)
-					control.width = "fill"
-
-					local valuesort = new()
-
 					local disabled = CheckOptionDisabled(v, options, path, appName)
-
+					
+					local controlType = v.dialogControl or v.control
+					
+					local valuesort = new()
 					if values then
 						for value, text in pairs(values) do
 							tinsert(valuesort, value)
 						end
+					end
+					table.sort(valuesort)	
+						
+					if controlType then
+						control = gui:Create(controlType)
+						if not control then
+							error(("Invalid Custom Control Type - %s"):format(tostring(controlType)))
+						end
+						control:SetMultiselect(true)
+						control:SetLabel(name)
+						control:SetList(values)
+						control:SetDisabled(disabled)
+						control:SetCallback("OnValueChanged",ActivateControl)
+						control:SetCallback("OnClosed", MultiControlOnClosed)
+						local width = GetOptionsMemberValue("width",v,options,path,appName)
+						if width == "double" then
+							control:SetWidth(width_multiplier * 2)
+						elseif width == "half" then
+							control:SetWidth(width_multiplier / 2)
+						elseif width == "full" then
+							control.width = "fill"
+						else
+							control:SetWidth(width_multiplier)
+						end
+						--check:SetTriState(v.tristate)
+						for i = 1, #valuesort do
+							local key = valuesort[i]
+							local value = GetOptionsMemberValue("get",v, options, path, appName, key)
+							control:SetItemValue(key,value)
+						end
+					else
+						control = gui:Create("InlineGroup")
+						control:SetLayout("Flow")
+						control:SetTitle(name)
+						control.width = "fill"
 
-						table.sort(valuesort)
 						control:PauseLayout()
 						local width = GetOptionsMemberValue("width",v,options,path,appName)
 						for i = 1, #valuesort do
@@ -1045,8 +1185,8 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 							local text = values[value]
 							local check = gui:Create("CheckBox")
 							check:SetLabel(text)
-							check.userdata.value = value
-							check.userdata.text = text
+							check:SetUserData('value', value)
+							check:SetUserData('text', text)
 							check:SetDisabled(disabled)
 							check:SetTriState(v.tristate)
 							check:SetValue(GetOptionsMemberValue("get",v, options, path, appName, value))
@@ -1065,7 +1205,10 @@ local function FeedOptions(appName, options,container,rootframe,path,group,inlin
 						end
 						control:ResumeLayout()
 						control:DoLayout()
+
+						
 					end
+					
 					del(valuesort)
 
 				elseif v.type == "color" then
@@ -1156,6 +1299,51 @@ local function BuildPath(path, ...)
 	end
 end
 
+
+local function TreeOnButtonEnter(widget, event, uniquevalue, button)
+	local user = widget:GetUserDataTable()
+	if not user then return end
+	local options = user.options
+	local option = user.option
+	local path = user.path
+	local appName = user.appName
+	
+	local feedpath = new()
+	for i = 1, #path do
+		feedpath[i] = path[i]
+	end
+
+	BuildPath(feedpath, string.split("\001", uniquevalue))
+	local group = options
+	for i = 1, #feedpath do
+		if not group then return end
+		group = GetSubOption(group, feedpath[i])
+	end
+
+	local name = GetOptionsMemberValue("name", group, options, feedpath, appName)
+	local desc = GetOptionsMemberValue("desc", group, options, feedpath, appName)
+	
+	GameTooltip:SetOwner(button, "ANCHOR_NONE")
+	if widget.type == "TabGroup" then
+		GameTooltip:SetPoint("BOTTOM",button,"TOP")	
+	else
+		GameTooltip:SetPoint("LEFT",button,"RIGHT")	
+	end
+
+	GameTooltip:SetText(name, 1, .82, 0, 1)
+	
+	if type(desc) == "string" then
+		GameTooltip:AddLine(desc, 1, 1, 1, 1)
+	end
+	
+	GameTooltip:Show()
+end
+
+local function TreeOnButtonLeave(widget, event, value, button)
+	GameTooltip:Hide()
+end
+
+
 local function GroupExists(appName, options, path, uniquevalue)
 	if not uniquevalue then return false end
 	
@@ -1186,7 +1374,7 @@ end
 
 local function GroupSelected(widget, event, uniquevalue)
 
-	local user = widget.userdata
+	local user = widget:GetUserDataTable()
 
 	local options = user.options
 	local option = user.option
@@ -1203,13 +1391,11 @@ local function GroupSelected(widget, event, uniquevalue)
 	for i = 1, #feedpath do
 		group = GetSubOption(group, feedpath[i])
 	end
-
 	widget:ReleaseChildren()
-	lib:FeedGroup(user.appName,options,widget,rootframe,feedpath,group)
+	lib:FeedGroup(user.appName,options,widget,rootframe,feedpath)
 
 	del(feedpath)
 end
-
 
 
 
@@ -1228,7 +1414,7 @@ Rules:
 		if its parent is a tree group, its already a node on a tree
 --]]
 
-function lib:FeedGroup(appName,options,container,rootframe,path)
+function lib:FeedGroup(appName,options,container,rootframe,path, isRoot)
 	local group = options
 	--follow the path to get to the curent group
 	local inline
@@ -1272,7 +1458,7 @@ function lib:FeedGroup(appName,options,container,rootframe,path)
 	local scroll
 
 	--Add a scrollframe if we are not going to add a group control, this is the inverse of the conditions for that later on
-	if (not (hasChildGroups and not inline)) or (grouptype ~= "tab" and grouptype ~= "select" and parenttype == "tree") then
+	if (not (hasChildGroups and not inline)) or (grouptype ~= "tab" and grouptype ~= "select" and (parenttype == "tree" and not isRoot)) then
 		if container.type ~= "InlineGroup" then
 			scroll = gui:Create("ScrollFrame")
 			scroll:SetLayout("flow")
@@ -1302,6 +1488,9 @@ function lib:FeedGroup(appName,options,container,rootframe,path)
 			local tab = gui:Create("TabGroup")
 			InjectInfo(tab, options, group, path, rootframe, appName)
 			tab:SetCallback("OnGroupSelected", GroupSelected)
+			tab:SetCallback("OnTabEnter", TreeOnButtonEnter)
+			tab:SetCallback("OnTabLeave", TreeOnButtonLeave)
+			
 			local status = lib:GetStatusTable(appName, path)
 			if not status.groups then
 				status.groups = {}
@@ -1312,6 +1501,7 @@ function lib:FeedGroup(appName,options,container,rootframe,path)
 
 			local tabs = BuildGroups(group, options, path, appName)
 			tab:SetTabs(tabs)
+			tab:SetUserData("tablist", tabs)
 
 			for i = 1, #tabs do
 				local entry = tabs[i]
@@ -1335,6 +1525,7 @@ function lib:FeedGroup(appName,options,container,rootframe,path)
 			select:SetStatusTable(status.groups)
 			local grouplist = BuildSelect(group, options, path, appName)
 			select:SetGroupList(grouplist)
+			select:SetUserData("grouplist", grouplist)
 			local firstgroup
 			for k, v in pairs(grouplist) do
 				if not firstgroup or k < firstgroup then
@@ -1343,7 +1534,7 @@ function lib:FeedGroup(appName,options,container,rootframe,path)
 			end
 			
 			if firstgroup then
-				select:SetGroup( (GroupExists(appName, options, path,status.groups.selectedgroup) and status.groups.selectedgroup) or firstgroup)
+				select:SetGroup( (GroupExists(appName, options, path,status.groups.selected) and status.groups.selected) or firstgroup)
 			end
 			
 			select.width = "fill"
@@ -1353,16 +1544,18 @@ function lib:FeedGroup(appName,options,container,rootframe,path)
 
 		--assume tree group by default
 		--if parenttype is tree then this group is already a node on that tree
-		elseif parenttype ~= "tree" then
-
+		elseif (parenttype ~= "tree") or isRoot then
 			local tree = gui:Create("TreeGroup")
 			InjectInfo(tree, options, group, path, rootframe, appName)
-
+			tree:EnableButtonTooltips(false)
+			
 			tree.width = "fill"
 			tree.height = "fill"
 
 			tree:SetCallback("OnGroupSelected", GroupSelected)
-
+			tree:SetCallback("OnButtonEnter", TreeOnButtonEnter)
+			tree:SetCallback("OnButtonLeave", TreeOnButtonLeave)
+			
 			local status = lib:GetStatusTable(appName, path)
 			if not status.groups then
 				status.groups = {}
@@ -1371,6 +1564,7 @@ function lib:FeedGroup(appName,options,container,rootframe,path)
 			tree:SetStatusTable(status.groups)
 
 			tree:SetTree(treedefinition)
+			tree:SetUserData("tree",treedefinition)
 
 			for i = 1, #treedefinition do
 				local entry = treedefinition[i]
@@ -1387,31 +1581,32 @@ end
 
 local old_CloseSpecialWindows
 
-function lib:CloseAll()
-	local closed
-	for k, v in pairs(self.OpenFrames) do
-		v:Hide()
-		closed = true
-	end
-	return closed
-end
-
-function lib:Close(appName)
-	if self.OpenFrames[appName] then
-		self.OpenFrames[appName]:Hide()
-		return true
-	end
-end
 
 local function RefreshOnUpdate(this)
+	for appName in pairs(this.closing) do
+		if lib.OpenFrames[appName] then
+			lib.OpenFrames[appName]:Hide()
+		end
+		this.closing[appName] = nil
+	end
+	
+	if this.closeAll then
+		for k, v in pairs(lib.OpenFrames) do
+			v:Hide()
+		end
+		this.closeAll = nil
+	end
+	
 	for appName in pairs(this.apps) do
 		if lib.OpenFrames[appName] then
-			lib:Open(appName)
+			local user = lib.OpenFrames[appName]:GetUserDataTable()
+			lib:Open(appName, user.basepath and unpack(user.basepath))
 		end
 		if lib.BlizOptions and lib.BlizOptions[appName] then
 			local widget = lib.BlizOptions[appName]
-			if widget.frame:IsVisible() then
-				lib:Open(widget.userdata.appName, widget)
+			local user = widget:GetUserDataTable()
+			if widget:IsVisible() then
+				lib:Open(widget:GetUserData('appName'), widget, user.basepath and unpack(user.basepath))
 			end
 		end
 		this.apps[appName] = nil
@@ -1419,10 +1614,23 @@ local function RefreshOnUpdate(this)
 	this:SetScript("OnUpdate", nil)
 end
 
-function lib:ConfigTableChanged(event, appName)
-	if not lib.frame.apps then
-		lib.frame.apps = {}
+function lib:CloseAll()
+	lib.frame.closeAll = true
+	lib.frame:SetScript("OnUpdate", RefreshOnUpdate)
+	if next(self.OpenFrames) then
+		return true
 	end
+end
+
+function lib:Close(appName)
+	if self.OpenFrames[appName] then
+		lib.frame.closing[appName] = true
+		lib.frame:SetScript("OnUpdate", RefreshOnUpdate)
+		return true
+	end
+end
+
+function lib:ConfigTableChanged(event, appName)
 	lib.frame.apps[appName] = true
 	lib.frame:SetScript("OnUpdate", RefreshOnUpdate)
 end
@@ -1437,7 +1645,8 @@ function lib:SetDefaultSize(appName, width, height)
 	end
 end
 
-function lib:Open(appName, container)
+-- :Open(appName, [container], [path ...])
+function lib:Open(appName, container, ...)
 	if not old_CloseSpecialWindows then
 		old_CloseSpecialWindows = CloseSpecialWindows
 		CloseSpecialWindows = function()
@@ -1456,14 +1665,24 @@ function lib:Open(appName, container)
 	local path = new()
 	local name = GetOptionsMemberValue("name", options, options, path, appName)
 	
+	--If an optional path is specified add it to the path table before feeding the options
+	--as container is optional as well it may contain the first element of the path
+	if type(container) == "string" then
+		tinsert(path, container)
+		container = nil
+	end
+	for n = 1, select('#',...) do
+		tinsert(path, (select(n, ...)))
+	end
+	
 	--if a container is given feed into that
 	if container then
 		f = container
 		f:ReleaseChildren()
-		f.userdata.appName = appName
-		f.userdata.iscustom = true
-		if f.SetTitle then
-			f:SetTitle(name or "")
+		f:SetUserData('appName', appName)
+		f:SetUserData('iscustom', true)
+		if #path > 0 then
+			f:SetUserData('basepath', copy(path))
 		end
 		local status = lib:GetStatusTable(appName)
 		if not status.width then
@@ -1484,13 +1703,16 @@ function lib:Open(appName, container)
 		end
 		f:ReleaseChildren()
 		f:SetCallback("OnClose", FrameOnClose)
-		f.userdata.appName = appName
+		f:SetUserData('appName', appName)
+		if #path > 0 then
+			f:SetUserData('basepath', copy(path))
+		end
 		f:SetTitle(name or "")
 		local status = lib:GetStatusTable(appName)
 		f:SetStatusTable(status)
 	end
 
-	self:FeedGroup(appName,options,f,f,path)
+	self:FeedGroup(appName,options,f,f,path,true)
 	if f.Show then
 		f:Show()
 	end
@@ -1500,26 +1722,41 @@ end
 lib.BlizOptions = lib.BlizOptions or {}
 
 local function FeedToBlizPanel(widget, event)
-	lib:Open(widget.userdata.appName, widget)
+	local path = widget:GetUserData('path')
+	lib:Open(widget:GetUserData('appName'), widget, path and unpack(path))
 end
 
 local function ClearBlizPanel(widget, event)
 	widget:ReleaseChildren()
 end
 
-function lib:AddToBlizOptions(appName, name, parent)
+function lib:AddToBlizOptions(appName, name, parent, ...)
 	local BlizOptions = lib.BlizOptions
-	if not BlizOptions[appName] then
+	
+	local key = appName
+	for n = 1, select('#', ...) do
+		key = key..'\001'..select(n, ...)
+	end
+	
+	if not BlizOptions[key] then
 		local group = gui:Create("BlizOptionsGroup")
-		BlizOptions[appName] = group
+		BlizOptions[key] = group
 		group:SetName(name or appName, parent)
+
 		group:SetTitle(name or appName)
-		group.userdata.appName = appName
+		group:SetUserData('appName', appName)
+		if select('#', ...) > 0 then
+			local path = {}
+			for n = 1, select('#',...) do
+				tinsert(path, (select(n, ...)))
+			end
+			group:SetUserData('path', path)
+		end
 		group:SetCallback("OnShow", FeedToBlizPanel)
 		group:SetCallback("OnHide", ClearBlizPanel)
 		InterfaceOptions_AddCategory(group.frame)
 		return group.frame
 	else
-		error(("%s has already been added to the Blizzard Options Window"):format(appName), 2)
+		error(("%s has already been added to the Blizzard Options Window with the given path"):format(appName), 2)
 	end
 end

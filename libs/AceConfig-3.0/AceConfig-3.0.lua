@@ -1,4 +1,4 @@
---[[ $Id: AceConfig-3.0.lua 60131 2008-02-03 13:03:56Z nevcairiel $ ]]
+--[[ $Id: AceConfig-3.0.lua 494 2008-02-03 13:03:56Z nevcairiel $ ]]
 --[[
 AceConfig-3.0
 
@@ -26,6 +26,12 @@ local cfgdlg = LibStub("AceConfigDialog-3.0")
 -- - appName - (string) application name
 -- - options - table or function ref, see AceConfigRegistry
 -- - slashcmd - slash command (string) or table with commands, or nil to NOT create a slash command
+
+local function wipe(t)
+	for k,v in pairs(t) do
+		table.remove(t, k)
+	end
+end
 
 function lib:RegisterOptionsTable(appName, options, slashcmd)
 	local ok,msg = pcall(cfgreg.RegisterOptionsTable, self, appName, options)

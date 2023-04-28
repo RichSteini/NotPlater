@@ -1,4 +1,4 @@
---[[ $Id: AceBucket-3.0.lua 610 2008-03-26 08:52:07Z nevcairiel $ ]]
+--[[ $Id: AceBucket-3.0.lua 609 2008-03-26 08:48:54Z nevcairiel $ ]]
 
 --[[
 	This Bucket implementation works as follows:

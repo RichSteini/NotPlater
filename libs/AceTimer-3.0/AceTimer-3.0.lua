@@ -1,4 +1,4 @@
---[[ $Id: AceTimer-3.0.lua 652 2008-05-21 08:20:50Z nevcairiel $ ]]
+--[[ $Id: AceTimer-3.0.lua 639 2008-05-16 08:49:42Z ammo $ ]]
 --[[
 	Basic assumptions:
 	* In a typical system, we do more re-scheduling per second than there are timer pulses per second
