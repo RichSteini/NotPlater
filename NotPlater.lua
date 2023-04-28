@@ -4,8 +4,8 @@ NotPlater = LibStub("AceAddon-3.0"):NewAddon("NotPlater", "AceEvent-3.0", "AceHo
 local frames = {}
 local SML
 
-local party = {}
-local raid = {}
+local party
+local raid
 local lastThreat = {}
 
 local targetCheckElapsed = 0
@@ -213,10 +213,10 @@ function NotPlater:OnInitialize()
 	self.revision = tonumber(string.match("$Revision$", "(%d+)") or 1)
 
 	self:PARTY_MEMBERS_CHANGED()
-	self:RAID_ROSTER_CHANGED()
+	self:RAID_ROSTER_UPDATE()
 	
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED")
-	self:RegisterEvent("RAID_ROSTER_CHANGED")
+	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	SML = LibStub:GetLibrary("LibSharedMedia-3.0")
 end
 
@@ -263,7 +263,7 @@ function NotPlater:ThreatCheck(health, healthValue)
 	local level = levelText:GetText()
 	local _, healthMaxValue = health:GetMinMaxValues()
 	if UnitInParty("party1") or UnitInRaid("player") then
-		local group = UnitInRaid("player") and raid or party
+		local group = raid or party
 		for gMember,unitID in pairs(group) do
 			local targetString = unitID .. "-target"
 			local unit = UnitGUID(targetString)
@@ -274,14 +274,14 @@ function NotPlater:ThreatCheck(health, healthValue)
 				end
 			end
 		end
-		unit = health.lastUnitMatch
+		local unit = health.lastUnitMatch
 		if unit then
 			local player = UnitGUID("player")
 			local playerThreat = Threat:GetThreat(player, unit)
 			local playerThreatNumber = 1
 			local highestThreat, highestThreatMember = Threat:GetMaxThreatOnTarget(unit)
 			local secondHighestThreat = 0
-			if playerThreat ~=0 then
+			if highestThreat and highestThreat > 0 then
 				for gMember,_ in pairs(group) do
 					local gMemberThreat = Threat:GetThreat(gMember, unit)
 					if gMemberThreat then
@@ -650,17 +650,17 @@ function NotPlater:PrepareFrame(frame)
 	self:ThreatCheck(health, health:GetValue())
 end
 
-function NotPlater:RAID_ROSTER_CHANGED()
-	raid = {}
+function NotPlater:RAID_ROSTER_UPDATE()
+	raid = nil
 	if UnitInRaid("player") then
+		raid = {}
 		local raidNum = GetNumRaidMembers()
 		local i = 1
 		while raidNum > 0 and i <= MAX_RAID_MEMBERS do
 			if GetRaidRosterInfo(i) then
 				local guid = UnitGUID("raid" .. i)
-				if guid ~= UnitGUID("player") then
-					raid[guid] = "raid" .. i
-				end
+				raid[guid] = "raid" .. i
+
 				local pet = UnitGUID("raidpet" .. i)
 				if pet then
 					party[pet] = "raidpet" .. i
@@ -673,10 +673,11 @@ function NotPlater:RAID_ROSTER_CHANGED()
 end
 
 function NotPlater:PARTY_MEMBERS_CHANGED()
-	party = {}
+	party = nil
 	if UnitInParty("party1") then
 		local partyNum = GetNumPartyMembers()
 		local i = 1
+		party = {}
 		while partyNum > 0 and i < MAX_PARTY_MEMBERS do
 			if GetPartyMember(i) then
 				party[UnitGUID("party" .. i)] = "party" .. i
