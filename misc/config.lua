@@ -912,6 +912,13 @@ local function loadOptions()
 				inline = false,
 				name = L["General"],
 				args = {
+					enabled = {
+						order = 0,
+						type = "toggle",
+						name = L["Enabled"],
+						width = "full",
+						arg = "castBar.enabled",
+					},
 					texture = {
 						order = 1,
 						type = "select",
@@ -919,8 +926,17 @@ local function loadOptions()
 						values = "GetTextures",
 						arg = "castBar.texture",
 					},
-					backgroundColor = {
+					barColor = {
 						order = 2,
+						type = "color",
+						name = L["Bar color"],
+						hasAlpha = true,
+						set = setColor,
+						get = getColor,
+						arg = "castBar.barColor",
+					},
+					backgroundColor = {
+						order = 3,
 						type = "color",
 						name = L["Background color"],
 						hasAlpha = true,
@@ -929,7 +945,7 @@ local function loadOptions()
 						arg = "castBar.backgroundColor",
 					},
 					position = {
-						order = 2,
+						order = 4,
 						type = "group",
 						inline = true,
 						name = L["Positioning / Scaling"],
@@ -1723,23 +1739,8 @@ register:SetScript("OnShow", function(self)
 	dialog:SetDefaultSize("NotPlater-Bliz", 830, 600)
 	dialog:AddToBlizOptions("NotPlater-Bliz", "NotPlater")
 
-	config:RegisterOptionsTable("NotPlater-Profile", options.args.profile)
-	dialog:AddToBlizOptions("NotPlater-Profile", options.args.profile.name, "NotPlater")
-
 	config:RegisterOptionsTable("NotPlater-General", options.args.general)
 	dialog:AddToBlizOptions("NotPlater-General", options.args.general.name, "NotPlater")
-
-	config:RegisterOptionsTable("NotPlater-BossIcon", options.args.bossIcon)
-	dialog:AddToBlizOptions("NotPlater-BossIcon", options.args.bossIcon.name, "NotPlater")
-
-	config:RegisterOptionsTable("NotPlater-RaidIcon", options.args.raidIcon)
-	dialog:AddToBlizOptions("NotPlater-RaidIcon", options.args.raidIcon.name, "NotPlater")
-
-	config:RegisterOptionsTable("NotPlater-NameText", options.args.nameText)
-	dialog:AddToBlizOptions("NotPlater-NameText", options.args.nameText.name, "NotPlater")
-
-	config:RegisterOptionsTable("NotPlater-LevelText", options.args.levelText)
-	dialog:AddToBlizOptions("NotPlater-LevelText", options.args.levelText.name, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-Threat", options.args.threat)
 	dialog:AddToBlizOptions("NotPlater-Threat", options.args.threat.name, "NotPlater")
@@ -1749,4 +1750,19 @@ register:SetScript("OnShow", function(self)
 
 	config:RegisterOptionsTable("NotPlater-CastBar", options.args.castBar)
 	dialog:AddToBlizOptions("NotPlater-CastBar", options.args.castBar.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-NameText", options.args.nameText)
+	dialog:AddToBlizOptions("NotPlater-NameText", options.args.nameText.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-LevelText", options.args.levelText)
+	dialog:AddToBlizOptions("NotPlater-LevelText", options.args.levelText.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-RaidIcon", options.args.raidIcon)
+	dialog:AddToBlizOptions("NotPlater-RaidIcon", options.args.raidIcon.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-BossIcon", options.args.bossIcon)
+	dialog:AddToBlizOptions("NotPlater-BossIcon", options.args.bossIcon.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-Profile", options.args.profile)
+	dialog:AddToBlizOptions("NotPlater-Profile", options.args.profile.name, "NotPlater")
 end)

@@ -1,4 +1,4 @@
-if( GetLocale() ~= "deDE" ) then
+if GetLocale() ~= "itIT" then
 	return
 end
 
