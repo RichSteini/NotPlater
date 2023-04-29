@@ -32,6 +32,14 @@ The picture above shows all the threat features that are available. They can be 
 
 The image above shows the settings that are available for the addon. You can either access them over the Interface -> AddOns option or with the slash commands /np or /notplater. All features that have been described are adjustable in the settings dialog.
 
+
+## Addon folder structure
+
+Rename the downloaded folder to "NotPlater" (remove "-versionnumber" from the folder name) and put the folder in:\
+..\Interface\AddOns\
+..\Interface\AddOns\NotPlater
+
+
 ## Acknowledgements
 
 - As already mentioned, the design is based on the Plater addon that some might know from retail WoW. 
