@@ -59,6 +59,7 @@ function NotPlater:ConfigureHealthBar(healthFrame)
 	-- Set health text
 	healthFrame.npHealthText:ClearAllPoints()
 	healthFrame.npHealthText:SetPoint(healthBarConfig.healthText.anchor, healthFrame, healthBarConfig.healthText.xOffset, healthBarConfig.healthText.yOffset)
+	self:SetupFontString(healthFrame.npHealthText, healthBarConfig.healthText, true)
 
 	-- Set background
 	healthFrame.npHealthBackground:SetAllPoints(healthFrame)
@@ -79,7 +80,6 @@ function NotPlater:ConstructHealthBar(healthFrame)
 
     -- Create health text
     healthFrame.npHealthText = healthFrame:CreateFontString(nil, "ARTWORK")
-	self:SetupFontString(healthFrame.npHealthText, healthBarConfig.healthText, true)
     
     -- Hook to set health text
 	self:HookScript(healthFrame, "OnValueChanged", "HealthOnValueChanged")

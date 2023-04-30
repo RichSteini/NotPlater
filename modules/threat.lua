@@ -61,8 +61,130 @@ function NotPlater:PARTY_MEMBERS_CHANGED()
 	end
 end
 
-function NotPlater:ThreatCheck(health)
+function NotPlater:OnNameplateMatch(health, group)
 	local threatProfile = self.db.profile.threat
+	local unit = health.lastUnitMatch
+	local player = UnitGUID("player")
+	local playerThreat = Threat:GetThreat(player, unit)
+	local playerThreatNumber = 1
+	local highestThreat, highestThreatMember = Threat:GetMaxThreatOnTarget(unit)
+	local secondHighestThreat = 0
+	if highestThreat and highestThreat > 0 then
+		for gMember,_ in pairs(group) do
+			local gMemberThreat = Threat:GetThreat(gMember, unit)
+			if gMemberThreat then
+				if gMemberThreat ~= highestThreat and gMemberThreat > secondHighestThreat then
+					secondHighestThreat = gMemberThreat
+				end
+
+				if gMemberThreat > playerThreat then
+					playerThreatNumber = playerThreatNumber + 1
+				end
+			end
+		end
+
+		if threatProfile.nameplateColors.enabled or threatProfile.threatDifferentialText.enabled then
+			local nameplateColorsConfig = threatProfile.nameplateColors
+			local threatDiffColorsConfig = threatProfile.threatDifferentialText
+			local statusBarColor = nil
+			local threatDiffColor = nil
+			if threatProfile.general.mode == "hdps" then
+				if highestThreat == playerThreat then
+					statusBarColor = nameplateColorsConfig.dpsHealerAggroOnYou
+					threatDiffColor = threatDiffColorsConfig.dpsHealerAggroOnYou
+				elseif lastThreat[unit] and highestThreat - (playerThreat + 3*(playerThreat - lastThreat[unit])) < 0 then
+					statusBarColor = nameplateColorsConfig.dpsHealerHighThreat
+					threatDiffColor = threatDiffColorsConfig.dpsHealerHighThreat
+				else
+					statusBarColor = nameplateColorsConfig.dpsHealerDefaultNoAggro
+					threatDiffColor = threatDiffColorsConfig.dpsHealerDefaultNoAggro
+				end
+			else -- "tank"
+				if highestThreat == playerThreat then
+					if lastThreat[unit] and playerThreat + 3*(playerThreat - lastThreat[unit]) - secondHighestThreat < 0 then
+						statusBarColor = nameplateColorsConfig.tankDpsClose
+						threatDiffColor = threatDiffColorsConfig.tankDpsClose
+					else
+						statusBarColor = nameplateColorsConfig.tankAggroOnYou
+						threatDiffColor = threatDiffColorsConfig.tankAggroOnYou
+					end
+				else
+					statusBarColor = nameplateColorsConfig.tankNoAggro
+					threatDiffColor = threatDiffColorsConfig.tankNoAggro
+				end
+			end
+
+			if threatProfile.nameplateColors.enabled then
+				health:SetStatusBarColor(self:GetColor(statusBarColor))
+			end
+
+			if threatProfile.threatDifferentialText.enabled then
+				local threatDiff = 0
+				if highestThreat == playerThreat then
+					threatDiff = playerThreat - secondHighestThreat
+				else
+					threatDiff = highestThreat - playerThreat
+				end
+
+				health.threatDifferentialText:SetTextColor(self:GetColor(threatDiffColor))
+				if threatDiff < 1000 then
+					health.threatDifferentialText:SetText(string.format("%.0f", threatDiff))
+				else
+					threatDiff = threatDiff / 1000
+					health.threatDifferentialText:SetText(string.format("%.1f", threatDiff) .. "k")
+				end
+			else
+				health.threatDifferentialText:SetText("")
+			end
+		end
+
+		if threatProfile.threatNumberText.enabled then
+			local colorsConfig = threatProfile.threatNumberText
+			local threatNumberColor = nil
+			if threatProfile.general.mode == "hdps" then
+				if playerThreatNumber == 1 then
+					threatNumberColor = colorsConfig.dpsHealerFirstOnThreat
+				elseif playerThreatNumber / (tgetn(group) - 1) < 0.2 then
+					threatNumberColor = colorsConfig.dpsHealerUpperTwentyPercentOnThreat
+				else
+					threatNumberColor = colorsConfig.dpsHealerLowerEightyPercentOnThreat
+				end
+			else -- "tank"
+				if playerThreatNumber == 1 then
+					threatNumberColor = colorsConfig.tankFirstOnThreat
+				elseif playerThreatNumber / (tgetn(group) - 1) < 0.2 then
+					threatNumberColor = colorsConfig.tankUpperTwentyPercentOnThreat
+				else
+					threatNumberColor = colorsConfig.tankLowerEightyPercentOnThreat
+				end
+			end
+			health.threatNumberText:SetTextColor(self:GetColor(threatNumberColor))
+			health.threatNumberText:SetText(tostring(playerThreatNumber))
+		else
+			health.threatNumberText:SetText("")
+		end
+
+		lastThreat[unit] = playerThreat
+	end
+end
+
+function NotPlater:MouseoverThreatCheck(health, guid)
+	local threatProfile = self.db.profile.threat
+	if UnitInParty("party1") or UnitInRaid("player") then
+		health.lastUnitMatch = guid
+		local group = self.raid or self.party
+		self:OnNameplateMatch(health, group)
+	else
+		local nameplateColorsConfig = threatProfile.nameplateColors
+		if threatProfile.general.mode == "hdps" then
+			health:SetStatusBarColor(self:GetColor(nameplateColorsConfig.dpsHealerDefaultNoAggro))
+		else
+			health:SetStatusBarColor(self:GetColor(nameplateColorsConfig.tankAggroOnYou))
+		end
+	end
+end
+
+function NotPlater:ThreatCheck(health)
 	local frame = health:GetParent()
 	local _, _, _, _, nameText, levelText = frame:GetRegions()
 	local name = nameText:GetText()
@@ -74,131 +196,29 @@ function NotPlater:ThreatCheck(health)
 		for gMember,unitID in pairs(group) do
 			local targetString = unitID .. "-target"
 			local unit = UnitGUID(targetString)
-			if UnitCanAttack("player", targetString) and not UnitIsDeadOrGhost(targetString) and UnitAffectingCombat(targetString) and UnitAffectingCombat(unitID) then
+			if UnitCanAttack("player", targetString) and not UnitIsDeadOrGhost(targetString) and UnitAffectingCombat(targetString) then
 				if name == UnitName(targetString) and level == tostring(UnitLevel(targetString)) and healthValue == UnitHealth(targetString) and healthValue ~= healthMaxValue then
 					health.lastUnitMatch = unit
 					break
 				end
 			end
 		end
-		local unit = health.lastUnitMatch
-		if unit then
-			local player = UnitGUID("player")
-			local playerThreat = Threat:GetThreat(player, unit)
-			local playerThreatNumber = 1
-			local highestThreat, highestThreatMember = Threat:GetMaxThreatOnTarget(unit)
-			local secondHighestThreat = 0
-			if highestThreat and highestThreat > 0 then
-				for gMember,_ in pairs(group) do
-					local gMemberThreat = Threat:GetThreat(gMember, unit)
-					if gMemberThreat then
-						if gMemberThreat ~= highestThreat and gMemberThreat > secondHighestThreat then
-							secondHighestThreat = gMemberThreat
-						end
-
-						if gMemberThreat > playerThreat then
-							playerThreatNumber = playerThreatNumber + 1
-						end
-					end
-				end
-
-				if threatProfile.nameplateColors.enabled or threatProfile.threatDifferentialText.enabled then
-					local nameplateColorsConfig = threatProfile.nameplateColors
-					local threatDiffColorsConfig = threatProfile.threatDifferentialText
-					local statusBarColor = nil
-					local threatDiffColor = nil
-					if threatProfile.mode == "hdps" then
-						if highestThreat == playerThreat then
-							statusBarColor = nameplateColorsConfig.dpsHealerAggroOnYou
-							threatDiffColor = threatDiffColorsConfig.dpsHealerAggroOnYou
-						elseif lastThreat[unit] and highestThreat - (playerThreat + 3*(playerThreat - lastThreat[unit])) < 0 then
-							statusBarColor = nameplateColorsConfig.dpsHealerHighThreat
-							threatDiffColor = threatDiffColorsConfig.dpsHealerHighThreat
-						else
-							statusBarColor = nameplateColorsConfig.dpsHealerDefaultNoAggro
-							threatDiffColor = threatDiffColorsConfig.dpsHealerDefaultNoAggro
-						end
-					else -- "tank"
-						if highestThreat == playerThreat then
-							if lastThreat[unit] and playerThreat + 3*(playerThreat - lastThreat[unit]) - secondHighestThreat < 0 then
-								statusBarColor = nameplateColorsConfig.tankDpsClose
-								threatDiffColor = threatDiffColorsConfig.tankDpsClose
-							else
-								statusBarColor = nameplateColorsConfig.tankAggroOnYou
-								threatDiffColor = threatDiffColorsConfig.tankAggroOnYou
-							end
-						else
-							statusBarColor = nameplateColorsConfig.tankNoAggro
-							threatDiffColor = threatDiffColorsConfig.tankNoAggro
-						end
-					end
-
-					if threatProfile.nameplateColors.enabled then
-						health:SetStatusBarColor(self:GetColor(statusBarColor))
-					end
-
-					if threatProfile.threatDifferentialText.enabled then
-						local threatDiff = 0
-						if highestThreat == playerThreat then
-							threatDiff = playerThreat - secondHighestThreat
-						else
-							threatDiff = highestThreat - playerThreat
-						end
-
-						health.threatDifferentialText:SetTextColor(self:GetColor(threatDiffColor))
-						if threatDiff < 1000 then
-							health.threatDifferentialText:SetText(string.format("%.0f", threatDiff))
-						else
-							threatDiff = threatDiff / 1000
-							health.threatDifferentialText:SetText(string.format("%.1f", threatDiff) .. "k")
-						end
-					else
-						health.threatDifferentialText:SetText("")
-					end
-				end
-
-				if threatProfile.threatNumberText.enabled then
-					local colorsConfig = threatProfile.threatNumberText
-					local threatNumberColor = nil
-					if threatProfile.mode == "hdps" then
-						if playerThreatNumber == 1 then
-							threatNumberColor = colorsConfig.dpsHealerFirstOnThreat
-						elseif playerThreatNumber / (tgetn(group) - 1) < 0.2 then
-							threatNumberColor = colorsConfig.dpsHealerUpperTwentyPercentOnThreat
-						else
-							threatNumberColor = colorsConfig.dpsHealerLowerEightyPercentOnThreat
-						end
-					else -- "tank"
-						if playerThreatNumber == 1 then
-							threatNumberColor = colorsConfig.tankFirstOnThreat
-						elseif playerThreatNumber / (tgetn(group) - 1) < 0.2 then
-							threatNumberColor = colorsConfig.tankUpperTwentyPercentOnThreat
-						else
-							threatNumberColor = colorsConfig.tankLowerEightyPercentOnThreat
-						end
-					end
-					health.threatNumberText:SetTextColor(self:GetColor(threatNumberColor))
-					health.threatNumberText:SetText(tostring(playerThreatNumber))
-				else
-					health.threatNumberText:SetText("")
-				end
-
-				lastThreat[unit] = playerThreat
-			end
+		if health.lastUnitMatch then
+			self:OnNameplateMatch(health, group)
 		else
 			health.threatNumberText:SetText("")
 			health.threatDifferentialText:SetText("")
-			health.lastUnitMatch = nil
 		end
 	else -- Not in party
-		if UnitAffectingCombat("player") then
+		local threatProfile = self.db.profile.threat
+		if UnitCanAttack("player", "target") and not UnitIsDeadOrGhost("target") and UnitAffectingCombat("target") then
 			if threatProfile.nameplateColors.enabled then
 				local nameplateColorsConfig = threatProfile.nameplateColors
-				if name == UnitName("target") and level == tostring(UnitLevel("target")) and healthValue == UnitHealth("target") then
-					if threatProfile.mode == "hdps" then
-						health:SetStatusBarColor(nameplateColorsConfig.dpsHealerDefaultNoAggro.r, nameplateColorsConfig.dpsHealerDefaultNoAggro.g, nameplateColorsConfig.dpsHealerDefaultNoAggro.b, nameplateColorsConfig.dpsHealerDefaultNoAggro.a)
+				if name == UnitName("target") and level == tostring(UnitLevel("target")) and healthValue == UnitHealth("target") and healthValue ~= healthMaxValue then
+					if threatProfile.general.mode == "hdps" then
+						health:SetStatusBarColor(self:GetColor(nameplateColorsConfig.dpsHealerDefaultNoAggro))
 					else
-						health:SetStatusBarColor(nameplateColorsConfig.tankAggroOnYou.r, nameplateColorsConfig.tankAggroOnYou.g, nameplateColorsConfig.tankAggroOnYou.b, nameplateColorsConfig.tankAggroOnYou.a)
+						health:SetStatusBarColor(self:GetColor(nameplateColorsConfig.tankAggroOnYou))
 					end
 				end
 			end
@@ -209,6 +229,7 @@ end
 function NotPlater:ThreatComponentsOnShow(healthFrame)
 	healthFrame.threatDifferentialText:SetText("")
 	healthFrame.threatNumberText:SetText("")
+	healthFrame.lastUnitMatch = nil
 	self:ThreatCheck(healthFrame)
 end
 

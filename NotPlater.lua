@@ -25,8 +25,12 @@ function NotPlater:OnInitialize()
 				}
 			},
 			threat = 
-			{ 
-				mode = "hdps",
+			{
+				general = 
+				{
+					mode = "hdps",
+					enableMouseoverUpdate = true
+				},
 				nameplateColors =
 				{
 					enabled = true,
@@ -292,8 +296,39 @@ function NotPlater:Reload()
 		self:UnregisterCastBarEvents(NotPlater.frame)
 	end
 
+	if self.db.profile.threat.general.enableMouseoverUpdate then
+		self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
+	else
+		self:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
+	end
+
 	for frame in pairs(frames) do
 		self:PrepareFrame(frame)
+	end
+end
+
+function NotPlater:UPDATE_MOUSEOVER_UNIT()
+	local mouseOverGuid = UnitGUID("mouseover")
+	if UnitCanAttack("player", "mouseover") and not UnitIsDeadOrGhost("mouseover") and UnitAffectingCombat("mouseover") then
+		local targetGuid = UnitGUID("target")
+		for frame in pairs(frames) do
+			if mouseOverGuid == targetGuid then
+				if self:IsTarget(frame) then
+					local health = frame:GetChildren()
+					self:MouseoverThreatCheck(health, targetGuid)
+				end
+			else
+				local health = frame:GetChildren()
+				local _, _, _, _, nameText, levelText = frame:GetRegions()
+				local name = nameText:GetText()
+				local level = levelText:GetText()
+				local _, healthMaxValue = health:GetMinMaxValues()
+				local healthValue = health:GetValue()
+				if name == UnitName("mouseover") and level == tostring(UnitLevel("mouseover")) and healthValue == UnitHealth("mouseover") and healthValue ~= healthMaxValue then
+					self:MouseoverThreatCheck(health, mouseOverGuid)
+				end
+			end
+		end
 	end
 end
 

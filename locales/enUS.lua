@@ -9,6 +9,8 @@ NotPlaterLocals = {
 	
 	-- GUI
 	["Enabled"] = "Enabled",
+	["Enable mouseover nameplate threat update"] = "Enable mouseover nameplate threat update",
+	["Mouseover update interval"] = "Mouseover update interval",
 	["General"] = "General",
 	["Position"] = "Position",
 	["Bars"] = "Bars",
