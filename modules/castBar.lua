@@ -211,6 +211,9 @@ function NotPlater:ConfigureCastBar(frame)
 	-- Set point for castbar
 	self:CastBarOnShow(frame)
 	castFrame:SetFrameLevel(frame:GetFrameLevel() + 1)
+
+    -- Set statusbar texture
+    castFrame:SetStatusBarTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, castBarConfig.texture))
 	castFrame:SetStatusBarColor(self:GetColor(castBarConfig.barColor))
 
 	-- Set castbar icon
@@ -220,7 +223,9 @@ function NotPlater:ConfigureCastBar(frame)
 	castFrame.npCastIcon:SetAlpha(castBarConfig.castSpellIcon.opacity)
 
     -- Set background color
-	castFrame.npCastBackground:SetTexture(castBarConfig.backgroundColor.r, castBarConfig.backgroundColor.g, castBarConfig.backgroundColor.b, castBarConfig.backgroundColor.a)
+	castFrame.npCastBackground:ClearAllPoints()
+	castFrame.npCastBackground:SetAllPoints(castFrame)
+	castFrame.npCastBackground:SetTexture(self:GetColor(castBarConfig.backgroundColor))
 
     -- Set cast text
 	castFrame.npCastTimeText:ClearAllPoints()
@@ -237,9 +242,6 @@ function NotPlater:ConstructCastBar(frame)
 	local castFrame = CreateFrame("StatusBar", "$parentCastBar", frame)
 	castFrame:SetScript("OnUpdate", NotPlater.CastBarOnUpdate)
 
-    -- Set statusbar texture
-    castFrame:SetStatusBarTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, castBarConfig.texture))
-
     -- Create the icon
 	castFrame.npCastIcon = CreateFrame("Frame", nil, castFrame)
 	castFrame.npCastIcon.texture = castFrame.npCastIcon:CreateTexture(nil, "BORDER")
@@ -252,9 +254,7 @@ function NotPlater:ConstructCastBar(frame)
     castFrame.npCastNameText = castFrame:CreateFontString(nil, "ARTWORK")
 
     -- Create and set background
-	castFrame.npCastBackground = castFrame:CreateTexture(nil, 'ARTWORK')
-	castFrame.npCastBackground:SetDrawLayer("BORDER")
-	castFrame.npCastBackground:SetAllPoints(castFrame)
+	castFrame.npCastBackground = castFrame:CreateTexture(nil, 'BORDER')
 
 	frame.npCastBar = castFrame
 	castFrame:Hide()

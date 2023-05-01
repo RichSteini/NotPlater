@@ -9,8 +9,15 @@ NotPlaterLocals = {
 	
 	-- GUI
 	["Enabled"] = "Enabled",
+	["Font"] = "Font",
+	["Enable bar"] = "Enable bar",
+	["Enable border"] = "Enable border",
+	["Border thickness"] = "Border thickness",
+	["Statusbar"] = "Statusbar",
+	["Border color"] = "Border color",
 	["Enable mouseover nameplate threat update"] = "Enable mouseover nameplate threat update",
 	["Mouseover update interval"] = "Mouseover update interval",
+	["Threat % statusbar/text"] = "Threat % statusbar/text",
 	["General"] = "General",
 	["Position"] = "Position",
 	["Bars"] = "Bars",
@@ -49,6 +56,7 @@ NotPlaterLocals = {
 	["Opacity"] = "Opacity",
 	["Hide target border"] = "Hide target border",
 	["Hide border"] = "Hide border",
+	["Border"] = "Border",
 	["Set the anker for the healthbar."] = "Set the anker for the healthbar.",
 	["Raid icon"] = "Raid icon",
 	["Boss icon"] = "Boss icon",
@@ -73,6 +81,10 @@ NotPlaterLocals = {
 	["Frame Strata"] = "Frame Strata",
 	["Frame"] = "Frame",
 	["Target Frame"] = "Target Frame",
+	["100%"] = "100%",
+	["Above 90%"] = "Above 90%",
+	["Below 90%"] = "Below 90%",
+	["Use threat colors"] = "Use threat colors",
 	["Note: All settings here only work out of combat."] = "Note: All settings here only work out of combat.",
 
 	

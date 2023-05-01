@@ -3,6 +3,8 @@ if( not NotPlater ) then return end
 local Threat = LibStub("Threat-2.0")
 
 local tgetn = table.getn
+local tostring = tostring
+local UnitGUID = UnitGUID
 local UnitInRaid = UnitInRaid
 local GetRaidRosterInfo = GetRaidRosterInfo
 local UnitInParty = UnitInParty
@@ -128,13 +130,55 @@ function NotPlater:OnNameplateMatch(health, group)
 
 				health.threatDifferentialText:SetTextColor(self:GetColor(threatDiffColor))
 				if threatDiff < 1000 then
-					health.threatDifferentialText:SetText(string.format("%.0f", threatDiff))
+					health.threatDifferentialText:SetFormattedText("%.0f", threatDiff)
 				else
 					threatDiff = threatDiff / 1000
-					health.threatDifferentialText:SetText(string.format("%.1f", threatDiff) .. "k")
+					health.threatDifferentialText:SetFormattedText("%.1fk", threatDiff)
 				end
 			else
 				health.threatDifferentialText:SetText("")
+			end
+		end
+
+		if threatProfile.threatPercentBarText.fontEnabled or threatProfile.threatPercentBarText.barEnabled then
+			local threatPercent = playerThreat/highestThreat * 100
+			local threatPercentColor
+			if threatProfile.general.mode == "hdps" then
+				if threatPercent >= 100 then
+					threatPercentColor = threatProfile.threatPercentBarText.dpsHealerOneHundredPercent
+				elseif threatPercent >= 90 then
+					threatPercentColor = threatProfile.threatPercentBarText.dpsHealerAboveNinetyPercent
+				else
+					threatPercentColor = threatProfile.threatPercentBarText.dpsHealerBelowNinetyPercent
+				end
+			else -- "tank"
+				if threatPercent >= 100 then
+					threatPercentColor = threatProfile.threatPercentBarText.tankOneHundredPercent
+				elseif threatPercent >= 90 then
+					threatPercentColor = threatProfile.threatPercentBarText.tankAboveNinetyPercent
+				else
+					threatPercentColor = threatProfile.threatPercentBarText.tankBelowNinetyPercent
+				end
+			end
+
+			if threatProfile.threatPercentBarText.barEnabled then
+				health.threatPercentBar:SetValue(threatPercent)
+				health.threatPercentBar:Show()
+				if threatProfile.threatPercentBarText.barBorderEnabled then
+					health.threatPercentBar.border:Show()
+				else
+					health.threatPercentBar.border:Hide()
+				end
+				if threatProfile.threatPercentBarText.barUseThreatColors then
+					health.threatPercentBar:SetStatusBarColor(self:GetColor(threatPercentColor))
+				end
+			end
+
+			if threatProfile.threatPercentBarText.fontEnabled then
+				health.threatPercentText:SetFormattedText("%d%%", threatPercent)
+				if threatProfile.threatPercentBarText.fontUseThreatColors then
+					health.threatPercentText:SetTextColor(self:GetColor(threatPercentColor))
+				end
 			end
 		end
 
@@ -229,6 +273,8 @@ end
 function NotPlater:ThreatComponentsOnShow(healthFrame)
 	healthFrame.threatDifferentialText:SetText("")
 	healthFrame.threatNumberText:SetText("")
+	healthFrame.threatPercentText:SetText("")
+	healthFrame.threatPercentBar:Hide()
 	healthFrame.lastUnitMatch = nil
 	self:ThreatCheck(healthFrame)
 end
@@ -247,11 +293,43 @@ function NotPlater:ConfigureThreatComponents(healthFrame)
 	healthFrame.threatDifferentialText:SetText("")
 	healthFrame.threatNumberText:SetText("")
 
+	-- Set percent bar
+	healthFrame.threatPercentBar:ClearAllPoints()
+	self:SetSize(healthFrame.threatPercentBar, threatConfig.threatPercentBarText.barXSize, threatConfig.threatPercentBarText.barYSize)
+	healthFrame.threatPercentBar:SetPoint(threatConfig.threatPercentBarText.barAnchor, healthFrame, threatConfig.threatPercentBarText.barXOffset, threatConfig.threatPercentBarText.barYOffset)
+    healthFrame.threatPercentBar.border:ClearAllPoints()
+    healthFrame.threatPercentBar.border:SetAllPoints(healthFrame.threatPercentBar)
+    healthFrame.threatPercentBar.border:SetBackdrop({bgFile="Interface\\BUTTONS\\WHITE8X8", edgeFile="Interface\\BUTTONS\\WHITE8X8", tileSize=16, tile=true, edgeSize=threatConfig.threatPercentBarText.barBorderThickness})
+    healthFrame.threatPercentBar.border:SetBackdropColor(0, 0, 0, 0)
+    healthFrame.threatPercentBar.border:SetBackdropBorderColor(self:GetColor(threatConfig.threatPercentBarText.barBorderColor))
+    healthFrame.threatPercentBar:SetStatusBarTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, threatConfig.threatPercentBarText.barTexture))
+	healthFrame.threatPercentBar:SetStatusBarColor(self:GetColor(threatConfig.threatPercentBarText.barColor))
+	healthFrame.threatPercentBar.background:ClearAllPoints()
+	healthFrame.threatPercentBar.background:SetAllPoints(healthFrame.threatPercentBar)
+	healthFrame.threatPercentBar.background:SetTexture(self:GetColor(threatConfig.threatPercentBarText.barBackgroundColor))
+	healthFrame.threatPercentBar:Hide()
+
+	-- Set percent text
+	self:SetupFontString(healthFrame.threatPercentText, threatConfig.threatPercentBarText)
+	healthFrame.threatPercentText:ClearAllPoints()
+	healthFrame.threatPercentText:SetPoint(threatConfig.threatPercentBarText.fontAnchor, healthFrame.threatPercentBar, threatConfig.threatPercentBarText.fontXOffset, threatConfig.threatPercentBarText.fontYOffset)
+	healthFrame.threatPercentText:SetTextColor(self:GetColor(threatConfig.threatPercentBarText.fontColor))
+	healthFrame.threatPercentText:SetText("")
+
 	self:ThreatCheck(healthFrame)
 end
 
 function NotPlater:ConstructThreatComponents(healthFrame)
+	healthFrame:SetFrameLevel(healthFrame:GetParent():GetFrameLevel() + 1)
     -- Create threat text
     healthFrame.threatDifferentialText = healthFrame:CreateFontString(nil, "ARTWORK")
     healthFrame.threatNumberText = healthFrame:CreateFontString(nil, "ARTWORK")
+	-- Percent bar and text
+    healthFrame.threatPercentBar = CreateFrame("StatusBar", nil, healthFrame)
+    healthFrame.threatPercentBar:SetFrameLevel(healthFrame:GetFrameLevel() - 1)
+    healthFrame.threatPercentBar:SetMinMaxValues(0, 100)
+    healthFrame.threatPercentBar.border = CreateFrame("Frame", nil, healthFrame.threatPercentBar)
+    healthFrame.threatPercentBar.border:SetFrameLevel(healthFrame:GetFrameLevel())
+    healthFrame.threatPercentBar.background = healthFrame.threatPercentBar:CreateTexture(nil, "BORDER")
+    healthFrame.threatPercentText = healthFrame:CreateFontString(nil, "OVERLAY")
 end
