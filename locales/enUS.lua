@@ -157,6 +157,8 @@ NotPlaterLocals = {
 	["Show nameplate visibility status"] = "Show nameplate visibility status",
 	["Hide health bar border"] = "Hide health bar border",
 	["Hide cast bar border"] = "Hide cast bar border",
+	["Toggle showing/hiding simulator frame"] = "Toggle showing/hiding simulator frame",
+	["Simulator"] = "Simulator",
 	
 	["A UI reload is required to make the border show back up again."] = "A UI reload is required to make the border show back up again.",
 	["|cffeda55fLeft-Click and Drag|r on the outer area to move the simulator frame"] = "|cffeda55fLeft-Click and Drag|r on the outer area to move the simulator frame",

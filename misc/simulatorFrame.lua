@@ -175,22 +175,31 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
     threatUpdateElapsed = threatUpdateElapsed + elapsed
 end
 
+function NotPlater:ToggleSimulatorFrame()
+    if self.simulatorFrame and self.simulatorFrame:IsShown() then
+        self.simulatorFrame:Hide()
+    else
+        self:ShowSimulatorFrame()
+    end
+end
+
 function NotPlater:ShowSimulatorFrame()
     self:ConstructSimulatorFrame()
-    if not self.simulatorFrame:IsShown() then
-        self.simulatorFrame.defaultFrame.simulatedTarget = true
-        self.simulatorFrame.defaultFrame.defaultHealthFrame.ignoreThreatCheck = true
-        self.oldThreatCheck = self.ThreatCheck
-        self.ThreatCheck = function(name, frame, ...)
-            if frame.ignoreThreatCheck then return end
-            self.oldThreatCheck(name, frame, ...)
-        end
-        self.oldIsTarget = self.IsTarget
-        self.IsTarget = function(name, frame, ...)
-            if frame.simulatedTarget then return true end
-            return self.oldIsTarget(name, frame, ...)
-        end
-        self.simulatorFrame:Show()
+    self.simulatorFrame:Show()
+end
+
+function NotPlater:SimulatorFrameOnShow()
+    NotPlater.simulatorFrame.defaultFrame.simulatedTarget = true
+    NotPlater.simulatorFrame.defaultFrame.defaultHealthFrame.ignoreThreatCheck = true
+    NotPlater.oldThreatCheck = NotPlater.ThreatCheck
+    NotPlater.ThreatCheck = function(name, frame, ...)
+        if frame.ignoreThreatCheck then return end
+        NotPlater.oldThreatCheck(name, frame, ...)
+    end
+    NotPlater.oldIsTarget = NotPlater.IsTarget
+    NotPlater.IsTarget = function(name, frame, ...)
+        if frame.simulatedTarget then return true end
+        return NotPlater.oldIsTarget(name, frame, ...)
     end
 end
 
@@ -211,6 +220,7 @@ function NotPlater:ConstructSimulatorFrame()
     simulatorFrame:RegisterForDrag("LeftButton")
     simulatorFrame:SetScript("OnUpdate", NotPlater.SimulatorFrameOnUpdate)
     simulatorFrame:SetScript("OnHide", NotPlater.SimulatorFrameOnHide)
+    simulatorFrame:SetScript("OnShow", NotPlater.SimulatorFrameOnShow)
     simulatorFrame:SetScript("OnDragStart", simulatorFrame.StartMoving)
     simulatorFrame:SetScript("OnDragStop", simulatorFrame.StopMovingOrSizing)
     simulatorFrame:SetScript("OnEnter", function(self)

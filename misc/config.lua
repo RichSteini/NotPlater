@@ -2039,10 +2039,35 @@ local function loadOptions()
 			},
 		},
 	}
+	options.args.simulator = {
+		order = 8,
+		type = "group",
+		name = L["Simulator"],
+		get = get,
+		set = set,
+		handler = Config,
+		args = {
+			general = {
+				order = 1,
+				type = "group",
+				inline = true,
+				name = L["General"],
+				args = {
+					fontOpacity = {
+						order = 0,
+						width = "double",
+						type = "execute",
+						name = L["Toggle showing/hiding simulator frame"],
+						func = function () NotPlater:ToggleSimulatorFrame() end,
+					},
+				},
+			},
+		},
+	}
 
 	-- DB Profiles
 	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(NotPlater.db)
-	options.args.profile.order = 8
+	options.args.profile.order = 9
 end
 
 -- Slash commands
@@ -2105,6 +2130,9 @@ register:SetScript("OnShow", function(self)
 
 	config:RegisterOptionsTable("NotPlater-BossIcon", options.args.bossIcon)
 	dialog:AddToBlizOptions("NotPlater-BossIcon", options.args.bossIcon.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-Simulator", options.args.simulator)
+	dialog:AddToBlizOptions("NotPlater-Simulator", options.args.simulator.name, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-Profile", options.args.profile)
 	dialog:AddToBlizOptions("NotPlater-Profile", options.args.profile.name, "NotPlater")
