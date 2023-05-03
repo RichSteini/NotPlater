@@ -125,8 +125,14 @@ function NotPlater:OnInitialize()
 				hideTargetBorder = false, 
 				position = 
 				{
-					xSize = 112,
-					ySize = 15,
+					xSize = 113,
+					ySize = 16,
+				},
+				border =
+				{
+					enabled = true,
+					color = {r = 0, g = 0, b = 0, a = 1},
+					thickness = 1
 				},
 				healthText = 
 				{
@@ -155,8 +161,14 @@ function NotPlater:OnInitialize()
 					anchor = "BOTTOMLEFT",
 					xOffset = 0,
 					yOffset = -15,
-					xSize = 112,
+					xSize = 113,
 					ySize = 15,
+				},
+				border =
+				{
+					enabled = false,
+					color = {r = 0, g = 0, b = 0, a = 1},
+					thickness = 1
 				},
 				castSpellIcon =
 				{

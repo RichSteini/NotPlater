@@ -222,10 +222,22 @@ function NotPlater:ConfigureCastBar(frame)
 	castFrame.npCastIcon:SetPoint(castBarConfig.castSpellIcon.anchor, castFrame, castBarConfig.castSpellIcon.xOffset, castBarConfig.castSpellIcon.yOffset)
 	castFrame.npCastIcon:SetAlpha(castBarConfig.castSpellIcon.opacity)
 
-    -- Set background color
+    -- Set background
 	castFrame.npCastBackground:ClearAllPoints()
 	castFrame.npCastBackground:SetAllPoints(castFrame)
 	castFrame.npCastBackground:SetTexture(self:GetColor(castBarConfig.backgroundColor))
+
+	-- Set border
+	if castBarConfig.border.enabled then
+		castFrame.npCastBorder:ClearAllPoints()
+		castFrame.npCastBorder:SetAllPoints(castFrame)
+		castFrame.npCastBorder:SetBackdrop({bgFile="Interface\\BUTTONS\\WHITE8X8", edgeFile="Interface\\BUTTONS\\WHITE8X8", tileSize=16, tile=true, edgeSize=castBarConfig.border.thickness})
+		castFrame.npCastBorder:SetBackdropColor(0, 0, 0, 0)
+		castFrame.npCastBorder:SetBackdropBorderColor(self:GetColor(castBarConfig.border.color))
+		castFrame.npCastBorder:Show()
+	else
+		castFrame.npCastBorder:Hide()
+	end
 
     -- Set cast text
 	castFrame.npCastTimeText:ClearAllPoints()
@@ -255,6 +267,9 @@ function NotPlater:ConstructCastBar(frame)
 
     -- Create and set background
 	castFrame.npCastBackground = castFrame:CreateTexture(nil, 'BORDER')
+
+	castFrame.npCastBorder = CreateFrame("Frame", nil, castFrame)
+    castFrame.npCastBorder:SetFrameLevel(castFrame:GetFrameLevel() + 1)
 
 	frame.npCastBar = castFrame
 	castFrame:Hide()

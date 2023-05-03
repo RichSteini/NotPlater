@@ -3,6 +3,9 @@ if( not NotPlater ) then return end
 local Config = NotPlater:NewModule("Config")
 local L = NotPlaterLocals
 
+local ssplit = string.split
+local tonumber = tonumber
+
 local SML, registered, options, config, dialog
 
 function Config:OnInitialize()
@@ -23,7 +26,7 @@ end
 
 -- GUI
 local function set(info, value)
-	local arg1, arg2, arg3 = string.split(".", info.arg)
+	local arg1, arg2, arg3 = ssplit(".", info.arg)
 	if( tonumber(arg2) ) then arg2 = tonumber(arg2) end
 	
 	if( arg2 and arg3 ) then
@@ -38,7 +41,7 @@ local function set(info, value)
 end
 
 local function get(info)
-	local arg1, arg2, arg3 = string.split(".", info.arg)
+	local arg1, arg2, arg3 = ssplit(".", info.arg)
 	if( tonumber(arg2) ) then arg2 = tonumber(arg2) end
 	if( arg2 and arg3 ) then
 		return NotPlater.db.profile[arg1][arg2][arg3]
@@ -53,10 +56,9 @@ local function setNumber(info, value)
 	set(info, tonumber(value))
 end
 
--- Yes this is a quick hack
 local function setColor(info, r, g, b, a)
-	local arg1, arg2, arg3, arg4 = string.split(".", info.arg)
-	--if( tonumber(arg2) ) then arg2 = tonumber(arg2) end
+	local arg1, arg2, arg3, arg4 = ssplit(".", info.arg)
+
 	if( arg2 and arg3 and arg4 ) then
 		NotPlater.db.profile[arg1][arg2][arg3][arg4].r = r
 		NotPlater.db.profile[arg1][arg2][arg3][arg4].g = g
@@ -1108,6 +1110,37 @@ local function loadOptions()
 							},
 						},
 					},
+					border = {
+						order = 5,
+						type = "group",
+						inline = true,
+						name = L["Border"],
+						args = {
+							enabled = {
+								order = 0,
+								type = "toggle",
+								name = L["Enable border"],
+								arg = "healthBar.border.enabled",
+							},
+							color = {
+								order = 1,
+								type = "color",
+								name = L["Border color"],
+								hasAlpha = true,
+								set = setColor,
+								get = getColor,
+								arg = "healthBar.border.color",
+							},
+							thickness = {
+								order = 2,
+								type = "range",
+								name = L["Border thickness"],
+								min = 1, max = 10, step = 1,
+								set = setNumber,
+								arg = "healthBar.border.thickness",
+							},
+						},
+					},
 				},
 			},
 			healthText = {
@@ -1330,6 +1363,37 @@ local function loadOptions()
 								min = 0, max = 500, step = 1,
 								set = setNumber,
 								arg = "castBar.position.ySize",
+							},
+						},
+					},
+					border = {
+						order = 5,
+						type = "group",
+						inline = true,
+						name = L["Border"],
+						args = {
+							enabled = {
+								order = 0,
+								type = "toggle",
+								name = L["Enable border"],
+								arg = "castBar.border.enabled",
+							},
+							color = {
+								order = 1,
+								type = "color",
+								name = L["Border color"],
+								hasAlpha = true,
+								set = setColor,
+								get = getColor,
+								arg = "castBar.border.color",
+							},
+							thickness = {
+								order = 2,
+								type = "range",
+								name = L["Border thickness"],
+								min = 1, max = 10, step = 1,
+								set = setNumber,
+								arg = "castBar.border.thickness",
 							},
 						},
 					},

@@ -40,11 +40,6 @@ function NotPlater:HealthBarOnShow(healthFrame)
 	healthFrame:ClearAllPoints()
 	self:SetSize(healthFrame, healthBarConfig.position.xSize, healthBarConfig.position.ySize)
 	healthFrame:SetPoint("TOP", 0, generalConfig.nameplateStacking.yMargin)
-	if not healthBarConfig.hideBorder then
-		healthFrame.npHealthOverlay:ClearAllPoints()
-		healthFrame.npHealthOverlay:SetAllPoints(healthFrame)
-		healthFrame.npHealthOverlay:Show()
-	end
 end
 
 function NotPlater:ConfigureHealthBar(healthFrame)
@@ -65,21 +60,33 @@ function NotPlater:ConfigureHealthBar(healthFrame)
 	healthFrame.npHealthBackground:SetAllPoints(healthFrame)
 	healthFrame.npHealthBackground:SetTexture(healthBarConfig.backgroundColor.r, healthBarConfig.backgroundColor.g, healthBarConfig.backgroundColor.b, healthBarConfig.backgroundColor.a)
 
+	-- Set border
+	if healthBarConfig.border.enabled then
+		healthFrame.npHealthBorder:ClearAllPoints()
+		healthFrame.npHealthBorder:SetAllPoints(healthFrame)
+		healthFrame.npHealthBorder:SetBackdrop({bgFile="Interface\\BUTTONS\\WHITE8X8", edgeFile="Interface\\BUTTONS\\WHITE8X8", tileSize=16, tile=true, edgeSize=healthBarConfig.border.thickness})
+		healthFrame.npHealthBorder:SetBackdropColor(0, 0, 0, 0)
+		healthFrame.npHealthBorder:SetBackdropBorderColor(self:GetColor(healthBarConfig.border.color))
+		healthFrame.npHealthBorder:Show()
+	else
+		healthFrame.npHealthBorder:Hide()
+	end
+
 	self:HealthOnValueChanged(healthFrame, healthFrame:GetValue())
 end
 
 function NotPlater:ConstructHealthBar(healthFrame)
 	local healthBarConfig = self.db.profile.healthBar
 
-    -- Other addons need the texture of healthBorder to not change, therefore we have to create a new one
-    healthFrame.npHealthOverlay = healthFrame:CreateTexture(nil, 'OVERLAY')
-    healthFrame.npHealthOverlay:SetTexture('Interface\\AddOns\\NotPlater\\images\\textureOverlay')
-
     -- Background
     healthFrame.npHealthBackground = healthFrame:CreateTexture(nil, 'BORDER')
 
     -- Create health text
     healthFrame.npHealthText = healthFrame:CreateFontString(nil, "ARTWORK")
+
+	-- Border
+	healthFrame.npHealthBorder = CreateFrame("Frame", nil, healthFrame)
+    healthFrame.npHealthBorder:SetFrameLevel(healthFrame:GetFrameLevel() + 1)
     
     -- Hook to set health text
 	self:HookScript(healthFrame, "OnValueChanged", "HealthOnValueChanged")

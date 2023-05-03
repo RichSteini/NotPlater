@@ -10,7 +10,7 @@ function NotPlater:ConstructTargetBorder(healthFrame, frame)
         self:HookScript(frame, 'OnUpdate', function(self, elapsed)
             if not self.targetCheckElapsed then self.targetCheckElapsed = 0 end
             self.targetCheckElapsed = self.targetCheckElapsed + elapsed
-            if (self.targetCheckElapsed >= 0.2) then
+            if (self.targetCheckElapsed >= 0.1) then
                 if (NotPlater:IsTarget(self)) then
                     if (not self.npTargetHighlight) then
                         self.npTargetHighlight = self:CreateTexture(nil, 'ARTWORK')
