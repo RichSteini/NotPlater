@@ -9,6 +9,7 @@ NotPlaterLocals = {
 	
 	-- GUI
 	["Enabled"] = "Enabled",
+	["Drag me"] = "Drag me",
 	["Font"] = "Font",
 	["Enable bar"] = "Enable bar",
 	["Enable border"] = "Enable border",
@@ -93,6 +94,10 @@ NotPlaterLocals = {
 	["Name text"] = "Name text",
 	["Cast/Health text"] = "Cast/Health text",
 	["Level text"] = "Level text",
+	["NotPlater Simulator Frame"] = "NotPlater Simulator Frame",
+	["Spellname"] = "Spellname",
+	["Playername"] = "Playername",
+	["70"] = "70",
 	
 	["Font name"] = "Font name",
 	["Font color"] = "Font color",
@@ -154,4 +159,7 @@ NotPlaterLocals = {
 	["Hide cast bar border"] = "Hide cast bar border",
 	
 	["A UI reload is required to make the border show back up again."] = "A UI reload is required to make the border show back up again.",
+	["|cffeda55fLeft-Click and Drag|r on the outer area to move the simulator frame"] = "|cffeda55fLeft-Click and Drag|r on the outer area to move the simulator frame",
+	["|cffeda55fLeft-Click or Right-Click|r target/untarget the simulated frame"] = "|cffeda55fLeft-Click or Right-Click|r target/untarget the simulated frame",
+	["NotPlater Simulated Frame"] = "NotPlater Simulated Frame",
 }

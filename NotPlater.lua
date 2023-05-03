@@ -46,7 +46,7 @@ function NotPlater:OnInitialize()
 					fontEnabled = false,
 					fontName = "Arial Narrow",
 					fontSize = 8,
-					fontBorder = "NONE",
+					fontBorder = "",
 					fontColor = {r = 0, g = 0, b = 0, a = 1},
 					fontUseThreatColors = false,
 					fontAnchor = "CENTER",
@@ -104,7 +104,7 @@ function NotPlater:OnInitialize()
 					yOffset = 0,
 					fontName = "Arial Narrow", 
 					fontSize = 20, 
-					fontBorder = "NONE", 
+					fontBorder = "", 
 					fontShadowEnabled = false, 
 					fontShadowColor = { r = 0, g = 0, b = 0, a = 1 }, 
 					fontShadowXOffset = 0, 
@@ -268,7 +268,7 @@ function NotPlater:IsTarget(frame)
 	local nameText  = select(5,frame:GetRegions())
     local targetName = UnitName('target')
 
-    return targetName == nameText:GetText() and frame:GetAlpha() >= 0.99
+	return nameText and targetName == nameText:GetText() and frame:GetAlpha() >= 0.99
 end
 
 function NotPlater:PrepareFrame(frame)

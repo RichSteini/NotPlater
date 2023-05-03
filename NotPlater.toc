@@ -16,6 +16,7 @@ locales.xml
 NotPlater.lua
 
 # Config and utility functions
+misc\simulatorFrame.lua
 misc\config.lua
 misc\utils.lua
 

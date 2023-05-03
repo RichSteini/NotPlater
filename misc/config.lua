@@ -2058,7 +2058,7 @@ SlashCmdList["NOTPLATER"] = function(msg)
 		dialog:SetDefaultSize("NotPlater", 830, 600)
 		registered = true
 	end
-
+	NotPlater:ShowSimulatorFrame()
 	dialog:Open("NotPlater")
 end
 

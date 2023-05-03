@@ -63,17 +63,18 @@ function NotPlater:PARTY_MEMBERS_CHANGED()
 	end
 end
 
-function NotPlater:OnNameplateMatch(health, group)
+function NotPlater:OnNameplateMatch(health, group, ThreatLib)
+	if not ThreatLib then ThreatLib = Threat end
 	local threatProfile = self.db.profile.threat
 	local unit = health.lastUnitMatch
 	local player = UnitGUID("player")
-	local playerThreat = Threat:GetThreat(player, unit)
+	local playerThreat = ThreatLib:GetThreat(player, unit)
 	local playerThreatNumber = 1
-	local highestThreat, highestThreatMember = Threat:GetMaxThreatOnTarget(unit)
+	local highestThreat, highestThreatMember = ThreatLib:GetMaxThreatOnTarget(unit)
 	local secondHighestThreat = 0
 	if highestThreat and highestThreat > 0 then
 		for gMember,_ in pairs(group) do
-			local gMemberThreat = Threat:GetThreat(gMember, unit)
+			local gMemberThreat = ThreatLib:GetThreat(gMember, unit)
 			if gMemberThreat then
 				if gMemberThreat ~= highestThreat and gMemberThreat > secondHighestThreat then
 					secondHighestThreat = gMemberThreat
