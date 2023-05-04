@@ -1,5 +1,4 @@
 NotPlater = LibStub("AceAddon-3.0"):NewAddon("NotPlater", "AceEvent-3.0", "AceHook-3.0")
---NotPlater.revision = tonumber(string.match("$Revision$", "(%d+)") or 1)
 NotPlater.revision = "v2.0.0"
 
 local UnitName = UnitName
@@ -126,8 +125,6 @@ function NotPlater:OnInitialize()
 			{ 
 				texture = "NotPlater Default", 
 				backgroundColor = {r = 0, g = 0, b = 0, a = 0.5}, 
-				hideBorder = false, 
-				hideTargetBorder = false, 
 				position = 
 				{
 					xSize = 113,

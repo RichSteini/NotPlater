@@ -1340,22 +1340,8 @@ local function loadOptions()
 						values = "GetTextures",
 						arg = "healthBar.texture",
 					},
-					hideBorder = {
-						order = 1,
-						type = "toggle",
-						name = L["Hide border"],
-						desc = L["A UI reload is required to make the border show back up again."],
-						arg = "healthBar.hideBorder",
-					},
-					hideTargetBorder = {
-						order = 2,
-						type = "toggle",
-						name = L["Hide target border"],
-						desc = L["A UI reload is required to make the border show back up again."],
-						arg = "healthBar.hideTargetBorder",
-					},
 					backgroundColor = {
-						order = 3,
+						order = 2,
 						type = "color",
 						name = L["Background color"],
 						hasAlpha = true,
@@ -1364,7 +1350,7 @@ local function loadOptions()
 						arg = "healthBar.backgroundColor",
 					},
 					position = {
-						order = 4,
+						order = 3,
 						type = "group",
 						inline = true,
 						name = L["Positioning / Scaling"],
@@ -1388,7 +1374,7 @@ local function loadOptions()
 						},
 					},
 					border = {
-						order = 5,
+						order = 4,
 						type = "group",
 						inline = true,
 						name = L["Border"],
@@ -1421,7 +1407,7 @@ local function loadOptions()
 				},
 			},
 			healthText = {
-				order = 4,
+				order = 1,
 				type = "group",
 				inline = false,
 				name = L["Health text"],
