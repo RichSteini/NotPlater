@@ -1,6 +1,11 @@
 NotPlater = LibStub("AceAddon-3.0"):NewAddon("NotPlater", "AceEvent-3.0", "AceHook-3.0")
+--NotPlater.revision = tonumber(string.match("$Revision$", "(%d+)") or 1)
+NotPlater.revision = "v2.0.0"
 
 local UnitName = UnitName
+local UnitLevel = UnitLevel
+local UnitHealth = UnitHealth
+local UnitGUID = UnitGUID
 local UnitExists = UnitExists
 
 local frames = {}
@@ -270,11 +275,14 @@ function NotPlater:OnInitialize()
 					thickness = 14
 				},
 			},
+			simulator = 
+			{
+				showOnConfig = true
+			},
 		},
 	}
 
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("NotPlaterDB", self.defaults)
-	self.revision = tonumber(string.match("$Revision$", "(%d+)") or 1)
 
 	self:PARTY_MEMBERS_CHANGED()
 	self:RAID_ROSTER_UPDATE()

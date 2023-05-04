@@ -2,7 +2,6 @@
 ## Title: NotPlater
 ## Notes: Feature rich nameplate addon based on Nameplates Modifier (Design inspired by Plater)
 ## Author: RichSteini
-## Version: 1.1.0
 ## SavedVariables: NotPlaterDB
 ## OptionalDeps: LibStub, CallbackHandler, LibSharedMedia, Ace3, Threat
 

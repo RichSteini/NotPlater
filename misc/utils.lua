@@ -1,5 +1,8 @@
 if( not NotPlater ) then return end
 
+local L = NotPlaterLocals
+local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
+
 function NotPlater:GetColor(config)
 	return config.r, config.g, config.b, config.a
 end
@@ -38,6 +41,14 @@ end
 function NotPlater:SetSize(frame, width, height)
 	frame:SetWidth(width)
 	frame:SetHeight(height)
+end
+
+function NotPlater:PrintHelp()
+    self:Print(L["Usage:"])
+    self:Print(L["/np help - Show this message"])
+    self:Print(L["/np config - Toggle the config window"])
+    self:Print(L["/np simulator - Toggle the simulator frame"])
+    self:Print(L["/np minimap - Toggle the minimap icon"])
 end
 
 function NotPlater:Print(msg)

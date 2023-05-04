@@ -1,17 +1,27 @@
 if( not NotPlater ) then return end
 
 local Config = NotPlater:NewModule("Config")
+local LDB = LibStub("LibDataBroker-1.1")
+local LDBIcon = LibStub("LibDBIcon-1.0")
 local L = NotPlaterLocals
 
 local ssplit = string.split
+local sgmatch = string.gmatch
+local sformat = string.format
+local tinsert = table.insert
 local tonumber = tonumber
+local GameTooltip = GameTooltip
+local SlashCmdList = SlashCmdList
+local InterfaceOptionsFrame = InterfaceOptionsFrame
+local UIParent = UIParent
 
 local SML, registered, options, config, dialog
+
 
 local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick outline"], ["MONOCHROME"] = L["Monochrome"]}
 local anchors = {["CENTER"] = L["center"], ["BOTTOM"] = L["bottom"], ["TOP"] = L["top"], ["LEFT"] = L["left"], ["RIGHT"] = L["right"], ["BOTTOMLEFT"] = L["bottomleft"], ["TOPRIGHT"] = L["topright"], ["BOTTOMRIGHT"] = L["bottomright"], ["TOPLEFT"] = L["topleft"]}
 local frameStratas = {["BACKGROUND"] = L["background"], ["LOW"] = L["low"], ["MEDIUM"] = L["medium"], ["HIGH"] = L["high"], ["DIALOG"] = L["dialog"], ["FULLSCREEN"] = L["fullscreen"], ["FULLSCREEN_DIALOG"] = L["fullscreen dialog"], ["TOOLTIP"] = L["tooltip"]}
-local strataSort = {"Inherited", "BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"}
+local strataSort = {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"}
 local drawLayers = {["BACKGROUND"] = L["background"], ["BORDER"] = L["border"], ["ARTWORK"] = L["artwork"], ["OVERLAY"] = L["overlay"], ["HIGHLIGHT"] = L["highlight"]}
 
 local TEXTURE_BASE_PATH = [[Interface\Addons\NotPlater\images\statusbarTextures\]]
@@ -213,6 +223,69 @@ NotPlater.targetHighlights = {
 	[HIGHLIGHT_BASE_PATH .. "selection_indicator8"] =  "Indicator 8"
 }
 
+local function getAnchors(frame)
+	local x, y = frame:GetCenter()
+	if not x or not y then return "CENTER" end
+	local hHalf = (x > UIParent:GetWidth()*2/3) and "RIGHT" or (x < UIParent:GetWidth()/3) and "LEFT" or ""
+	local vHalf = (y > UIParent:GetHeight()/2) and "TOP" or "BOTTOM"
+	return vHalf..hHalf, frame, (vHalf == "TOP" and "BOTTOM" or "TOP")..hHalf
+end
+
+local function drawMinimapTooltip()
+    local tooltip = GameTooltip
+    tooltip:ClearLines()
+    tooltip:AddDoubleLine("NotPlater", NotPlater.revision or "1.0.0")
+    tooltip:AddLine(" ")
+    tooltip:AddLine(L["|cffeda55fLeft-Click|r to toggle the config window"], 0.2, 1, 0.2)
+    tooltip:AddLine(L["|cffeda55fRight-Click|r to toggle the simulator frame"], 0.2, 1, 0.2)
+    tooltip:AddLine(L["|cffeda55fMiddle-Click|r to toggle the minimap icon"], 0.2, 1, 0.2);
+    tooltip:Show()
+end
+
+local function ToggleMinimap()
+    NotPlaterDB.minimap.hide = not NotPlaterDB.minimap.hide
+    if NotPlaterDB.minimap.hide then
+        LDBIcon:Hide("NotPlater");
+        NotPlater:Print(L["Use /np minimap to show the minimap icon again"])
+    else
+        LDBIcon:Show("NotPlater");
+    end
+end
+
+local tooltipUpdateFrame = CreateFrame("Frame")
+local Broker_NotPlater = LDB:NewDataObject("NotPlater", {
+    type = "launcher",
+    text = "NotPlater",
+    icon = "Interface\\AddOns\\NotPlater\\images\\logo",
+    OnClick = function(self, button)
+		if(button == "LeftButton") then
+			Config:ToggleConfig()
+        elseif(button == "RightButton") then
+			NotPlater:ToggleSimulatorFrame()
+        else -- "MiddleButton"
+            ToggleMinimap()
+        end
+        drawMinimapTooltip()
+    end,
+    OnEnter = function(self)
+        local elapsed = 0
+        local delay = 1
+        tooltipUpdateFrame:SetScript("OnUpdate", function(self, elap)
+            elapsed = elapsed + elap
+            if(elapsed > delay) then
+                elapsed = 0
+                drawMinimapTooltip()
+            end
+        end);
+        GameTooltip:SetOwner(self, "ANCHOR_NONE")
+        GameTooltip:SetPoint(getAnchors(self))
+        drawMinimapTooltip()
+    end,
+    OnLeave = function(self)
+        tooltipUpdateFrame:SetScript("OnUpdate", nil)
+        GameTooltip:Hide()
+    end,
+})
 
 function Config:OnInitialize()
 	config = LibStub("AceConfig-3.0")
@@ -222,6 +295,9 @@ function Config:OnInitialize()
 	for _, statusBarTexture in ipairs(textures) do
 		SML:Register(SML.MediaType.STATUSBAR, statusBarTexture, TEXTURE_BASE_PATH .. statusBarTexture)
 	end
+
+	NotPlaterDB.minimap = NotPlaterDB.minimap or {hide = false}
+	LDBIcon:Register("NotPlater", Broker_NotPlater, NotPlaterDB.minimap)
 end
 
 -- GUI
@@ -1144,7 +1220,7 @@ local function loadOptions()
 									upperTwentyPercentOnThreat = {
 										order = 2,
 										type = "color",
-										name = L["Upper twenty percent on Threat"],
+										name = L["Upper 20% on Threat"],
 										hasAlpha = true,
 										set = setColor,
 										get = getColor,
@@ -1153,7 +1229,7 @@ local function loadOptions()
 									lowerEightyPercentOnThreat = {
 										order = 4,
 										type = "color",
-										name = L["Lower eighty percent on Threat"],
+										name = L["Lower 80% on Threat"],
 										hasAlpha = true,
 										set = setColor,
 										get = getColor,
@@ -1179,7 +1255,7 @@ local function loadOptions()
 									upperTwentyPercentOnThreat = {
 										order = 2,
 										type = "color",
-										name = L["Upper twenty percent on Threat"],
+										name = L["Upper 20% on Threat"],
 										hasAlpha = true,
 										set = setColor,
 										get = getColor,
@@ -1188,7 +1264,7 @@ local function loadOptions()
 									lowerEightyPercentOnThreat = {
 										order = 4,
 										type = "color",
-										name = L["Lower eighty percent on Threat"],
+										name = L["Lower 80% on Threat"],
 										hasAlpha = true,
 										set = setColor,
 										get = getColor,
@@ -2388,11 +2464,17 @@ local function loadOptions()
 				inline = true,
 				name = L["General"],
 				args = {
-					fontOpacity = {
+					showOnConfig = {
 						order = 0,
+						type = "toggle",
 						width = "double",
+						name = L["Show simulator when showing config"],
+						arg = "simulator.showOnConfig",
+					},
+					execSim = {
+						order = 1,
 						type = "execute",
-						name = L["Toggle showing/hiding simulator frame"],
+						name = L["Toggle simulator frame"],
 						func = function () NotPlater:ToggleSimulatorFrame() end,
 					},
 				},
@@ -2405,10 +2487,18 @@ local function loadOptions()
 	options.args.profile.order = 10
 end
 
--- Slash commands
-SLASH_NOTPLATER1 = "/notplater"
-SLASH_NOTPLATER2 = "/np"
-SlashCmdList["NOTPLATER"] = function(msg)
+function Config:ToggleConfig()
+	if dialog.OpenFrames["NotPlater"] then
+		if NotPlater.db.profile.simulator.showOnConfig then
+			NotPlater:HideSimulatorFrame()
+		end
+		dialog:Close("NotPlater")
+	else
+		self:OpenConfig()
+	end
+end
+
+function Config:OpenConfig()
 	if( not registered ) then
 		if( not options ) then
 			loadOptions()
@@ -2418,8 +2508,35 @@ SlashCmdList["NOTPLATER"] = function(msg)
 		dialog:SetDefaultSize("NotPlater", 830, 600)
 		registered = true
 	end
-	NotPlater:ShowSimulatorFrame()
+	if NotPlater.db.profile.simulator.showOnConfig then
+		NotPlater:ShowSimulatorFrame()
+	end
 	dialog:Open("NotPlater")
+end
+
+-- Slash commands
+SLASH_NOTPLATER1 = "/notplater"
+SLASH_NOTPLATER2 = "/np"
+SlashCmdList["NOTPLATER"] = function(input)
+	local args, msg = {}, nil
+
+    for v in sgmatch(input, "%S+") do
+        if not msg then
+			msg = v
+        else
+			tinsert(args, v)
+        end
+    end
+
+    if msg == "minimap" then
+        ToggleMinimap()
+    elseif msg == "simulator" then
+		NotPlater:ToggleSimulatorFrame()
+	elseif msg == "help" then
+        NotPlater:PrintHelp()
+	else
+		Config:ToggleConfig()
+    end
 end
 
 -- Add the general options + profile, we don't add spells/anchors because it doesn't support sub cats
@@ -2434,7 +2551,7 @@ register:SetScript("OnShow", function(self)
 		args = {
 			help = {
 				type = "description",
-				name = string.format("NotPlater r%d is a feature rich nameplate addon based on Nameplates Modifier (Design inspired by Plater).", NotPlater.revision or 0),
+				name = sformat("NotPlater %s is a feature rich nameplate addon based on Nameplates Modifier (Design inspired by Plater).", NotPlater.revision or "2.0.0"),
 			},
 		},
 	})

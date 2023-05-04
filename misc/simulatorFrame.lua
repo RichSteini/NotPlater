@@ -1,5 +1,7 @@
 if not NotPlater then return end
 
+--local configDialog = LibStub("AceConfigDialog-3.0")
+
 local tinsert = table.insert
 local tsort = table.sort
 local mrand = math.random
@@ -120,6 +122,10 @@ function ThreatSimulator:ConstructThreatScenario(numDPS, numHealers, numTanks)
 end
 
 function NotPlater:SimulatorFrameOnUpdate(elapsed)
+    --if not configDialog.OpenFrames["NotPlater"] then
+        --NotPlater:HideSimulatorFrame()
+        --return
+    --end
 	-- Configure everything
 	NotPlater:ConfigureHealthBar(self.defaultFrame.defaultHealthFrame)
 	NotPlater:ConfigureCastBar(self.defaultFrame)
@@ -187,6 +193,12 @@ end
 function NotPlater:ShowSimulatorFrame()
     self:ConstructSimulatorFrame()
     self.simulatorFrame:Show()
+end
+
+function NotPlater:HideSimulatorFrame()
+    if self.simulatorFrame then
+        self.simulatorFrame:Hide()
+    end
 end
 
 function NotPlater:SimulatorFrameOnShow()

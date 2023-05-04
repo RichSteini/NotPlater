@@ -32,7 +32,7 @@ function NotPlater:ConfigureTargetBorder(healthFrame, frame)
 			local texture = frame.targetTextures4Sides[i]
 			texture:SetTexture(path)
 			texture:SetTexCoord(unpack(coords[i]))
-			texture:SetSize(width * scale * wscale, height * scale * hscale)
+			self:SetSize(texture, width * scale * wscale, height * scale * hscale)
 			texture:SetAlpha(alpha)
 			texture:SetVertexColor(overlayColorR, overlayColorG, overlayColorB)
 			texture:SetDesaturated(desaturated)
@@ -56,7 +56,7 @@ function NotPlater:ConfigureTargetBorder(healthFrame, frame)
 			texture:SetTexture(path)
 			texture:SetBlendMode(blend)
 			texture:SetTexCoord(unpack(coords[i]))
-			texture:SetSize(width * scale * wscale, height * scale * hscale)
+			self:SetSize(texture, width * scale * wscale, height * scale * hscale)
 			texture:SetDesaturated(desaturated)
 			texture:SetAlpha(alpha)
 			texture:SetVertexColor(overlayColorR, overlayColorG, overlayColorB)
@@ -128,7 +128,7 @@ function NotPlater:ConstructTargetBorder(healthFrame, frame)
 	            local targetBorderConfig = NotPlater.db.profile.targetBorder
                 if targetBorderConfig.indicator.enabled or healthFrame:GetHeight() < 4 then
                     local preset = NotPlater.targetIndicators[NotPlater.db.profile.targetBorder.indicator.selection]
-                    if (not preset) then preset = self.targetIndicators["Silver"] end
+                    if (not preset) then preset = NotPlater.targetIndicators["Silver"] end
 	                if (#preset.coords == 4) then
                         hide2s = true
                         for i = 1, 4 do
