@@ -115,6 +115,7 @@ NotPlaterLocals = {
 	["Cast text display"] = "Cast text display",
 	["Style of display for health bar text."] = "Style of display for health bar text.",
 	["Style of display for cast bar text."] = "Style of display for cast bar text.",
+	["Max. letters"] = "Max. letters",
 
 	["Outline"] = "Outline",
 	["Thick outline"] = "Thick outline",

@@ -147,7 +147,7 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
     if not self.defaultFrame.npCastBar.casting and NotPlater.db.profile.castBar.enabled then
         local startTime = GetTime()
         local endTime = startTime + castTime
-        self.defaultFrame.npCastBar.npCastNameText:SetText(L["Spellname"])
+        NotPlater:SetCastBarNameText(self.defaultFrame, L["Spellname"])
         self.defaultFrame.npCastBar.value = 0
         self.defaultFrame.npCastBar.maxValue = (endTime - startTime) / 1000
         self.defaultFrame.npCastBar:SetMinMaxValues(0, self.defaultFrame.npCastBar.maxValue)

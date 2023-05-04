@@ -6,6 +6,17 @@ local UnitCastingInfo = UnitCastingInfo
 local UnitChannelInfo = UnitChannelInfo
 local FAILED = FAILED
 local INTERRUPTED = INTERRUPTED
+local slen = string.len
+local ssub = string.sub
+
+function NotPlater:SetCastBarNameText(frame, text)
+	local configMaxLength = NotPlater.db.profile.castBar.castNameText.maxLetters
+	if text and slen(text) > configMaxLength then
+		frame.npCastBar.npCastNameText:SetText(ssub(text, 1, configMaxLength) .. "...")
+	else
+		frame.npCastBar.npCastNameText:SetText(text)
+	end
+end
 
 function NotPlater:CastBarOnUpdate(elapsed)
     local castBarConfig = NotPlater.db.profile.castBar
@@ -82,7 +93,7 @@ function NotPlater:CastBarOnCast(frame, event, unit)
 			return
 		end
 
-		frame.npCastBar.npCastNameText:SetText(name)
+		NotPlater:SetCastBarNameText(frame, name)
 		frame.npCastBar.value = (GetTime() - (startTime / 1000))
 		frame.npCastBar.maxValue = (endTime - startTime) / 1000
 		frame.npCastBar:SetMinMaxValues(0, frame.npCastBar.maxValue)
@@ -116,9 +127,9 @@ function NotPlater:CastBarOnCast(frame, event, unit)
 			frame.npCastBar:SetValue(frame.npCastBar.maxValue)
 
 			if event == "UNIT_SPELLCAST_FAILED" then
-				frame.npCastBar.Name:SetText(FAILED)
+				NotPlater:SetCastBarNameText(frame, FAILED)
 			else
-				frame.npCastBar.Name:SetText(INTERRUPTED)
+				NotPlater:SetCastBarNameText(frame, INTERRUPTED)
 			end
 			frame.npCastBar.casting = nil
 			frame.npCastBar.channeling = nil
@@ -132,7 +143,7 @@ function NotPlater:CastBarOnCast(frame, event, unit)
 				return
 			end
 
-			frame.npCastBar.Name:SetText(name)
+			NotPlater:SetCastBarNameText(frame, name)
 			frame.npCastBar.value = (GetTime() - (startTime / 1000))
 			frame.npCastBar.maxValue = (endTime - startTime) / 1000
 			frame.npCastBar:SetMinMaxValues(0, frame.npCastBar.maxValue)
@@ -149,7 +160,7 @@ function NotPlater:CastBarOnCast(frame, event, unit)
 			return
 		end
 
-		frame.npCastBar.npCastNameText:SetText(name)
+		NotPlater:SetCastBarNameText(frame, name)
 		frame.npCastBar.value = (endTime / 1000) - GetTime()
 		frame.npCastBar.maxValue = (endTime - startTime) / 1000
 		frame.npCastBar:SetMinMaxValues(0, frame.npCastBar.maxValue)
@@ -171,7 +182,7 @@ function NotPlater:CastBarOnCast(frame, event, unit)
 				return
 			end
 
-			frame.npCastBar.npCastNameText:SetText(name)
+			NotPlater:SetCastBarNameText(frame, name)
 			frame.npCastBar.value = ((endTime / 1000) - GetTime())
 			frame.npCastBar.maxValue = (endTime - startTime) / 1000
 			frame.npCastBar:SetMinMaxValues(0, frame.npCastBar.maxValue)
@@ -210,7 +221,6 @@ function NotPlater:ConfigureCastBar(frame)
 
 	-- Set point for castbar
 	self:CastBarOnShow(frame)
-	castFrame:SetFrameLevel(frame:GetFrameLevel() + 1)
 
     -- Set statusbar texture
     castFrame:SetStatusBarTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, castBarConfig.texture))
@@ -249,13 +259,14 @@ function NotPlater:ConfigureCastBar(frame)
 end
 
 function NotPlater:ConstructCastBar(frame)
-	local castFrame = CreateFrame("StatusBar", "$parentCastBar", frame)
+	local castFrame = CreateFrame("StatusBar", nil, frame)
 	castFrame:SetScript("OnUpdate", NotPlater.CastBarOnUpdate)
 
     -- Create the icon
 	castFrame.npCastIcon = CreateFrame("Frame", nil, castFrame)
 	castFrame.npCastIcon.texture = castFrame.npCastIcon:CreateTexture(nil, "BORDER")
 	castFrame.npCastIcon.texture:SetAllPoints()
+	castFrame:SetFrameLevel(frame:GetFrameLevel() + 2)
 
     -- Create cast time text and set font
     castFrame.npCastTimeText = castFrame:CreateFontString(nil, "ARTWORK")

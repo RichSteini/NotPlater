@@ -205,6 +205,7 @@ function NotPlater:OnInitialize()
 					fontName = "Arial Narrow", 
 					fontSize = 11, 
 					fontBorder = "OUTLINE", 
+					maxLetters = 10,
 					fontShadowEnabled = false, 
 					fontShadowColor = { r = 0, g = 0, b = 0, a = 1 }, 
 					fontShadowXOffset = 0, 

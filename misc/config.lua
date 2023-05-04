@@ -1904,6 +1904,14 @@ local function loadOptions()
 								values = fontBorders,
 								arg = "castBar.castNameText.fontBorder",
 							},
+							maxLetters = {
+								order = 6,
+								type = "range",
+								name = L["Max. letters"],
+								min = 1, max = 40, step = 1,
+								set = setNumber,
+								arg = "castBar.castNameText.maxLetters",
+							},
 						},
 					},
 					position = {
