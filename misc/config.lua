@@ -8,20 +8,220 @@ local tonumber = tonumber
 
 local SML, registered, options, config, dialog
 
+local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick outline"], ["MONOCHROME"] = L["Monochrome"]}
+local anchors = {["CENTER"] = L["center"], ["BOTTOM"] = L["bottom"], ["TOP"] = L["top"], ["LEFT"] = L["left"], ["RIGHT"] = L["right"], ["BOTTOMLEFT"] = L["bottomleft"], ["TOPRIGHT"] = L["topright"], ["BOTTOMRIGHT"] = L["bottomright"], ["TOPLEFT"] = L["topleft"]}
+local frameStratas = {["BACKGROUND"] = L["background"], ["LOW"] = L["low"], ["MEDIUM"] = L["medium"], ["HIGH"] = L["high"], ["DIALOG"] = L["dialog"], ["FULLSCREEN"] = L["fullscreen"], ["FULLSCREEN_DIALOG"] = L["fullscreen dialog"], ["TOOLTIP"] = L["tooltip"]}
+local strataSort = {"Inherited", "BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"}
+local drawLayers = {["BACKGROUND"] = L["background"], ["BORDER"] = L["border"], ["ARTWORK"] = L["artwork"], ["OVERLAY"] = L["overlay"], ["HIGHLIGHT"] = L["highlight"]}
+
+local TEXTURE_BASE_PATH = [[Interface\Addons\NotPlater\images\statusbarTextures\]]
+local textures = {"NotPlater Default", "BarFill", "Banto", "Smooth", "Perl", "Glaze", "Charcoal", "Otravi", "Striped", "LiteStep"}
+
+NotPlater.targetIndicators = {
+	["NONE"] = {
+		path = [[Interface\AddOns\NotPlater\images\targetBorders\UI-Achievement-WoodBorder-Corner]],
+		coords = {{.9, 1, .9, 1}, {.9, 1, .9, 1}, {.9, 1, .9, 1}, {.9, 1, .9, 1}}, --texcoords, support 4 or 8 coords method
+		desaturated = false,
+		width = 10,
+		height = 10,
+		x = 1,
+		y = 1,
+	},
+	
+	["Magneto"] = {
+		path = [[Interface\AddOns\NotPlater\images\targetBorders\RelicIconFrame]],
+		coords = {{0, .5, 0, .5}, {0, .5, .5, 1}, {.5, 1, .5, 1}, {.5, 1, 0, .5}},
+		desaturated = false,
+		width = 8,
+		height = 10,
+		autoScale = true,
+		x = 2,
+		y = 2,
+	},
+	
+	["Gray Bold"] = {
+		path = [[Interface\AddOns\NotPlater\images\targetBorders\UI-Icon-QuestBorder]],
+		coords = {{0, .5, 0, .5}, {0, .5, .5, 1}, {.5, 1, .5, 1}, {.5, 1, 0, .5}},
+		desaturated = true,
+		width = 10,
+		height = 10,
+		autoScale = true,
+		x = 2,
+		y = 2,
+	},
+	
+	["Pins"] = {
+		path = [[Interface\AddOns\NotPlater\images\targetBorders\UI-ItemSockets]],
+		coords = {{145/256, 161/256, 3/256, 19/256}, {145/256, 161/256, 19/256, 3/256}, {161/256, 145/256, 19/256, 3/256}, {161/256, 145/256, 3/256, 19/256}},
+		desaturated = 1,
+		width = 4,
+		height = 4,
+		autoScale = false,
+		x = 2,
+		y = 2,
+	},
+
+	["Silver"] = {
+		path = [[Interface\AddOns\NotPlater\images\targetBorders\PETBATTLEHUD]],
+		coords = {
+			{336/512, 356/512, 454/512, 474/512}, 
+			{336/512, 356/512, 474/512, 495/512}, 
+			{356/512, 377/512, 474/512, 495/512}, 
+			{356/512, 377/512, 454/512, 474/512}
+		}, --848 889 454 495
+		desaturated = false,
+		width = 6,
+		height = 6,
+		autoScale = true,
+		x = 1,
+		y = 1,
+	},
+	
+	["Ornament"] = {
+		path = [[Interface\AddOns\NotPlater\images\targetBorders\PETJOURNAL]],
+		coords = {
+			{124/512, 161/512, 71/512, 99/512}, 
+			{119/512, 156/512, 29/512, 57/512}
+		},
+		desaturated = false,
+		width = 18,
+		height = 12,
+		wscale = 1,
+		hscale = 1.2,
+		autoScale = true,
+		x = 14,
+		y = 0,
+	},
+	
+	--[[
+	["Golden"] = {
+		path = Interface\AddOns\NotPlater\images\targetBorders\Artifacts
+		coords = {
+			{137/512, (137+29)/512, 408/512, 466/512},
+			{(137+30)/512, 195/512, 408/512, 466/512},
+		},
+		desaturated = false,
+		width = 8,
+		height = 12,
+		wscale = 1,
+		hscale = 1.2,
+		autoScale = true,
+		x = 0,
+		y = 0,
+	},
+	]]
+	
+	["Ornament Gray"] = {
+		path = [[Interface\AddOns\NotPlater\images\targetBorders\challenges-besttime-bg]],
+		coords = {
+			{89/512, 123/512, 0, 1},
+			{123/512, 89/512, 0, 1},
+		},
+		desaturated = false,
+		width = 8,
+		height = 12,
+		alpha = 0.7,
+		wscale = 1,
+		hscale = 1.2,
+		autoScale = true,
+		x = 0,
+		y = 0,
+		color = {r = 1, g = 0, b = 0},
+	},
+
+	["Epic"] = {
+		path = [[Interface\AddOns\NotPlater\images\targetBorders\WowUI_Horizontal_Frame]],
+		coords = {
+			{30/256, 40/256, 15/64, 49/64},
+			{40/256, 30/256, 15/64, 49/64}, 
+		},
+		desaturated = false,
+		width = 6,
+		height = 12,
+		wscale = 1,
+		hscale = 1.2,
+		autoScale = true,
+		x = 3,
+		y = 0,
+		blend = "ADD",
+	},
+	
+	["Arrow"] = {
+        path = [[Interface\AddOns\NotPlater\images\targetBorders\arrow_single_right_64]],
+        coords = {
+            {0, 1, 0, 1}, 
+            {1, 0, 0, 1}
+        },
+        desaturated = false,
+        width = 20,
+        height = 20,
+        x = 28,
+        y = 0,
+		wscale = 1.5,
+		hscale = 2,
+		autoScale = true,
+        blend = "ADD",
+        color = {r = 1, g = 1, b = 1},
+    },
+	
+	["Arrow Thin"] = {
+        path = [[Interface\AddOns\NotPlater\images\targetBorders\arrow_thin_right_64]],
+        coords = {
+            {0, 1, 0, 1}, 
+            {1, 0, 0, 1}
+        },
+        desaturated = false,
+        width = 20,
+        height = 20,
+        x = 28,
+        y = 0,
+		wscale = 1.5,
+		hscale = 2,
+		autoScale = true,
+        blend = "ADD",
+        color = {r = 1, g = 1, b = 1},
+    },
+	
+	["Double Arrows"] = {
+        path = [[Interface\AddOns\NotPlater\images\targetBorders\arrow_double_right_64]],
+        coords = {
+            {0, 1, 0, 1}, 
+            {1, 0, 0, 1}
+        },
+        desaturated = false,
+        width = 20,
+        height = 20,
+        x = 28,
+        y = 0,
+		wscale = 1.5,
+		hscale = 2,
+		autoScale = true,
+        blend = "ADD",
+        color = {r = 1, g = 1, b = 1},
+    },
+}
+
+local HIGHLIGHT_BASE_PATH = [[Interface\AddOns\NotPlater\images\targetBorders\]]
+NotPlater.targetHighlights = {
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator1"] =  "Indicator 1",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator2"] =  "Indicator 2",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator3"] =  "Indicator 3",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator4"] =  "Indicator 4",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator5"] =  "Indicator 5",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator6"] =  "Indicator 6",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator7"] =  "Indicator 7",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator8"] =  "Indicator 8"
+}
+
+
 function Config:OnInitialize()
 	config = LibStub("AceConfig-3.0")
 	dialog = LibStub("AceConfigDialog-3.0")
 	
 	SML = LibStub:GetLibrary("LibSharedMedia-3.0")
-	SML:Register(SML.MediaType.STATUSBAR, "BantoBar", "Interface\\Addons\\NotPlater\\images\\banto")
-	SML:Register(SML.MediaType.STATUSBAR, "Smooth",   "Interface\\Addons\\NotPlater\\images\\smooth")
-	SML:Register(SML.MediaType.STATUSBAR, "Perl",     "Interface\\Addons\\NotPlater\\images\\perl")
-	SML:Register(SML.MediaType.STATUSBAR, "Glaze",    "Interface\\Addons\\NotPlater\\images\\glaze")
-	SML:Register(SML.MediaType.STATUSBAR, "Charcoal", "Interface\\Addons\\NotPlater\\images\\Charcoal")
-	SML:Register(SML.MediaType.STATUSBAR, "Otravi",   "Interface\\Addons\\NotPlater\\images\\otravi")
-	SML:Register(SML.MediaType.STATUSBAR, "Striped",  "Interface\\Addons\\NotPlater\\images\\striped")
-	SML:Register(SML.MediaType.STATUSBAR, "LiteStep", "Interface\\Addons\\NotPlater\\images\\LiteStep")
-	SML:Register(SML.MediaType.STATUSBAR, "NotPlater Default", "Interface\\TargetingFrame\\UI-TargetingFrame-BarFill")
+	for _, statusBarTexture in ipairs(textures) do
+		SML:Register(SML.MediaType.STATUSBAR, statusBarTexture, TEXTURE_BASE_PATH .. statusBarTexture)
+	end
 end
 
 -- GUI
@@ -101,10 +301,8 @@ function Config:GetTextures()
 end
 
 -- Return all registered SML fonts
-local fonts = {}
 function Config:GetFonts()
-	for k in pairs(fonts) do fonts[k] = nil end
-
+	local fonts = {}
 	for _, name in pairs(SML:List(SML.MediaType.FONT)) do
 		fonts[name] = name
 	end
@@ -112,11 +310,14 @@ function Config:GetFonts()
 	return fonts
 end
 
-local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick outline"], ["MONOCHROME"] = L["Monochrome"]}
-local anchors = {["CENTER"] = L["center"], ["BOTTOM"] = L["bottom"], ["TOP"] = L["top"], ["LEFT"] = L["left"], ["RIGHT"] = L["right"], ["BOTTOMLEFT"] = L["bottomleft"], ["TOPRIGHT"] = L["topright"], ["BOTTOMRIGHT"] = L["bottomright"], ["TOPLEFT"] = L["topleft"]}
-local frameStratas = {["Inherited"] = L["inherited"], ["BACKGROUND"] = L["background"], ["LOW"] = L["low"], ["MEDIUM"] = L["medium"], ["HIGH"] = L["high"], ["DIALOG"] = L["dialog"], ["FULLSCREEN"] = L["fullscreen"], ["FULLSCREEN_DIALOG"] = L["fullscreen dialog"], ["TOOLTIP"] = L["tooltip"]}
-local strataSort = {"Inherited", "BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"}
-local drawLayers = {["BACKGROUND"] = L["background"], ["BORDER"] = L["border"], ["ARTWORK"] = L["artwork"], ["OVERLAY"] = L["overlay"], ["HIGHLIGHT"] = L["highlight"]}
+function Config:GetIndicators()
+	local indicators = {}
+	for name, _ in pairs(NotPlater.targetIndicators) do
+		indicators[name] = name
+	end
+	
+	return indicators
+end
 
 local function loadOptions()
 	options = {}
@@ -2103,8 +2304,78 @@ local function loadOptions()
 			},
 		},
 	}
-	options.args.simulator = {
+	options.args.targetBorder = {
 		order = 8,
+		type = "group",
+		name = L["Target border"],
+		get = get,
+		set = set,
+		handler = Config,
+		args = {
+			indicator = {
+				order = 0,
+				type = "group",
+				inline = true,
+				name = L["Indicator"],
+				args = {
+					enabled = {
+						order = 0,
+						type = "toggle",
+						name = L["Enabled"],
+						arg = "targetBorder.indicator.enabled",
+					},
+					selection = {
+						order = 1,
+						type = "select",
+						name = L["Indicator selection"],
+						values = "GetIndicators",
+						arg = "targetBorder.indicator.selection",
+					},
+				},
+			},
+			highlight = {
+				order = 1,
+				type = "group",
+				inline = true,
+				name = L["Highlight"],
+				args = {
+					enabled = {
+						order = 0,
+						type = "toggle",
+						name = L["Enabled"],
+						width = "full",
+						arg = "targetBorder.highlight.enabled",
+					},
+					color = {
+						order = 1,
+						type = "color",
+						name = L["Highlight color"],
+						hasAlpha = true,
+						set = setColor,
+						get = getColor,
+						arg = "targetBorder.highlight.color",
+					},
+					texture = {
+						order = 2,
+						type = "select",
+						name = L["Highlight texture"],
+						values = NotPlater.targetHighlights,
+						arg = "targetBorder.highlight.texture",
+					},
+					thickness = {
+						order = 3,
+						type = "range",
+						name = L["Highlight thickness"],
+						min = 1, max = 30, step = 1,
+						set = setNumber,
+						arg = "targetBorder.highlight.thickness",
+					},
+				},
+			},
+		},
+	}
+	options.args.simulator = {
+		order = 9,
 		type = "group",
 		name = L["Simulator"],
 		get = get,
@@ -2131,7 +2402,7 @@ local function loadOptions()
 
 	-- DB Profiles
 	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(NotPlater.db)
-	options.args.profile.order = 9
+	options.args.profile.order = 10
 end
 
 -- Slash commands
@@ -2194,6 +2465,9 @@ register:SetScript("OnShow", function(self)
 
 	config:RegisterOptionsTable("NotPlater-BossIcon", options.args.bossIcon)
 	dialog:AddToBlizOptions("NotPlater-BossIcon", options.args.bossIcon.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-TargetBorder", options.args.targetBorder)
+	dialog:AddToBlizOptions("NotPlater-TargetBorder", options.args.targetBorder.name, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-Simulator", options.args.simulator)
 	dialog:AddToBlizOptions("NotPlater-Simulator", options.args.simulator.name, "NotPlater")

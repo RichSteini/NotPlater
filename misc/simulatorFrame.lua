@@ -128,6 +128,7 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
 	NotPlater:ConfigureIcon(self.defaultFrame.raidIcon, self.defaultFrame.defaultHealthFrame, NotPlater.db.profile.raidIcon)
 	NotPlater:ConfigureLevelText(self.defaultFrame.levelText, self.defaultFrame.defaultHealthFrame)
 	NotPlater:ConfigureNameText(self.defaultFrame.nameText, self.defaultFrame.defaultHealthFrame)
+	NotPlater:ConfigureTargetBorder(self.defaultFrame.defaultHealthFrame, self.defaultFrame)
     if not simulatorTextSet then
         self.defaultFrame.bossIcon.texture:SetTexture(BOSS_ICON_PATH)
         self.defaultFrame.levelText:SetText(L["70"])

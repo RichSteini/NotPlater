@@ -249,8 +249,6 @@ function NotPlater:ConfigureCastBar(frame)
 end
 
 function NotPlater:ConstructCastBar(frame)
-    local castBarConfig = self.db.profile.castBar
-
 	local castFrame = CreateFrame("StatusBar", "$parentCastBar", frame)
 	castFrame:SetScript("OnUpdate", NotPlater.CastBarOnUpdate)
 

@@ -119,7 +119,7 @@ function NotPlater:OnInitialize()
 			},
 			healthBar = 
 			{ 
-				texture = "Smooth", 
+				texture = "NotPlater Default", 
 				backgroundColor = {r = 0, g = 0, b = 0, a = 0.5}, 
 				hideBorder = false, 
 				hideTargetBorder = false, 
@@ -153,7 +153,7 @@ function NotPlater:OnInitialize()
 			castBar = 
 			{ 
 				enabled = true,
-				texture = "Smooth", 
+				texture = "NotPlater Default", 
 				barColor = {r = 0.765, g = 0.525, b = 0, a = 1}, 
 				backgroundColor = {r = 0, g = 0, b = 0, a = 0.7}, 
 				position = 
@@ -255,6 +255,21 @@ function NotPlater:OnInitialize()
 				xSize = 20,
 				ySize = 20,
 			},
+			targetBorder = 
+			{ 
+				indicator = 
+				{
+					enabled = true,
+					selection = "Silver"
+				},
+				highlight = 
+				{
+					enabled = true,
+					texture = [[Interface\AddOns\NotPlater\images\targetBorders\selection_indicator3]],
+					color = {r = 0, g = 0.521568, b = 1, a = 0.75},
+					thickness = 14
+				},
+			},
 		},
 	}
 
@@ -323,6 +338,7 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureIcon(raidIcon, health, self.db.profile.raidIcon)
 	self:ConfigureLevelText(levelText, health)
 	self:ConfigureNameText(nameText, health)
+	self:ConfigureTargetBorder(health, frame)
 end
 
 function NotPlater:HookFrames(...)

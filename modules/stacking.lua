@@ -1,5 +1,23 @@
 if( not NotPlater ) then return end
 
+function NotPlater:SetTargetFrameStrata(frame)
+	local generalConfig = self.db.profile.general
+	if generalConfig.nameplateStacking.enabled and not UnitAffectingCombat("player") then
+		if frame:GetFrameStrata() ~= generalConfig.frameStrata.targetFrame then
+			frame:SetFrameStrata(generalConfig.frameStrata.targetFrame)
+		end
+	end
+end
+
+function NotPlater:SetNormalFrameStrata(frame)
+	local generalConfig = self.db.profile.general
+	if generalConfig.nameplateStacking.enabled and not UnitAffectingCombat("player") then
+		if frame:GetFrameStrata() ~= generalConfig.frameStrata.frame then
+			frame:SetFrameStrata(generalConfig.frameStrata.frame)
+		end
+	end
+end
+
 function NotPlater:ConfigureStacking(frame)
 	local generalConfig = self.db.profile.general
 	local healthBarConfig = self.db.profile.healthBar
