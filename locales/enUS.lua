@@ -117,6 +117,13 @@ NotPlaterLocals = {
 	["Style of display for cast bar text."] = "Style of display for cast bar text.",
 	["Max. letters"] = "Max. letters",
 
+	["DPS"] = "DPS",
+	["Healer"] = "Healer",
+	["You"] = "You",
+	["Current simulated threat scenario:"] = "Current simulated threat scenario:",
+	["Simulated Player"] = "Simulated Player",
+	["Threat Value (%)"] = "Threat Value (%)",
+
 	["Outline"] = "Outline",
 	["Thick outline"] = "Thick outline",
 	["Monochrome"] = "Monochrome",
