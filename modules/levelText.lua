@@ -1,7 +1,7 @@
 if( not NotPlater ) then return end
 
 function NotPlater:ScaleLevelText(levelText, isTarget)
-	local scaleConfig = self.db.profile.target.scale
+	local scaleConfig = self.db.profile.target.general.scale
 	if scaleConfig.levelText then
 		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
 		self:ScaleGeneralisedText(levelText, scalingFactor, self.db.profile.levelText)

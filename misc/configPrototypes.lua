@@ -1,10 +1,10 @@
 if not NotPlater then return end
 
 local L = NotPlaterLocals
-local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick outline"], ["MONOCHROME"] = L["Monochrome"]}
-local anchors = {["CENTER"] = L["center"], ["BOTTOM"] = L["bottom"], ["TOP"] = L["top"], ["LEFT"] = L["left"], ["RIGHT"] = L["right"], ["BOTTOMLEFT"] = L["bottomleft"], ["TOPRIGHT"] = L["topright"], ["BOTTOMRIGHT"] = L["bottomright"], ["TOPLEFT"] = L["topleft"]}
-local frameStratas = {["BACKGROUND"] = L["background"], ["LOW"] = L["low"], ["MEDIUM"] = L["medium"], ["HIGH"] = L["high"], ["DIALOG"] = L["dialog"], ["FULLSCREEN"] = L["fullscreen"], ["FULLSCREEN_DIALOG"] = L["fullscreen dialog"], ["TOOLTIP"] = L["tooltip"]}
-local drawLayers = {["BACKGROUND"] = L["background"], ["BORDER"] = L["border"], ["ARTWORK"] = L["artwork"], ["OVERLAY"] = L["overlay"], ["HIGHLIGHT"] = L["highlight"]}
+local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick Outline"], ["MONOCHROME"] = L["Monochrome"]}
+local anchors = {["CENTER"] = L["Center"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["TOPLEFT"] = L["Top Left"]}
+local frameStratas = {["BACKGROUND"] = L["Background"], ["LOW"] = L["Low"], ["MEDIUM"] = L["Medium"], ["HIGH"] = L["High"], ["DIALOG"] = L["Dialog"], ["FULLSCREEN"] = L["Fullscreen"], ["FULLSCREEN_DIALOG"] = L["Fullscreen Dialog"], ["TOOLTIP"] = L["Tooltip"]}
+local drawLayers = {["BACKGROUND"] = L["Background"], ["BORDER"] = L["Border"], ["ARTWORK"] = L["Artwork"], ["OVERLAY"] = L["Overlay"], ["HIGHLIGHT"] = L["Highlight"]}
 
 local ConfigPrototypes = {}
 NotPlater.ConfigPrototypes = ConfigPrototypes
@@ -458,7 +458,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
         order = 1,
         type = "select",
         name = L["Display Type"],
-        values = {["crtmax"] = L["Current / Max"], ["none"] = L["None"], ["crt"] = L["Current"], ["percent"] = L["Percent"], ["timeleft"] = L["Time left"]},
+        values = {["crtmax"] = L["Current / Max"], ["none"] = L["None"], ["crt"] = L["Current"], ["percent"] = L["Percent"], ["timeleft"] = L["Time Left"]},
     }
     ConfigPrototypes.SpellNameText = ConfigPrototypes:GetGeneralisedColorFontConfig()
     ConfigPrototypes.SpellNameText.general.args.maxLetters = {
@@ -549,6 +549,11 @@ function ConfigPrototypes:LoadConfigPrototypes()
                     order = 7,
                     type = "toggle",
                     name = L["Boss Icon"],
+                },
+                targetTargetText = {
+                    order = 8,
+                    type = "toggle",
+                    name = L["Target-Target Text"],
                 },
             },
         },
@@ -672,6 +677,13 @@ function ConfigPrototypes:LoadConfigPrototypes()
             },
         },
     }
+    ConfigPrototypes.TargetTargetText = ConfigPrototypes:GetGeneralisedColorFontConfig()
+    ConfigPrototypes.TargetTargetText.general.args.maxLetters = {
+        order = 5,
+        type = "range",
+        name = L["Max. Letters"],
+        min = 1, max = 40, step = 1,
+    }
     ConfigPrototypes.Simulator = {
         general = {
             order = 1,
@@ -688,7 +700,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
                 execSim = {
                     order = 1,
                     type = "execute",
-                    name = L["Toggle simulator frame"],
+                    name = L["Toggle Simulator Frame"],
                     func = function () NotPlater:ToggleSimulatorFrame() end,
                 },
             },

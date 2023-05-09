@@ -87,6 +87,7 @@ function NotPlater:PrepareFrame(frame)
 						frame.healthBar:SetStatusBarColor(color.r, color.g, color.b, 1)
 					end
 				end
+				NotPlater:SetTargetTargetText(self)
 				self.targetCheckElapsed = 0
 			end
 		end)

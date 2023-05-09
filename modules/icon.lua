@@ -5,7 +5,7 @@ function NotPlater:ScaleIcon(iconFrame, scalingFactor, config)
 end
 
 function NotPlater:ScaleBossIcon(iconFrame, isTarget)
-	local scaleConfig = self.db.profile.target.scale
+	local scaleConfig = self.db.profile.target.general.scale
 	if scaleConfig.bossIcon then
 		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
         self:ScaleIcon(iconFrame, scalingFactor, self.db.profile.bossIcon)
@@ -13,7 +13,7 @@ function NotPlater:ScaleBossIcon(iconFrame, isTarget)
 end
 
 function NotPlater:ScaleRaidIcon(iconFrame, isTarget)
-	local scaleConfig = self.db.profile.target.scale
+	local scaleConfig = self.db.profile.target.general.scale
 	if scaleConfig.raidIcon then
 		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
         self:ScaleIcon(iconFrame, scalingFactor, self.db.profile.raidIcon)

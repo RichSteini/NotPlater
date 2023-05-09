@@ -6,7 +6,7 @@ local tinsert = table.insert
 function NotPlater:ConfigureTarget(frame)
     local healthBarHeight = frame.healthBar:GetHeight()
 
-	local preset = self.targetIndicators[self.db.profile.target.border.indicator.selection]
+	local preset = self.targetIndicators[self.db.profile.target.general.border.indicator.selection]
 	if (not preset) then
 		preset = self.targetIndicators["Silver"]
 	end
@@ -69,7 +69,7 @@ function NotPlater:ConfigureTarget(frame)
 	end
 
     -- highlight (glow)
-    local targetHighlightConfig = self.db.profile.target.border.highlight
+    local targetHighlightConfig = self.db.profile.target.general.border.highlight
     frame.targetNeonUp:SetVertexColor(self:GetColor(targetHighlightConfig.color))
 	frame.targetNeonUp:SetAlpha (self:GetAlpha(targetHighlightConfig.color))
 	frame.targetNeonUp:SetTexture(targetHighlightConfig.texture)
@@ -84,17 +84,19 @@ function NotPlater:ConfigureTarget(frame)
 	frame.targetNeonDown:SetPoint("topleft", frame.healthBar, "bottomleft", 0, 0)
 	frame.targetNeonDown:SetPoint("topright", frame.healthBar, "bottomright", 0, 0)
 
-    local targetOverlayConfig = self.db.profile.target.overlay
+    local targetOverlayConfig = self.db.profile.target.general.overlay
     frame.targetOverlay:SetTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, targetOverlayConfig.texture))
     frame.targetOverlay:SetVertexColor(self:GetColor(targetOverlayConfig.color))
 
-    local nonTargetShadingConfig = self.db.profile.target.nonTargetShading
+    local nonTargetShadingConfig = self.db.profile.target.general.nonTargetShading
     frame.nonTargetShading:SetAlpha(nonTargetShadingConfig.opacity)
+
+	self:ConfigureGeneralisedText(frame.targetTargetText, frame.healthBar, self.db.profile.target.targetTargetText)
 end
 
 function NotPlater:TargetOnTarget(frame)
     local hide2s, hide4s = false, false
-    local targetBorderConfig = NotPlater.db.profile.target.border
+    local targetBorderConfig = NotPlater.db.profile.target.general.border
     if targetBorderConfig.indicator.enable and frame.healthBar:GetHeight() > 4 then
         local preset = NotPlater.targetIndicators[targetBorderConfig.indicator.selection]
         if (not preset) then preset = NotPlater.targetIndicators["Silver"] end
@@ -133,7 +135,7 @@ function NotPlater:TargetOnTarget(frame)
         frame.targetNeonUp:Hide()
     end
 
-    if self.db.profile.target.overlay.enable then
+    if self.db.profile.target.general.overlay.enable then
         frame.targetOverlay:Show()
     else
         frame.targetOverlay:Hide()
@@ -151,12 +153,40 @@ function NotPlater:TargetOnNonTarget(frame)
     frame.targetNeonDown:Hide()
     frame.targetNeonUp:Hide()
     frame.targetOverlay:Hide()
-    if self.db.profile.target.nonTargetShading.enable then
+    if self.db.profile.target.general.nonTargetShading.enable then
         frame.nonTargetShading:Show()
     else
         frame.nonTargetShading:Hide()
     end
     frame.targetOverlay:Hide()
+end
+
+function NotPlater:SetTargetTargetText(frame)
+    if NotPlater.db.profile.target.targetTargetText.general.enable then
+        if self:IsTarget(frame) then
+            local targetTargetName = UnitName("target-target")
+            if targetTargetName then
+                self:SetMaxLetterText(frame.targetTargetText, targetTargetName, self.db.profile.target.targetTargetText)
+                frame.targetTargetText:Show()
+            else
+                frame.targetTargetText:SetText("")
+            end
+        else
+            frame.targetTargetText:Hide()
+        end
+    else
+        if frame.targetTargetText:IsShown() then
+            frame.targetTargetText:Hide()
+        end
+    end
+end
+
+function NotPlater:ScaleTargetTargetText(targetTargetText, isTarget)
+	local scaleConfig = self.db.profile.target.general.scale
+	if scaleConfig.targetTargetText then
+		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
+		self:ScaleGeneralisedText(targetTargetText, scalingFactor, self.db.profile.target.targetTargetText)
+	end
 end
 
 function NotPlater:TargetCheck(frame)
@@ -172,6 +202,7 @@ function NotPlater:TargetCheck(frame)
     NotPlater:ScaleHealthBar(frame.healthBar, isTarget)
     NotPlater:ScaleCastBar(frame.castBar, isTarget)
     NotPlater:ScaleNameText(frame.nameText, isTarget)
+    NotPlater:ScaleTargetTargetText(frame.targetTargetText, isTarget)
     NotPlater:ScaleLevelText(frame.levelText, isTarget)
     NotPlater:ScaleBossIcon(frame.bossIcon, isTarget)
     NotPlater:ScaleRaidIcon(frame.raidIcon, isTarget)
@@ -215,4 +246,7 @@ function NotPlater:ConstructTarget(frame)
     frame.nonTargetShading:SetAllPoints()
     frame.nonTargetShading:SetTexture ("Interface\\Tooltips\\UI-Tooltip-Background")
     frame.nonTargetShading:SetVertexColor (0, 0, 0, 1)
+
+    -- Create health text
+    frame.targetTargetText = frame.healthBar:CreateFontString(nil, "ARTWORK")
 end

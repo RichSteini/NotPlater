@@ -361,40 +361,64 @@ function NotPlater:LoadDefaultConfig()
                 }
             },
             target = {
-                scale = {
-                    scalingFactor = 1.12,
-                    threat = false,
-                    healthBar = true,
-                    castBar = true,
-                    nameText = true,
-                    levelText = false,
-                    raidIcon = false,
-                    bossIcon = false
-                },
-                border = {
-                    indicator = {
-                        enable = true,
-                        selection = "Silver"
+                general = {
+                    scale = {
+                        scalingFactor = 1.12,
+                        threat = false,
+                        healthBar = true,
+                        castBar = true,
+                        nameText = true,
+                        levelText = false,
+                        raidIcon = false,
+                        bossIcon = false,
+                        targetTargetText = false
                     },
-                    highlight = {
+                    border = {
+                        indicator = {
+                            enable = true,
+                            selection = "Silver"
+                        },
+                        highlight = {
+                            enable = true,
+                            texture = [[Interface\AddOns\NotPlater\images\targetBorders\selection_indicator3]],
+                            color = {0, 0.521568, 1, 0.75},
+                            thickness = 14
+                        },
+                    },
+                    overlay = {
                         enable = true,
-                        texture = [[Interface\AddOns\NotPlater\images\targetBorders\selection_indicator3]],
-                        color = {0, 0.521568, 1, 0.75},
-                        thickness = 14
+                        texture = "Flat",
+                        color = {1, 1, 1, 0.05}
+                    },
+                    nonTargetShading = {
+                        enable = true,
+                        opacity = 0.4
+                    },
+                    mouseoverHighlight = {
+                        enable = true,
+                        opacity = 0.5
                     },
                 },
-                overlay = {
-                    enable = true,
-                    texture = "Flat",
-                    color = {1, 1, 1, 0.05}
-                },
-                nonTargetShading = {
-                    enable = true,
-                    opacity = 0.4
-                },
-                mouseoverHighlight = {
-                    enable = true,
-                    opacity = 0.5
+                targetTargetText = {
+                    general = {
+                        enable = false,
+                        color = {1, 1, 1, 1},
+                        name = "Arial Narrow",
+                        size = 8,
+                        border = "",
+                        maxLetters = 6
+                    },
+                    position = {
+                        anchor = "CENTER",
+                        xOffset = 44,
+                        yOffset = -3,
+                    },
+                    shadow = {
+                        enable = false,
+                        color = {0, 0, 0, 1},
+                        xOffset = 0,
+                        yOffset = 0
+                    }
                 },
             },
             stacking = {

@@ -3,6 +3,8 @@ if( not NotPlater ) then return end
 local L = NotPlaterLocals
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local unpack = unpack
+local slen = string.len
+local ssub = string.sub
 
 function NotPlater:GetColor(config)
 	return unpack(config)
@@ -37,6 +39,15 @@ function NotPlater:SetupFontString(text, config)
 		text:SetShadowColor(text.npOriginalShadow.r, text.npOriginalShadow.g, text.npOriginalShadow.b, text.npOriginalShadow.a)
 		text:SetShadowOffset(text.npOriginalShadow.x, text.npOriginalShadow.y)
 		text.npOriginalShadow = nil
+	end
+end
+
+function NotPlater:SetMaxLetterText(textObject, text, config)
+	local configMaxLength = config.general.maxLetters
+	if text and slen(text) > configMaxLength then
+		textObject:SetText(ssub(text, 1, configMaxLength) .. "...")
+	else
+		textObject:SetText(text)
 	end
 end
 

@@ -205,7 +205,7 @@ function NotPlater:CastCheck(frame)
 end
 
 function NotPlater:ScaleCastBar(castFrame, isTarget)
-	local scaleConfig = self.db.profile.target.scale
+	local scaleConfig = self.db.profile.target.general.scale
 	if scaleConfig.castBar then
 		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
     	local castBarConfig = self.db.profile.castBar

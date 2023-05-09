@@ -349,7 +349,6 @@ local function LoadOptions()
 		get = GetValue,
 		set = SetValue,
 		childGroups = "tab",
-		handler = Config,
 		args = {
 			general = {
 				order = 0,
@@ -403,7 +402,6 @@ local function LoadOptions()
 		name = L["Health Bar"],
 		get = GetValue,
 		set = SetValue,
-		handler = Config,
 		childGroups = "tab",
 		args = {
 			statusBar = {
@@ -427,7 +425,6 @@ local function LoadOptions()
 		get = GetValue,
 		set = SetValue,
 		childGroups = "tab",
-		handler = Config,
 		args =  {
 			statusBar = {
 				order = 0,
@@ -461,7 +458,6 @@ local function LoadOptions()
 		name = L["Name Text"],
 		get = GetValue,
 		set = SetValue,
-		handler = Config,
 		args = NotPlater.ConfigPrototypes.NameText
 	}
 	options.args.levelText = {
@@ -470,7 +466,6 @@ local function LoadOptions()
 		name = L["Level Text"],
 		get = GetValue,
 		set = SetValue,
-		handler = Config,
 		args = NotPlater.ConfigPrototypes.LevelText
 	}
 	options.args.raidIcon = {
@@ -479,7 +474,6 @@ local function LoadOptions()
 		name = L["Raid Icon"],
 		get = GetValue,
 		set = SetValue,
-		handler = Config,
 		args = NotPlater.ConfigPrototypes.Icon
 	}
 	options.args.bossIcon = {
@@ -488,7 +482,6 @@ local function LoadOptions()
 		name = L["Boss Icon"],
 		get = GetValue,
 		set = SetValue,
-		handler = Config,
 		args = NotPlater.ConfigPrototypes.Icon
 	}
 	options.args.target = {
@@ -497,30 +490,41 @@ local function LoadOptions()
 		name = L["Target"],
 		get = GetValue,
 		set = SetValue,
-		handler = Config,
-		args = NotPlater.ConfigPrototypes.Target
+		childGroups = "tab",
+		args = {
+			general = {
+				order = 0,
+				type = "group",
+				name = L["General"],
+				args = NotPlater.ConfigPrototypes.Target
+			},
+			targetTargetText = {
+				order = 8,
+				type = "group",
+				name = L["Target-Target Text"],
+				args = NotPlater.ConfigPrototypes.TargetTargetText
+			}
+		}
 	}
 	options.args.stacking = {
-		order = 8,
+		order = 9,
 		type = "group",
 		get = GetValue,
 		set = SetValue,
 		name = L["Stacking"],
-		handler = Config,
 		args = NotPlater.ConfigPrototypes.NameplateStacking,
 	}
 	options.args.simulator = {
-		order = 9,
+		order = 10,
 		type = "group",
 		name = L["Simulator"],
 		get = GetValue,
 		set = SetValue,
-		handler = Config,
 		args = NotPlater.ConfigPrototypes.Simulator
 	}
 
 	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(NotPlater.db)
-	options.args.profile.order = 10
+	options.args.profile.order = 11
 end
 
 function Config:ToggleConfig()
