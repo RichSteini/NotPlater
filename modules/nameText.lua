@@ -1,14 +1,13 @@
 if( not NotPlater ) then return end
 
-function NotPlater:ConfigureNameText(nameText, anchorFrame)
-	local nameTextConfig = self.db.profile.nameText
-	-- Set name text
-	nameText:ClearAllPoints()
-	nameText:SetPoint(nameTextConfig.anchor, anchorFrame, nameTextConfig.xOffset, nameTextConfig.yOffset)
-	self:SetupFontString(nameText, nameTextConfig, false)
-	if not nameTextConfig.fontEnabled then
-		nameText:Hide()
-	else
-		nameText:Show()
+function NotPlater:ScaleNameText(nameText, isTarget)
+	local scaleConfig = self.db.profile.target.scale
+	if scaleConfig.nameText then
+		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
+		self:ScaleGeneralisedText(nameText, scalingFactor, self.db.profile.nameText)
 	end
+end
+
+function NotPlater:ConfigureNameText(nameText, anchorFrame)
+	self:ConfigureGeneralisedText(nameText, anchorFrame, self.db.profile.nameText)
 end

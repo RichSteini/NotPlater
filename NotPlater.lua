@@ -6,279 +6,13 @@ local UnitLevel = UnitLevel
 local UnitHealth = UnitHealth
 local UnitGUID = UnitGUID
 local UnitExists = UnitExists
+local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 
 local frames = {}
 
 NotPlater.frame = CreateFrame("Frame")
 function NotPlater:OnInitialize()
-	self.defaults = {
-		profile = {
-			general = 
-			{ 
-				frameStrata =
-				{
-					frame = "LOW",
-					targetFrame = "MEDIUM"
-				},
-				nameplateStacking =
-				{
-					enabled = false,
-					overlappingCastbars = true,
-					xMargin = 0,
-					yMargin = 0
-				}
-			},
-			threat = 
-			{
-				general = 
-				{
-					mode = "hdps",
-					enableMouseoverUpdate = true
-				},
-				nameplateColors =
-				{
-					enabled = true,
-					dpsHealerAggroOnYou = {r = 1, g = 0.109, b = 0, a = 1},
-					dpsHealerHighThreat = {r = 1, g = 0.8, b = 0, a = 1},
-					dpsHealerDefaultNoAggro = {r = 0.5, g = 0.5, b = 1, a = 1},
-					tankNoAggro = {r = 1, g = 0.109, b = 0, a = 1},
-					tankDpsClose = {r = 1, g = 0.8, b = 0, a = 1},
-					tankAggroOnYou = {r = 0.5, g = 0.5, b = 1, a = 1}
-				},
-				threatPercentBarText =
-				{
-					fontEnabled = false,
-					fontName = "Arial Narrow",
-					fontSize = 8,
-					fontBorder = "",
-					fontColor = {r = 0, g = 0, b = 0, a = 1},
-					fontUseThreatColors = false,
-					fontAnchor = "CENTER",
-					fontXOffset = 0,
-					fontYOffset = 0,
-					fontShadowEnabled = false,
-					fontShadowColor = { r = 0, g = 0, b = 0, a = 1 },
-					fontShadowXOffset = 0, 
-					fontShadowYOffset = 0,
-					barEnabled = false,
-					barUseThreatColors = true,
-					barTexture = "Smooth",
-					barColor = {r = 1, g = 0, b = 0, a = 1},
-					barBorderEnabled = true,
-					barBorderThickness = 1,
-					barBorderColor = {r = 0, g = 0, b = 0, a = 1},
-					barBackgroundColor = {r = 0, g = 0, b = 0, a = 0.3},
-					barAnchor = "TOPLEFT",
-					barXOffset = 0,
-					barYOffset = 12,
-					barXSize = 30,
-					barYSize = 10,
-					dpsHealerOneHundredPercent = {r = 1, g = 0, b = 0, a = 1},
-					dpsHealerAboveNinetyPercent = {r = 1, g = 0.65, b = 0, a = 1},
-					dpsHealerBelowNinetyPercent = {r = 0, g = 1, b = 0, a = 1},
-					tankOneHundredPercent = {r = 0, g = 1, b = 0, a = 1},
-					tankAboveNinetyPercent = {r = 1, g = 0.65, b = 0, a = 1},
-					tankBelowNinetyPercent = {r = 1, g = 0, b = 0, a = 1}
-				},
-				threatDifferentialText =
-				{
-					enabled = false,
-					anchor = "LEFT",
-					xOffset = -35,
-					yOffset = 0,
-					fontName = "Arial Narrow", 
-					fontSize = 11, 
-					fontBorder = "OUTLINE", 
-					fontShadowEnabled = false, 
-					fontShadowColor = { r = 0, g = 0, b = 0, a = 1 },
-					fontShadowXOffset = 0, 
-					fontShadowYOffset = 0,
-					dpsHealerAggroOnYou = {r = 1, g = 0, b = 0, a = 1},
-					dpsHealerHighThreat = {r = 1, g = 0.65, b = 0, a = 1},
-					dpsHealerDefaultNoAggro = {r = 0, g = 1, b = 0, a = 1},
-					tankNoAggro = {r = 1, g = 0, b = 0, a = 1},
-					tankDpsClose = {r = 1, g = 0.65, b = 0, a = 1},
-					tankAggroOnYou = {r = 0, g = 1, b = 0, a = 1}
-				},
-				threatNumberText = 
-				{
-					enabled = false,
-					anchor = "RIGHT",
-					xOffset = 25,
-					yOffset = 0,
-					fontName = "Arial Narrow", 
-					fontSize = 20, 
-					fontBorder = "", 
-					fontShadowEnabled = false, 
-					fontShadowColor = { r = 0, g = 0, b = 0, a = 1 }, 
-					fontShadowXOffset = 0, 
-					fontShadowYOffset = 0,
-					dpsHealerFirstOnThreat = {r = 1, g = 0, b = 0, a = 1},
-					dpsHealerUpperTwentyPercentOnThreat = {r = 1, g = 0.65, b = 0, a = 1},
-					dpsHealerLowerEightyPercentOnThreat = {r = 0, g = 1, b = 0, a = 1},
-					tankFirstOnThreat = {r = 0, g = 1, b = 0, a = 1},
-					tankUpperTwentyPercentOnThreat = {r = 1, g = 0.65, b = 0, a = 1},
-					tankLowerEightyPercentOnThreat = {r = 1, g = 0, b = 0, a = 1}
-				},
-			},
-			healthBar = 
-			{ 
-				texture = "NotPlater Default", 
-				backgroundColor = {r = 0, g = 0, b = 0, a = 0.5}, 
-				position = 
-				{
-					xSize = 113,
-					ySize = 16,
-				},
-				border =
-				{
-					enabled = true,
-					color = {r = 0, g = 0, b = 0, a = 1},
-					thickness = 1
-				},
-				healthText = 
-				{
-					type = "both", 
-					fontColor = {r = 1, g = 1, b = 1, a = 1},
-					anchor = "CENTER",
-					xOffset = 0,
-					yOffset = 0,
-					fontName = "Arial Narrow", 
-					fontSize = 9, 
-					fontBorder = "OUTLINE", 
-					fontShadowEnabled = false, 
-					fontShadowColor = { r = 0, g = 0, b = 0, a = 1 }, 
-					fontShadowXOffset = 0, 
-					fontShadowYOffset = 0
-				},
-			},
-			castBar = 
-			{ 
-				enabled = true,
-				texture = "NotPlater Default", 
-				barColor = {r = 0.765, g = 0.525, b = 0, a = 1}, 
-				backgroundColor = {r = 0, g = 0, b = 0, a = 0.7}, 
-				position = 
-				{
-					anchor = "BOTTOMLEFT",
-					xOffset = 0,
-					yOffset = -15,
-					xSize = 113,
-					ySize = 15,
-				},
-				border =
-				{
-					enabled = false,
-					color = {r = 0, g = 0, b = 0, a = 1},
-					thickness = 1
-				},
-				castSpellIcon =
-				{
-					opacity = 1,
-					anchor = "LEFT",
-					xOffset = -15,
-					yOffset = 0,
-					xSize = 15,
-					ySize = 15,
-				},
-				castTimeText = 
-				{
-					type = "timeleft", 
-					fontColor = {r = 1, g = 1, b = 1, a = 1},
-					anchor = "RIGHT",
-					xOffset = -5,
-					yOffset = 0,
-					fontName = "Arial Narrow", 
-					fontSize = 11, 
-					fontBorder = "OUTLINE", 
-					fontShadowEnabled = false, 
-					fontShadowColor = { r = 0, g = 0, b = 0, a = 1 }, 
-					fontShadowXOffset = 0, 
-					fontShadowYOffset = 0
-				},
-				castNameText = 
-				{
-					fontColor = {r = 1, g = 1, b = 1, a = 1},
-					anchor = "CENTER",
-					xOffset = 0,
-					yOffset = 0,
-					fontName = "Arial Narrow", 
-					fontSize = 11, 
-					fontBorder = "OUTLINE", 
-					maxLetters = 10,
-					fontShadowEnabled = false, 
-					fontShadowColor = { r = 0, g = 0, b = 0, a = 1 }, 
-					fontShadowXOffset = 0, 
-					fontShadowYOffset = 0
-				},
-			},
-			nameText = 
-			{ 
-				fontEnabled = true,
-				anchor = "CENTER",
-				xOffset = 0,
-				yOffset = -15,
-				fontName = "Arial Narrow", 
-				fontSize = 11, 
-				fontBorder = "", 
-				fontShadowEnabled = true, 
-				fontShadowColor = { r = 0, g = 0, b = 0, a = 1 }, 
-				fontShadowXOffset = 0, 
-				fontShadowYOffset = 0
-			},
-			levelText = 
-			{ 
-				fontOpacity = 0.7,
-				anchor = "TOPRIGHT",
-				xOffset = -5,
-				yOffset = 10,
-				fontName = "Arial Narrow", 
-				fontSize = 8, 
-				fontBorder = "", 
-				fontShadowEnabled = true, 
-				fontShadowColor = { r = 0, g = 0, b = 0, a = 1 }, 
-				fontShadowXOffset = 0, 
-				fontShadowYOffset = 0
-			},
-			raidIcon = 
-			{ 
-				opacity = 1,
-				anchor = "RIGHT",
-				xOffset = 25,
-				yOffset = 0,
-				xSize = 20,
-				ySize = 20,
-			},
-			bossIcon = 
-			{ 
-				opacity = 1,
-				anchor = "LEFT",
-				xOffset = -25,
-				yOffset = 0,
-				xSize = 20,
-				ySize = 20,
-			},
-			targetBorder = 
-			{ 
-				indicator = 
-				{
-					enabled = true,
-					selection = "Silver"
-				},
-				highlight = 
-				{
-					enabled = true,
-					texture = [[Interface\AddOns\NotPlater\images\targetBorders\selection_indicator3]],
-					color = {r = 0, g = 0.521568, b = 1, a = 0.75},
-					thickness = 14
-				},
-			},
-			simulator = 
-			{
-				showOnConfig = true
-			},
-		},
-	}
+	self:LoadDefaultConfig()
 
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("NotPlaterDB", self.defaults)
 
@@ -287,6 +21,7 @@ function NotPlater:OnInitialize()
 	
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED")
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
+	self:RegisterEvent("PLAYER_TARGET_CHANGED")
 	self:Reload()
 
 	self.SML = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -311,40 +46,63 @@ function NotPlater:PrepareFrame(frame)
 	-- Hooks and creation (only once that way settings can be applied while frame is visible)
 	if not frame.npHooked then
 		frame.npHooked = true
-		
-		-- Hide highlight texture
-		highlightTexture:SetTexture(0, 0, 0, 0)
-		highlightTexture:Hide()
-	
+		frame.highlightTexture, frame.nameText, frame.levelText, frame.bossIcon, frame.raidIcon = highlightTexture, nameText, levelText, bossIcon, raidIcon
+
 		-- Hide default border
 		healthBorder:Hide()
 
 		-- Construct everything
-		self:ConstructThreatComponents(health)
-		self:ConstructHealthBar(health)
+		self:ConstructHealthBar(frame, health)
+		self:ConstructThreatComponents(frame.healthBar)
 		self:ConstructCastBar(frame)
-		self:ConstructTargetBorder(health, frame)
-		self:ConstructStacking(frame)
+		self:ConstructTarget(frame)
 
-		--  General hook to set everything that is changed on show
-		self:HookScript(health, "OnShow", function(health)
+		-- Hide old healthbar
+		health:Hide()
+    
+		self:HookScript(frame, "OnShow", function(self)
+			self.unitClass = nil
+			NotPlater:CastBarOnShow(self)
 			NotPlater:HealthBarOnShow(health)
-			NotPlater:CastBarOnShow(frame)
-			NotPlater:LevelTextOnShow(levelText, health)
-			NotPlater:ThreatComponentsOnShow(health)
+			NotPlater:StackingCheck(self)
+			NotPlater:ThreatComponentsOnShow(self)
+			NotPlater:TargetCheck(self)
+			self.targetChanged = true
+		end)
+
+		self:HookScript(frame, 'OnUpdate', function(self, elapsed)
+			if not self.targetCheckElapsed then self.targetCheckElapsed = 0 end
+			self.targetCheckElapsed = self.targetCheckElapsed + elapsed
+			if self.targetCheckElapsed >= 0.1 then
+				if self.targetChanged then
+					NotPlater:TargetCheck(self)
+					self.targetChanged = nil
+				end
+				if NotPlater.db.profile.threat.nameplateColors.general.useClassColors then
+					if not self.unitClass then
+						NotPlater:ClassCheck(self)
+					end
+					if self.unitClass then
+						local color = RAID_CLASS_COLORS[self.unitClass]
+						frame.healthBar:SetStatusBarColor(color.r, color.g, color.b, 1)
+					end
+				end
+				self.targetCheckElapsed = 0
+			end
 		end)
 	end
 	
 	-- Configure everything
-	self:ConfigureThreatComponents(health)
-	self:ConfigureHealthBar(health)
+	self:ConfigureThreatComponents(frame)
+	self:ConfigureHealthBar(frame, health)
 	self:ConfigureCastBar(frame)
 	self:ConfigureStacking(frame)
-	self:ConfigureIcon(bossIcon, health, self.db.profile.bossIcon)
-	self:ConfigureIcon(raidIcon, health, self.db.profile.raidIcon)
-	self:ConfigureLevelText(levelText, health)
-	self:ConfigureNameText(nameText, health)
-	self:ConfigureTargetBorder(health, frame)
+	self:ConfigureIcon(bossIcon, frame.healthBar, self.db.profile.bossIcon)
+	self:ConfigureIcon(raidIcon, frame.healthBar, self.db.profile.raidIcon)
+	self:ConfigureLevelText(levelText, frame.healthBar)
+	self:ConfigureNameText(nameText, frame.healthBar)
+	self:ConfigureTarget(frame)
+	self:TargetCheck(frame)
 end
 
 function NotPlater:HookFrames(...)
@@ -359,7 +117,7 @@ function NotPlater:HookFrames(...)
 end
 
 function NotPlater:Reload()
-	if self.db.profile.castBar.enabled then
+	if self.db.profile.castBar.statusBar.general.enable then
 		self:RegisterCastBarEvents(NotPlater.frame)
 	else
 		self:UnregisterCastBarEvents(NotPlater.frame)
@@ -376,25 +134,59 @@ function NotPlater:Reload()
 	end
 end
 
+function NotPlater:PLAYER_TARGET_CHANGED()
+	for frame in pairs(frames) do
+		frame.targetChanged = true
+	end
+end
+
+function NotPlater:ClassCheck(frame)
+	if self:IsTarget(frame) then
+		frame.unitClass = select(2, UnitClass("target"))
+		return
+	end
+
+	local _, _, _, _, nameText, levelText = frame:GetRegions()
+	local name = nameText:GetText()
+	local level = levelText:GetText()
+	--local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
+	local healthValue = frame.healthBar:GetValue()
+	local group = self.raid or self.party
+	if group then
+		for gMember,unitID in pairs(group) do
+			local targetString = unitID .. "-target"
+			if name == UnitName(targetString) and level == tostring(UnitLevel(targetString)) and healthValue == UnitHealth(targetString) then
+				frame.unitClass = select(2, UnitClass("target"))
+				return
+			end
+		end
+	end
+	if name == UnitName("mouseover") and level == tostring(UnitLevel("mouseover")) and healthValue == UnitHealth("mouseover") then
+		frame.unitClass = select(2, UnitClass("mouseover"))
+		return
+	end
+	if name == UnitName("focus") and level == tostring(UnitLevel("focus")) and healthValue == UnitHealth("focus") then
+		frame.unitClass = select(2, UnitClass("focus"))
+	end
+end
+
 function NotPlater:UPDATE_MOUSEOVER_UNIT()
-	local mouseOverGuid = UnitGUID("mouseover")
 	if UnitCanAttack("player", "mouseover") and not UnitIsDeadOrGhost("mouseover") and UnitAffectingCombat("mouseover") then
+		local mouseOverGuid = UnitGUID("mouseover")
 		local targetGuid = UnitGUID("target")
 		for frame in pairs(frames) do
 			if mouseOverGuid == targetGuid then
 				if self:IsTarget(frame) then
-					local health = frame:GetChildren()
-					self:MouseoverThreatCheck(health, targetGuid)
+					self:MouseoverThreatCheck(frame.healthBar, targetGuid)
 				end
 			else
-				local health = frame:GetChildren()
 				local _, _, _, _, nameText, levelText = frame:GetRegions()
 				local name = nameText:GetText()
 				local level = levelText:GetText()
-				local _, healthMaxValue = health:GetMinMaxValues()
-				local healthValue = health:GetValue()
+				local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
+				local healthValue = frame.healthBar:GetValue()
 				if name == UnitName("mouseover") and level == tostring(UnitLevel("mouseover")) and healthValue == UnitHealth("mouseover") and healthValue ~= healthMaxValue then
-					self:MouseoverThreatCheck(health, mouseOverGuid)
+					self:MouseoverThreatCheck(frame.healthBar, mouseOverGuid)
 				end
 			end
 		end
@@ -410,22 +202,20 @@ NotPlater.frame:SetScript("OnUpdate", function(self, elapsed)
 end)
 
 NotPlater.frame:SetScript("OnEvent", function(self, event, unit)
-	-- this fires before we can see it on the nameplate unlucky
 	for frame in pairs(frames) do
-		local health = frame:GetChildren()
 		if unit == "target" then
 			if NotPlater:IsTarget(frame) then
-				health.lastUnitMatch = UnitGUID(unit)
+				frame.healthBar.lastUnitMatch = UnitGUID(unit)
 				NotPlater:CastBarOnCast(frame, event, unit)
 			end
 		else
 			local _, _, _, _, nameText, levelText = frame:GetRegions()
 			local name = nameText:GetText()
 			local level = levelText:GetText()
-			local _, healthMaxValue = health:GetMinMaxValues()
-			local healthValue = health:GetValue()
+			local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
+			local healthValue = frame.healthBar:GetValue()
 			if name == UnitName(unit) and level == tostring(UnitLevel(unit)) and healthValue == UnitHealth(unit) and healthValue ~= healthMaxValue then
-				health.lastUnitMatch = UnitGUID(unit)
+				frame.healthBar.lastUnitMatch = UnitGUID(unit)
 				NotPlater:CastBarOnCast(frame, event, unit)
 			end
 		end

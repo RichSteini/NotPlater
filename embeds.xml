@@ -16,6 +16,7 @@
     <Include file="libs\AceBucket-3.0\AceBucket-3.0.xml"/>
     <Include file="libs\AceSerializer-3.0\AceSerializer-3.0.xml"/>
     <Include file="libs\Threat-2.0\lib.xml"/>
-    <Script file="Libs\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
-    <Script file="Libs\LibDBIcon-1.0\LibDBIcon-1.0.lua"/>
+    <Script file="libs\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
+    <Script file="libs\LibDBIcon-1.0\LibDBIcon-1.0.lua"/>
+    <Script file="libs\LibAnim\LibAnim.lua"/>
 </Ui>

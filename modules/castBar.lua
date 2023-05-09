@@ -10,17 +10,19 @@ local slen = string.len
 local ssub = string.sub
 
 function NotPlater:SetCastBarNameText(frame, text)
-	local configMaxLength = NotPlater.db.profile.castBar.castNameText.maxLetters
+	local configMaxLength = NotPlater.db.profile.castBar.spellNameText.general.maxLetters
 	if text and slen(text) > configMaxLength then
-		frame.npCastBar.npCastNameText:SetText(ssub(text, 1, configMaxLength) .. "...")
+		frame.castBar.spellNameText:SetText(ssub(text, 1, configMaxLength) .. "...")
 	else
-		frame.npCastBar.npCastNameText:SetText(text)
+		frame.castBar.spellNameText:SetText(text)
 	end
 end
 
 function NotPlater:CastBarOnUpdate(elapsed)
     local castBarConfig = NotPlater.db.profile.castBar
 	if not NotPlater:IsTarget(self:GetParent()) then
+		self.casting = nil
+		self.channeling = nil
 		self:Hide()
 	elseif self.casting then
 		self.value = self.value + elapsed
@@ -32,16 +34,16 @@ function NotPlater:CastBarOnUpdate(elapsed)
 		end
 		self:SetValue(self.value)
 
-        if castBarConfig.castTimeText.type == "crtmax" then
-            self.npCastTimeText:SetFormattedText("%.1f / %.1f", self.value, self.maxValue)
-        elseif castBarConfig.castTimeText.type == "crt" then
-            self.npCastTimeText:SetFormattedText("%.1f", self.value)
-        elseif castBarConfig.castTimeText.type == "percent" then
-            self.npCastTimeText:SetFormattedText("%d%%", self.value / self.maxValue * 100)
-        elseif castBarConfig.castTimeText.type == "timeleft" then
-            self.npCastTimeText:SetFormattedText("%.1f", self.maxValue - self.value)
+        if castBarConfig.spellTimeText.general.displayType == "crtmax" then
+            self.spellTimeText:SetFormattedText("%.1f / %.1f", self.value, self.maxValue)
+        elseif castBarConfig.spellTimeText.general.displayType == "crt" then
+            self.spellTimeText:SetFormattedText("%.1f", self.value)
+        elseif castBarConfig.spellTimeText.general.displayType == "percent" then
+            self.spellTimeText:SetFormattedText("%d%%", self.value / self.maxValue * 100)
+        elseif castBarConfig.spellTimeText.general.displayType == "timeleft" then
+            self.spellTimeText:SetFormattedText("%.1f", self.maxValue - self.value)
         else
-            self.npCastTimeText:SetText("")
+            self.spellTimeText:SetText("")
         end
 	elseif self.channeling then
 		self.value = self.value - elapsed
@@ -52,16 +54,16 @@ function NotPlater:CastBarOnUpdate(elapsed)
 		end
 		self:SetValue(self.value)
 
-        if castBarConfig.castTimeText.type == "crtmax" then
-            self.npCastTimeText:SetFormattedText("%.1f / %.1f", self.value, self.maxValue)
-        elseif castBarConfig.castTimeText.type == "crt" then
-            self.npCastTimeText:SetFormattedText("%.1f", self.value)
-        elseif castBarConfig.castTimeText.type == "percent" then
-            self.npCastTimeText:SetFormattedText("%d%%", self.value / self.maxValue * 100)
-        elseif castBarConfig.castTimeText.type == "timeleft" then
-            self.npCastTimeText:SetFormattedText("%.1f", self.value - self.maxValue)
+        if castBarConfig.spellTimeText.general.displayType == "crtmax" then
+            self.spellTimeText:SetFormattedText("%.1f / %.1f", self.value, self.maxValue)
+        elseif castBarConfig.spellTimeText.general.displayType == "crt" then
+            self.spellTimeText:SetFormattedText("%.1f", self.value)
+        elseif castBarConfig.spellTimeText.general.displayType == "percent" then
+            self.spellTimeText:SetFormattedText("%d%%", self.value / self.maxValue * 100)
+        elseif castBarConfig.spellTimeText.general.displayType == "timeleft" then
+            self.spellTimeText:SetFormattedText("%.1f", self.value - self.maxValue)
         else
-            self.npCastTimeText:SetText("")
+            self.spellTimeText:SetText("")
         end
 	else
 		self:Hide()
@@ -71,9 +73,9 @@ end
 
 function NotPlater:CastBarOnCast(frame, event, unit)
 	local castBarConfig = self.db.profile.castBar
-	if not castBarConfig.enabled then return end
+	if not castBarConfig.statusBar.general.enable then return end
 
-	frame.npCastBar.lastUpdate = GetTime()
+	frame.castBar.lastUpdate = GetTime()
 	if unit then
 		if not event then
 			if UnitChannelInfo(unit) then
@@ -82,205 +84,187 @@ function NotPlater:CastBarOnCast(frame, event, unit)
 				event = "UNIT_SPELLCAST_START"
 			end
 		end
-	elseif frame.npCastBar:IsShown() then
-		frame.npCastBar:Hide()
+	elseif frame.castBar:IsShown() then
+		frame.castBar:Hide()
 	end
 
 	if event == "UNIT_SPELLCAST_START" then
 		local name, _, _, texture, startTime, endTime = UnitCastingInfo(unit)
 		if not name then
-			frame.npCastBar:Hide()
+			frame.castBar:Hide()
 			return
 		end
 
 		NotPlater:SetCastBarNameText(frame, name)
-		frame.npCastBar.value = (GetTime() - (startTime / 1000))
-		frame.npCastBar.maxValue = (endTime - startTime) / 1000
-		frame.npCastBar:SetMinMaxValues(0, frame.npCastBar.maxValue)
-		frame.npCastBar:SetValue(frame.npCastBar.value)
+		frame.castBar.value = (GetTime() - (startTime / 1000))
+		frame.castBar.maxValue = (endTime - startTime) / 1000
+		frame.castBar:SetMinMaxValues(0, frame.castBar.maxValue)
+		frame.castBar:SetValue(frame.castBar.value)
 
-		if frame.npCastBar.npCastIcon then
-			frame.npCastBar.npCastIcon.texture:SetTexture(texture)
+		if frame.castBar.icon then
+			frame.castBar.icon:SetTexture(texture)
 		end
 
-		frame.npCastBar.casting = true
-		frame.npCastBar.channeling = nil
+		frame.castBar.casting = true
+		frame.castBar.channeling = nil
 
-		frame.npCastBar:Show()
+		frame.castBar:Show()
 	elseif event == "UNIT_SPELLCAST_STOP" or event == "UNIT_SPELLCAST_CHANNEL_STOP" then
-		if not frame.npCastBar:IsVisible() then
-			frame.npCastBar:Hide()
+		if not frame.castBar:IsVisible() then
+			frame.castBar:Hide()
 		end
-		if (frame.npCastBar.casting and event == "UNIT_SPELLCAST_STOP") or (frame.npCastBar.channeling and event == "UNIT_SPELLCAST_CHANNEL_STOP") then
+		if (frame.castBar.casting and event == "UNIT_SPELLCAST_STOP") or (frame.castBar.channeling and event == "UNIT_SPELLCAST_CHANNEL_STOP") then
 
-			frame.npCastBar:SetValue(frame.npCastBar.maxValue)
+			frame.castBar:SetValue(frame.castBar.maxValue)
 			if event == "UNIT_SPELLCAST_STOP" then
-				frame.npCastBar.casting = nil
+				frame.castBar.casting = nil
 			else
-				frame.npCastBar.channeling = nil
+				frame.castBar.channeling = nil
 			end
 
-			frame.npCastBar:Hide()
+			frame.castBar:Hide()
 		end
 	elseif event == "UNIT_SPELLCAST_FAILED" or event == "UNIT_SPELLCAST_INTERRUPTED" then
-		if frame.npCastBar:IsShown() then
-			frame.npCastBar:SetValue(frame.npCastBar.maxValue)
+		if frame.castBar:IsShown() then
+			frame.castBar:SetValue(frame.castBar.maxValue)
 
 			if event == "UNIT_SPELLCAST_FAILED" then
 				NotPlater:SetCastBarNameText(frame, FAILED)
 			else
 				NotPlater:SetCastBarNameText(frame, INTERRUPTED)
 			end
-			frame.npCastBar.casting = nil
-			frame.npCastBar.channeling = nil
+			frame.castBar.casting = nil
+			frame.castBar.channeling = nil
 		end
 	elseif event == "UNIT_SPELLCAST_DELAYED" then
 		if frame:IsShown() then
 			local name, _, _, _, startTime, endTime = UnitCastingInfo(unit)
 			if not name then
 				-- if there is no name, there is no bar
-				frame.npCastBar:Hide()
+				frame.castBar:Hide()
 				return
 			end
 
 			NotPlater:SetCastBarNameText(frame, name)
-			frame.npCastBar.value = (GetTime() - (startTime / 1000))
-			frame.npCastBar.maxValue = (endTime - startTime) / 1000
-			frame.npCastBar:SetMinMaxValues(0, frame.npCastBar.maxValue)
+			frame.castBar.value = (GetTime() - (startTime / 1000))
+			frame.castBar.maxValue = (endTime - startTime) / 1000
+			frame.castBar:SetMinMaxValues(0, frame.castBar.maxValue)
 
-			if not frame.npCastBar.casting then
-				frame.npCastBar.casting = true
-				frame.npCastBar.channeling = nil
+			if not frame.castBar.casting then
+				frame.castBar.casting = true
+				frame.castBar.channeling = nil
 			end
 		end
 	elseif event == "UNIT_SPELLCAST_CHANNEL_START" then
 		local name, _, _, texture, startTime, endTime = UnitChannelInfo(unit)
 		if not name then
-			frame.npCastBar:Hide()
+			frame.castBar:Hide()
 			return
 		end
 
 		NotPlater:SetCastBarNameText(frame, name)
-		frame.npCastBar.value = (endTime / 1000) - GetTime()
-		frame.npCastBar.maxValue = (endTime - startTime) / 1000
-		frame.npCastBar:SetMinMaxValues(0, frame.npCastBar.maxValue)
-		frame.npCastBar:SetValue(frame.npCastBar.value)
+		frame.castBar.value = (endTime / 1000) - GetTime()
+		frame.castBar.maxValue = (endTime - startTime) / 1000
+		frame.castBar:SetMinMaxValues(0, frame.castBar.maxValue)
+		frame.castBar:SetValue(frame.castBar.value)
 
-		if frame.npCastBar.npCastIcon then
-			frame.npCastBar.npCastIcon.texture:SetTexture(texture)
+		if frame.castBar.icon then
+			frame.castBar.icon:SetTexture(texture)
 		end
 
-		frame.npCastBar.casting = nil
-		frame.npCastBar.channeling = true
+		frame.castBar.casting = nil
+		frame.castBar.channeling = true
 
-		frame.npCastBar:Show()
+		frame.castBar:Show()
 	elseif event == "UNIT_SPELLCAST_CHANNEL_UPDATE" then
-		if frame.npCastBar:IsShown() then
+		if frame.castBar:IsShown() then
 			local name, _, _, _, startTime, endTime = UnitChannelInfo(unit)
 			if not name then
-				frame.npCastBar:Hide()
+				frame.castBar:Hide()
 				return
 			end
 
 			NotPlater:SetCastBarNameText(frame, name)
-			frame.npCastBar.value = ((endTime / 1000) - GetTime())
-			frame.npCastBar.maxValue = (endTime - startTime) / 1000
-			frame.npCastBar:SetMinMaxValues(0, frame.npCastBar.maxValue)
-			frame.npCastBar:SetValue(frame.npCastBar.value)
+			frame.castBar.value = ((endTime / 1000) - GetTime())
+			frame.castBar.maxValue = (endTime - startTime) / 1000
+			frame.castBar:SetMinMaxValues(0, frame.castBar.maxValue)
+			frame.castBar:SetValue(frame.castBar.value)
 		end
 	end
 end
 
 function NotPlater:CastCheck(frame)
-	self:CastBarOnCast(frame, "UNIT_SPELLCAST_START", "target")
-	if not frame.npCastBar.casting then
-		self:CastBarOnCast(frame, "UNIT_SPELLCAST_CHANNEL_START", "target")
+	if frame.castBar.casting or frame.castBar.channeling then
+		frame.castBar:Show()
+	else
+		self:CastBarOnCast(frame, "UNIT_SPELLCAST_START", "target")
+		if not frame.castBar.casting then
+			self:CastBarOnCast(frame, "UNIT_SPELLCAST_CHANNEL_START", "target")
+		end
+	end
+end
+
+function NotPlater:ScaleCastBar(castFrame, isTarget)
+	local scaleConfig = self.db.profile.target.scale
+	if scaleConfig.castBar then
+		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
+    	local castBarConfig = self.db.profile.castBar
+		self:ScaleGeneralisedStatusBar(castFrame, scalingFactor, castBarConfig.statusBar)
+		self:ScaleIcon(castFrame.icon, scalingFactor, castBarConfig.spellIcon)
+		self:ScaleGeneralisedText(castFrame.spellNameText, scalingFactor, castBarConfig.spellNameText)
+		self:ScaleGeneralisedText(castFrame.spellTimeText, scalingFactor, castBarConfig.spellTimeText)
 	end
 end
 
 function NotPlater:CastBarOnShow(frame)
-    local castBarConfig = self.db.profile.castBar
-	local health, cast = frame:GetChildren()
-	local castFrame = frame.npCastBar
-	castFrame:ClearAllPoints()
-	self:SetSize(castFrame, castBarConfig.position.xSize, castBarConfig.position.ySize)
-	castFrame:SetPoint(castBarConfig.position.anchor, health, castBarConfig.position.xOffset, castBarConfig.position.yOffset)
+	local castFrame = frame.castBar
+	castFrame.casting = nil
+	castFrame.channeling = nil
+	NotPlater:CastCheck(frame)
 	-- Tried to make it reappear, but this does not really work since you can't track whether something was interrupted
-	if castFrame.casting or castFrame.channeling then
-		if castFrame.lastUpdate then
-			castFrame.helper = self.CastBarOnUpdate
-			castFrame:helper(GetTime() - castFrame.lastUpdate)
-		end
-		castFrame:Show()
-	end
+	--if castFrame.casting or castFrame.channeling then
+		--if castFrame.lastUpdate then
+			--castFrame.helper = self.CastBarOnUpdate
+			--castFrame:helper(GetTime() - castFrame.lastUpdate)
+		--end
+		--castFrame:Show()
+	--end
 end
 
 function NotPlater:ConfigureCastBar(frame)
     local castBarConfig = self.db.profile.castBar
-	local castFrame = frame.npCastBar
-
-	-- Set point for castbar
-	self:CastBarOnShow(frame)
-
-    -- Set statusbar texture
-    castFrame:SetStatusBarTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, castBarConfig.texture))
-	castFrame:SetStatusBarColor(self:GetColor(castBarConfig.barColor))
-
-	-- Set castbar icon
-	castFrame.npCastIcon:ClearAllPoints()
-	self:SetSize(castFrame.npCastIcon, castBarConfig.castSpellIcon.xSize, castBarConfig.castSpellIcon.ySize)
-	castFrame.npCastIcon:SetPoint(castBarConfig.castSpellIcon.anchor, castFrame, castBarConfig.castSpellIcon.xOffset, castBarConfig.castSpellIcon.yOffset)
-	castFrame.npCastIcon:SetAlpha(castBarConfig.castSpellIcon.opacity)
+	local castFrame = frame.castBar
 
     -- Set background
-	castFrame.npCastBackground:ClearAllPoints()
-	castFrame.npCastBackground:SetAllPoints(castFrame)
-	castFrame.npCastBackground:SetTexture(self:GetColor(castBarConfig.backgroundColor))
+	self:ConfigureGeneralisedPositionedStatusBar(castFrame, frame.healthBar, castBarConfig.statusBar)
+	castFrame:SetStatusBarColor(self:GetColor(castBarConfig.statusBar.general.color))
 
-	-- Set border
-	if castBarConfig.border.enabled then
-		castFrame.npCastBorder:ClearAllPoints()
-		castFrame.npCastBorder:SetAllPoints(castFrame)
-		castFrame.npCastBorder:SetBackdrop({bgFile="Interface\\BUTTONS\\WHITE8X8", edgeFile="Interface\\BUTTONS\\WHITE8X8", tileSize=16, tile=true, edgeSize=castBarConfig.border.thickness})
-		castFrame.npCastBorder:SetBackdropColor(0, 0, 0, 0)
-		castFrame.npCastBorder:SetBackdropBorderColor(self:GetColor(castBarConfig.border.color))
-		castFrame.npCastBorder:Show()
-	else
-		castFrame.npCastBorder:Hide()
-	end
-
-    -- Set cast text
-	castFrame.npCastTimeText:ClearAllPoints()
-	castFrame.npCastTimeText:SetPoint(castBarConfig.castTimeText.anchor, castFrame, castBarConfig.castTimeText.xOffset, castBarConfig.castTimeText.yOffset)
-	castFrame.npCastNameText:ClearAllPoints()
-	castFrame.npCastNameText:SetPoint(castBarConfig.castNameText.anchor, castFrame, castBarConfig.castNameText.xOffset, castBarConfig.castNameText.yOffset)
-	self:SetupFontString(castFrame.npCastTimeText, castBarConfig.castTimeText, true)
-	self:SetupFontString(castFrame.npCastNameText, castBarConfig.castNameText, true)
+	-- Set castbar icon
+	self:ConfigureIcon(castFrame.icon, castFrame, castBarConfig.spellIcon)
+	
+    -- Set text
+	self:ConfigureGeneralisedText(castFrame.spellTimeText, castFrame, castBarConfig.spellTimeText)
+	self:ConfigureGeneralisedText(castFrame.spellNameText, castFrame, castBarConfig.spellNameText)
 end
 
 function NotPlater:ConstructCastBar(frame)
-	local castFrame = CreateFrame("StatusBar", nil, frame)
+	local castFrame = CreateFrame("StatusBar", "$parentCastBar", frame)
 	castFrame:SetScript("OnUpdate", NotPlater.CastBarOnUpdate)
-
-    -- Create the icon
-	castFrame.npCastIcon = CreateFrame("Frame", nil, castFrame)
-	castFrame.npCastIcon.texture = castFrame.npCastIcon:CreateTexture(nil, "BORDER")
-	castFrame.npCastIcon.texture:SetAllPoints()
 	castFrame:SetFrameLevel(frame:GetFrameLevel() + 2)
 
+    -- Create the icon
+	castFrame.icon = castFrame:CreateTexture(nil, "BORDER")
+
     -- Create cast time text and set font
-    castFrame.npCastTimeText = castFrame:CreateFontString(nil, "ARTWORK")
+    castFrame.spellTimeText = castFrame:CreateFontString(nil, "ARTWORK")
 
     -- Create cast name text and set font
-    castFrame.npCastNameText = castFrame:CreateFontString(nil, "ARTWORK")
+    castFrame.spellNameText = castFrame:CreateFontString(nil, "ARTWORK")
 
     -- Create and set background
-	castFrame.npCastBackground = castFrame:CreateTexture(nil, 'BORDER')
+	self:ConstructGeneralisedStatusBar(castFrame)
 
-	castFrame.npCastBorder = CreateFrame("Frame", nil, castFrame)
-    castFrame.npCastBorder:SetFrameLevel(castFrame:GetFrameLevel() + 1)
-
-	frame.npCastBar = castFrame
+	frame.castBar = castFrame
 	castFrame:Hide()
 end
 

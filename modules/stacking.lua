@@ -1,50 +1,37 @@
 if( not NotPlater ) then return end
 
 function NotPlater:SetTargetFrameStrata(frame)
-	local generalConfig = self.db.profile.general
-	if generalConfig.nameplateStacking.enabled and not UnitAffectingCombat("player") then
-		if frame:GetFrameStrata() ~= generalConfig.frameStrata.targetFrame then
-			frame:SetFrameStrata(generalConfig.frameStrata.targetFrame)
+	local stackingConfig = self.db.profile.stacking
+	if stackingConfig.general.enable and not UnitAffectingCombat("player") then
+		if frame:GetFrameStrata() ~= stackingConfig.frameStrata.targetFrame then
+			frame:SetFrameStrata(stackingConfig.frameStrata.targetFrame)
 		end
 	end
 end
 
 function NotPlater:SetNormalFrameStrata(frame)
-	local generalConfig = self.db.profile.general
-	if generalConfig.nameplateStacking.enabled and not UnitAffectingCombat("player") then
-		if frame:GetFrameStrata() ~= generalConfig.frameStrata.frame then
-			frame:SetFrameStrata(generalConfig.frameStrata.frame)
+	local stackingConfig = self.db.profile.stacking
+	if stackingConfig.general.enable and not UnitAffectingCombat("player") then
+		if frame:GetFrameStrata() ~= stackingConfig.frameStrata.normalFrame then
+			frame:SetFrameStrata(stackingConfig.frameStrata.normalFrame)
 		end
 	end
 end
 
 function NotPlater:ConfigureStacking(frame)
-	local generalConfig = self.db.profile.general
-	local healthBarConfig = self.db.profile.healthBar
-	local castBarConfig = self.db.profile.castBar
-	if generalConfig.nameplateStacking.enabled and not UnitAffectingCombat("player") then
-		-- Set the clickable frame size
-		if generalConfig.nameplateStacking.overlappingCastbars then
-			self:SetSize(frame, healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
-		else
-			self:SetSize(frame, healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
-		end
-	end
+	self:StackingCheck(frame)
 end
 
-function NotPlater:ConstructStacking(frame)
-	local generalConfig = self.db.profile.general
+function NotPlater:StackingCheck(frame)
+	local stackingConfig = self.db.profile.stacking
 	local healthBarConfig = self.db.profile.healthBar
 	local castBarConfig = self.db.profile.castBar
-    if generalConfig.nameplateStacking.enabled then
-        self:HookScript(frame, "OnShow", function(frame)
-            if not UnitAffectingCombat("player") then
-                if generalConfig.nameplateStacking.overlappingCastbars then
-                    self:SetSize(frame, healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
-                else
-                    self:SetSize(frame, healthBarConfig.position.xSize + generalConfig.nameplateStacking.xMargin * 2, healthBarConfig.position.ySize + castBarConfig.position.ySize + generalConfig.nameplateStacking.yMargin * 2)
-                end
-            end
-        end)
-    end
+	if stackingConfig.general.enable and not UnitAffectingCombat("player") then
+		-- Set the clickable frame size
+		if stackingConfig.general.overlappingCastbars then
+			self:SetSize(frame, healthBarConfig.size.width + stackingConfig.margin.xStacking * 2, healthBarConfig.size.height + stackingConfig.margin.yStacking * 2)
+		else
+			self:SetSize(frame, healthBarConfig.size.width + stackingConfig.margin.xStacking * 2, healthBarConfig.size.height + castBarConfig.size.height + stackingConfig.margin.yStacking * 2)
+		end
+	end
 end

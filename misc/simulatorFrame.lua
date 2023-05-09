@@ -27,9 +27,7 @@ local healerPotential = function() return mfmod(mrand(), 0.5 - 0.3) + 0.3 end --
 local dpsPotential = function() return mfmod(mrand(), 0.8 - 0.5) + 0.5 end -- {max = 0.8, min = 0.5}
 local tankPotential = function() return mfmod(mrand(), 0.99 - 0.8) + 0.8 end -- {max = 0.99, min = 0.8}
 local threatUpdateElapsed = 0
-local castTime = 10000 -- in ms
-local nameplateColorChange = {elapsed = 0, interval = 3, currentIndex = 1}
-local nameplateColors = {}
+local castTime = 5000 -- in ms
 
 local MAX_RAID_ICONS = 8
 local RAID_ICON_BASE_PATH = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_"
@@ -210,44 +208,34 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
         --NotPlater:HideSimulatorFrame()
         --return
     --end
-	-- Configure everything
-	NotPlater:ConfigureHealthBar(self.defaultFrame.defaultHealthFrame)
-	NotPlater:ConfigureCastBar(self.defaultFrame)
-	NotPlater:ConfigureStacking(self.defaultFrame)
-	NotPlater:ConfigureIcon(self.defaultFrame.bossIcon, self.defaultFrame.defaultHealthFrame, NotPlater.db.profile.bossIcon)
-	NotPlater:ConfigureIcon(self.defaultFrame.raidIcon, self.defaultFrame.defaultHealthFrame, NotPlater.db.profile.raidIcon)
-	NotPlater:ConfigureLevelText(self.defaultFrame.levelText, self.defaultFrame.defaultHealthFrame)
-	NotPlater:ConfigureNameText(self.defaultFrame.nameText, self.defaultFrame.defaultHealthFrame)
-	NotPlater:ConfigureTargetBorder(self.defaultFrame.defaultHealthFrame, self.defaultFrame)
     if not simulatorTextSet then
-        self.defaultFrame.bossIcon.texture:SetTexture(BOSS_ICON_PATH)
-        self.defaultFrame.levelText:SetText(L["70"])
-        self.defaultFrame.levelText:SetTextColor(1, 1, 0, 1)
-        self.defaultFrame.nameText:SetText(L["Playername"])
+        self.defaultFrame.defaultBossIcon:SetTexture(BOSS_ICON_PATH)
+        self.defaultFrame.defaultLevelText:SetText(L["70"])
+        self.defaultFrame.defaultLevelText:SetTextColor(1, 1, 0, 1)
+        self.defaultFrame.defaultNameText:SetText(L["Playername"])
         simulatorTextSet = true
         ThreatSimulator:Reset(self.defaultFrame.defaultHealthFrame)
     end
-
-    if not self.defaultFrame.npCastBar.casting and NotPlater.db.profile.castBar.enabled then
+    if not self.defaultFrame.castBar.casting and NotPlater.db.profile.castBar.statusBar.general.enable then
         local startTime = GetTime()
         local endTime = startTime + castTime
         NotPlater:SetCastBarNameText(self.defaultFrame, L["Spellname"])
-        self.defaultFrame.npCastBar.value = 0
-        self.defaultFrame.npCastBar.maxValue = (endTime - startTime) / 1000
-        self.defaultFrame.npCastBar:SetMinMaxValues(0, self.defaultFrame.npCastBar.maxValue)
-        self.defaultFrame.npCastBar:SetValue(self.defaultFrame.npCastBar.value)
+        self.defaultFrame.castBar.value = 0
+        self.defaultFrame.castBar.maxValue = (endTime - startTime) / 1000
+        self.defaultFrame.castBar:SetMinMaxValues(0, self.defaultFrame.castBar.maxValue)
+        self.defaultFrame.castBar:SetValue(self.defaultFrame.castBar.value)
 
-        if self.defaultFrame.npCastBar.npCastIcon then
-            self.defaultFrame.npCastBar.npCastIcon.texture:SetTexture("Interface\\Icons\\Temp")
+        if self.defaultFrame.castBar.icon then
+            self.defaultFrame.castBar.icon:SetTexture("Interface\\Icons\\Temp")
         end
-        self.defaultFrame.npCastBar.casting = true
-		self.defaultFrame.npCastBar:Show()
-    elseif not NotPlater.db.profile.castBar.enabled then
-        self.defaultFrame.npCastBar.casting = false
+        self.defaultFrame.castBar.casting = true
+		self.defaultFrame.castBar:Show()
+    elseif not NotPlater.db.profile.castBar.statusBar.general.enable then
+        self.defaultFrame.castBar.casting = false
     end
 
     if raidIconElapsed > raidIconInterval then
-        self.defaultFrame.raidIcon.texture:SetTexture(RAID_ICON_BASE_PATH .. tostring(currentRaidIconNum))
+        self.defaultFrame.defaultRaidIcon:SetTexture(RAID_ICON_BASE_PATH .. tostring(currentRaidIconNum))
         currentRaidIconNum = currentRaidIconNum + 1
         if currentRaidIconNum > MAX_RAID_ICONS then
             currentRaidIconNum = 1
@@ -258,9 +246,9 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
     raidIconElapsed = raidIconElapsed + elapsed
 
     if threatUpdateElapsed > 1 then
-	    NotPlater:ConfigureThreatComponents(self.defaultFrame.defaultHealthFrame)
         ThreatSimulator:Step(self.defaultFrame.defaultHealthFrame)
-        NotPlater:OnNameplateMatch(self.defaultFrame.defaultHealthFrame, ThreatSimulator.group, ThreatSimulator)
+        self.defaultFrame.healthBar.lastUnitMatch = 1
+        NotPlater:OnNameplateMatch(self.defaultFrame.healthBar, ThreatSimulator.group, ThreatSimulator)
         threatUpdateElapsed = 0
     end
     threatUpdateElapsed = threatUpdateElapsed + elapsed
@@ -285,9 +273,14 @@ function NotPlater:HideSimulatorFrame()
     end
 end
 
+function NotPlater:SimulatorReload()
+    self:PrepareFrame(self.simulatorFrame.defaultFrame)
+    --self.simulatorFrame.defaultFrame.castBar.casting = false
+end
+
 function NotPlater:SimulatorFrameOnShow()
     NotPlater.simulatorFrame.defaultFrame.simulatedTarget = true
-    NotPlater.simulatorFrame.defaultFrame.defaultHealthFrame.ignoreThreatCheck = true
+    NotPlater.simulatorFrame.defaultFrame.ignoreThreatCheck = true
     NotPlater.oldThreatCheck = NotPlater.ThreatCheck
     NotPlater.ThreatCheck = function(name, frame, ...)
         if frame.ignoreThreatCheck then return end
@@ -309,6 +302,11 @@ function NotPlater:SimulatorFrameOnShow()
         if frame.ignoreStrataOptions then return true end
         NotPlater.oldSetTargetFrameStrata(name, frame, ...)
     end
+    NotPlater.oldReload = NotPlater.Reload
+    NotPlater.Reload = function(...)
+        NotPlater:SimulatorReload()
+        NotPlater.oldReload(...)
+    end
 end
 
 function NotPlater:SimulatorFrameOnHide()
@@ -316,17 +314,18 @@ function NotPlater:SimulatorFrameOnHide()
     if NotPlater.oldIsTarget then NotPlater.IsTarget = NotPlater.oldIsTarget end
     if NotPlater.oldSetNormalFrameStrata then NotPlater.SetNormalFrameStrata = NotPlater.oldSetNormalFrameStrata end
     if NotPlater.oldSetTargetFrameStrata then NotPlater.SetTargetFrameStrata = NotPlater.oldSetTargetFrameStrata end
+    if NotPlater.oldReload then NotPlater.Reload = NotPlater.oldReload end
 end
 
 function NotPlater:ConstructSimulatorFrame()
     if simulatorFrameConstructed then return end
     simulatorFrameConstructed = true
     local simulatorFrame = CreateFrame("Frame", "NotPlaterSimulatorFrame", UIParent)
+    self.simulatorFrame = simulatorFrame
     local simulatorFrameCloseButton = CreateFrame("Button", "NotPlaterSimulatorFrameCloseButton", simulatorFrame, "UIPanelCloseButton")
     simulatorFrameCloseButton:SetPoint("TOPRIGHT")
     simulatorFrame:SetMovable(true)
     simulatorFrame:EnableMouse(true)
-    --simulatorFrame:SetUserPlaced(true)
     simulatorFrame:RegisterForDrag("LeftButton")
     simulatorFrame:SetScript("OnUpdate", NotPlater.SimulatorFrameOnUpdate)
     simulatorFrame:SetScript("OnHide", NotPlater.SimulatorFrameOnHide)
@@ -354,11 +353,6 @@ function NotPlater:ConstructSimulatorFrame()
 	simulatorFrame.outlineText:SetPoint("BOTTOM", simulatorFrame, 0, 1)
 	simulatorFrame.outlineText:SetText(L["NotPlater Simulator Frame"])
 	simulatorFrame.outlineText:SetAlpha(0.3)
-    --simulatorFrame.dragMeText = simulatorFrame:CreateFontString(nil, "ARTWORK")
-	--simulatorFrame.dragMeText:SetFont(self.SML:Fetch(self.SML.MediaType.FONT, "Arial Narrow"), 10, "OUTLINE")
-	--simulatorFrame.dragMeText:SetPoint("TOPLEFT", simulatorFrame, 1, -1)
-	--simulatorFrame.dragMeText:SetText(L["Drag me"])
-	--simulatorFrame.dragMeText:SetAlpha(0.3)
     simulatorFrame.dragMeTexture = simulatorFrame:CreateTexture(nil, "BORDER")
     simulatorFrame.dragMeTexture:SetTexture("Interface\\AddOns\\NotPlater\\images\\drag")
     self:SetSize(simulatorFrame.dragMeTexture, 16, 16)
@@ -374,41 +368,41 @@ function NotPlater:ConstructSimulatorFrame()
             else
                 self.simulatedTarget = true
             end
-        else --MiddleButton
-
+            self.targetChanged = true
         end
     end)
     self:SetSize(simulatorFrame.defaultFrame, 156.65, 39.16)
     simulatorFrame.defaultFrame:SetPoint("CENTER")
+
+    -- Frames
     simulatorFrame.defaultFrame.defaultHealthFrame = CreateFrame("StatusBar", "NotPlaterSimulatorHealthFrame", simulatorFrame.defaultFrame)
     simulatorFrame.defaultFrame.defaultHealthFrame:SetMinMaxValues(healthMin, healthMax)
-    simulatorFrame.defaultFrame.nameText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
-    simulatorFrame.defaultFrame.levelText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
+    simulatorFrame.defaultFrame.defaultHealthFrame:SetStatusBarColor({1, 0.109, 0, 1})
+    --simulatorFrame.defaultFrame.defaultCastFrame = CreateFrame("StatusBar", "NotPlaterSimulatorCastFrame", simulatorFrame.defaultFrame)
 
-    -- Construct all components
-    self:ConstructThreatComponents(simulatorFrame.defaultFrame.defaultHealthFrame)
-    self:ConstructHealthBar(simulatorFrame.defaultFrame.defaultHealthFrame)
-    self:ConstructCastBar(simulatorFrame.defaultFrame)
-    self:ConstructTargetBorder(simulatorFrame.defaultFrame.defaultHealthFrame, simulatorFrame.defaultFrame)
-    self:ConstructStacking(simulatorFrame.defaultFrame)
-    simulatorFrame.defaultFrame.raidIcon = CreateFrame("Frame", nil, simulatorFrame.defaultFrame)
-	simulatorFrame.defaultFrame.raidIcon.texture = simulatorFrame.defaultFrame.raidIcon:CreateTexture(nil, "BORDER")
-	simulatorFrame.defaultFrame.raidIcon.texture:SetAllPoints()
-    simulatorFrame.defaultFrame.bossIcon = CreateFrame("Frame", nil, simulatorFrame.defaultFrame)
-	simulatorFrame.defaultFrame.bossIcon.texture = simulatorFrame.defaultFrame.bossIcon:CreateTexture(nil, "BORDER")
-	simulatorFrame.defaultFrame.bossIcon.texture:SetAllPoints()
+    -- Regions
+    simulatorFrame.defaultFrame.defaultCastBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+    simulatorFrame.defaultFrame.defaultHealthBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+    simulatorFrame.defaultFrame.defaultSpellIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+    simulatorFrame.defaultFrame.defaultHighlightTexture = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+    simulatorFrame.defaultFrame.defaultNameText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
+    simulatorFrame.defaultFrame.defaultLevelText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
+	simulatorFrame.defaultFrame.defaultBossIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+	simulatorFrame.defaultFrame.defaultRaidIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+
+    -- Prepare
+    self:PrepareFrame(simulatorFrame.defaultFrame)
 
     ThreatSimulator:ConstructThreatScenario(6, 2, 2)
-    simulatorFrame.defaultFrame.defaultHealthFrame.lastUnitMatch = 1
 
     simulatorFrame.defaultFrame:SetScript("OnEnter", function(self)
-        self.nameText:SetTextColor(1,0,0,1)
+        simulatorFrame.defaultFrame.defaultHighlightTexture:Show()
+        self.defaultNameText:SetTextColor(1,0,0,1)
         GameTooltip:SetOwner(self, "ANCHOR_LEFT")
         GameTooltip:ClearLines()
         GameTooltip:AddLine(L["NotPlater Simulated Frame"])
         GameTooltip:AddLine(" ")
         GameTooltip:AddLine(L["|cffeda55fLeft-Click or Right-Click|r target/untarget the simulated frame"], 0.2, 1, 0.2)
-        --GameTooltip:AddLine(L["Current simulated threat scenario:"])
         GameTooltip:AddLine(" ")
         GameTooltip:AddDoubleLine(L["Simulated Player"], L["Threat Value (%)"])
         ThreatSimulator:SetupTooltipLines()
@@ -424,45 +418,12 @@ function NotPlater:ConstructSimulatorFrame()
         end);
     end)
     simulatorFrame.defaultFrame:SetScript("OnLeave", function(self)
+        simulatorFrame.defaultFrame.defaultHighlightTexture:Hide()
         GameTooltip:Hide()
         tooltipUpdateFrame:SetScript("OnUpdate", nil)
         ThreatSimulator:HideStatusTooltip()
-        self.nameText:SetTextColor(1,1,1,1)
+        self.defaultNameText:SetTextColor(1,1,1,1)
     end)
 
     simulatorFrame:Hide()
-    self.simulatorFrame = simulatorFrame
 end
-
--- this is free running mode for nameplate color change
---[[ 
-
-if self.defaultFrame.defaultHealthFrame:GetValue() == 0 then
-    self.defaultFrame.defaultHealthFrame:SetValue(healthMax)
-else
-    self.defaultFrame.defaultHealthFrame:SetValue(self.defaultFrame.defaultHealthFrame:GetValue() - 10)
-end
-local threatProfile = NotPlater.db.profile.threat
-if threatProfile.nameplateColors.enabled then
-    local nameplateColorsConfig = threatProfile.nameplateColors
-    if threatProfile.general.mode == "hdps" then
-        nameplateColors[1] =  nameplateColorsConfig.dpsHealerAggroOnYou
-        nameplateColors[2] = nameplateColorsConfig.dpsHealerHighThreat
-        nameplateColors[3] = nameplateColorsConfig.dpsHealerDefaultNoAggro
-    else
-        nameplateColors[1] =  nameplateColorsConfig.dpsHealerAggroOnYou
-        nameplateColors[2] = nameplateColorsConfig.dpsHealerHighThreat
-        nameplateColors[3] = nameplateColorsConfig.dpsHealerDefaultNoAggro
-    end
-end
-if nameplateColorChange.elapsed > nameplateColorChange.interval then
-    if #nameplateColors > nameplateColorChange.currentIndex then
-        nameplateColorChange.currentIndex = nameplateColorChange.currentIndex + 1
-    else
-        nameplateColorChange.currentIndex = 1
-    end
-    nameplateColorChange.elapsed = 0
-end
-self.defaultFrame.defaultHealthFrame:SetStatusBarColor(NotPlater:GetColor(nameplateColors[nameplateColorChange.currentIndex]))
-nameplateColorChange.elapsed = nameplateColorChange.elapsed + elapsed
-]]

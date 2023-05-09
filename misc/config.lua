@@ -10,6 +10,8 @@ local sgmatch = string.gmatch
 local sformat = string.format
 local tinsert = table.insert
 local tonumber = tonumber
+local ipairs = ipairs
+local unpack = unpack
 local GameTooltip = GameTooltip
 local SlashCmdList = SlashCmdList
 local InterfaceOptionsFrame = InterfaceOptionsFrame
@@ -17,15 +19,20 @@ local UIParent = UIParent
 
 local SML, registered, options, config, dialog
 
-
-local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick outline"], ["MONOCHROME"] = L["Monochrome"]}
-local anchors = {["CENTER"] = L["center"], ["BOTTOM"] = L["bottom"], ["TOP"] = L["top"], ["LEFT"] = L["left"], ["RIGHT"] = L["right"], ["BOTTOMLEFT"] = L["bottomleft"], ["TOPRIGHT"] = L["topright"], ["BOTTOMRIGHT"] = L["bottomright"], ["TOPLEFT"] = L["topleft"]}
-local frameStratas = {["BACKGROUND"] = L["background"], ["LOW"] = L["low"], ["MEDIUM"] = L["medium"], ["HIGH"] = L["high"], ["DIALOG"] = L["dialog"], ["FULLSCREEN"] = L["fullscreen"], ["FULLSCREEN_DIALOG"] = L["fullscreen dialog"], ["TOOLTIP"] = L["tooltip"]}
-local strataSort = {"BACKGROUND", "LOW", "MEDIUM", "HIGH", "DIALOG", "FULLSCREEN", "FULLSCREEN_DIALOG", "TOOLTIP"}
-local drawLayers = {["BACKGROUND"] = L["background"], ["BORDER"] = L["border"], ["ARTWORK"] = L["artwork"], ["OVERLAY"] = L["overlay"], ["HIGHLIGHT"] = L["highlight"]}
+NotPlater.oppositeAnchors = {
+	["LEFT"] = "RIGHT",
+	["RIGHT"] = "LEFT",
+	["CENTER"] = "CENTER",
+	["BOTTOM"] = "TOP",
+	["TOP"] = "BOTTOM",
+	["TOPRIGHT"] = "BOTTOMLEFT",
+	["BOTTOMLEFT"] = "TOPRIGHT",
+	["TOPLEFT"] = "BOTTOMRIGHT",
+	["BOTTOMRIGHT"] = "TOPLEFT",
+}
 
 local TEXTURE_BASE_PATH = [[Interface\Addons\NotPlater\images\statusbarTextures\]]
-local textures = {"NotPlater Default", "BarFill", "Banto", "Smooth", "Perl", "Glaze", "Charcoal", "Otravi", "Striped", "LiteStep"}
+local textures = {"NotPlater Default", "NotPlater Background", "NotPlater HealthBar", "Flat", "BarFill", "Banto", "Smooth", "Perl", "Glaze", "Charcoal", "Otravi", "Striped", "LiteStep"}
 
 NotPlater.targetIndicators = {
 	["NONE"] = {
@@ -103,9 +110,8 @@ NotPlater.targetIndicators = {
 		y = 0,
 	},
 	
-	--[[
 	["Golden"] = {
-		path = Interface\AddOns\NotPlater\images\targetBorders\Artifacts
+		path = [[Interface\AddOns\NotPlater\images\targetBorders\Artifacts]],
 		coords = {
 			{137/512, (137+29)/512, 408/512, 466/512},
 			{(137+30)/512, 195/512, 408/512, 466/512},
@@ -119,8 +125,7 @@ NotPlater.targetIndicators = {
 		x = 0,
 		y = 0,
 	},
-	]]
-	
+
 	["Ornament Gray"] = {
 		path = [[Interface\AddOns\NotPlater\images\targetBorders\challenges-besttime-bg]],
 		coords = {
@@ -213,17 +218,18 @@ NotPlater.targetIndicators = {
 
 local HIGHLIGHT_BASE_PATH = [[Interface\AddOns\NotPlater\images\targetBorders\]]
 NotPlater.targetHighlights = {
-	[HIGHLIGHT_BASE_PATH .. "selection_indicator1"] =  "Indicator 1",
-	[HIGHLIGHT_BASE_PATH .. "selection_indicator2"] =  "Indicator 2",
-	[HIGHLIGHT_BASE_PATH .. "selection_indicator3"] =  "Indicator 3",
-	[HIGHLIGHT_BASE_PATH .. "selection_indicator4"] =  "Indicator 4",
-	[HIGHLIGHT_BASE_PATH .. "selection_indicator5"] =  "Indicator 5",
-	[HIGHLIGHT_BASE_PATH .. "selection_indicator6"] =  "Indicator 6",
-	[HIGHLIGHT_BASE_PATH .. "selection_indicator7"] =  "Indicator 7",
-	[HIGHLIGHT_BASE_PATH .. "selection_indicator8"] =  "Indicator 8"
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator1"] =  "Highlight 1",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator2"] =  "Highlight 2",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator3"] =  "Highlight 3",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator4"] =  "Highlight 4",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator5"] =  "Highlight 5",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator6"] =  "Highlight 6",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator7"] =  "Highlight 7",
+	[HIGHLIGHT_BASE_PATH .. "selection_indicator8"] =  "Highlight 8"
 }
 
-local function getAnchors(frame)
+
+local function GetAnchors(frame)
 	local x, y = frame:GetCenter()
 	if not x or not y then return "CENTER" end
 	local hHalf = (x > UIParent:GetWidth()*2/3) and "RIGHT" or (x < UIParent:GetWidth()/3) and "LEFT" or ""
@@ -231,10 +237,10 @@ local function getAnchors(frame)
 	return vHalf..hHalf, frame, (vHalf == "TOP" and "BOTTOM" or "TOP")..hHalf
 end
 
-local function drawMinimapTooltip()
+local function DrawMinimapTooltip()
     local tooltip = GameTooltip
     tooltip:ClearLines()
-    tooltip:AddDoubleLine("NotPlater", NotPlater.revision or "1.0.0")
+    tooltip:AddDoubleLine("NotPlater", NotPlater.revision or "2.0.0")
     tooltip:AddLine(" ")
     tooltip:AddLine(L["|cffeda55fLeft-Click|r to toggle the config window"], 0.2, 1, 0.2)
     tooltip:AddLine(L["|cffeda55fRight-Click|r to toggle the simulator frame"], 0.2, 1, 0.2)
@@ -265,7 +271,7 @@ local Broker_NotPlater = LDB:NewDataObject("NotPlater", {
         else -- "MiddleButton"
             ToggleMinimap()
         end
-        drawMinimapTooltip()
+        DrawMinimapTooltip()
     end,
     OnEnter = function(self)
         local elapsed = 0
@@ -274,12 +280,12 @@ local Broker_NotPlater = LDB:NewDataObject("NotPlater", {
             elapsed = elapsed + elap
             if(elapsed > delay) then
                 elapsed = 0
-                drawMinimapTooltip()
+                DrawMinimapTooltip()
             end
         end);
         GameTooltip:SetOwner(self, "ANCHOR_NONE")
-        GameTooltip:SetPoint(getAnchors(self))
-        drawMinimapTooltip()
+        GameTooltip:SetPoint(GetAnchors(self))
+        DrawMinimapTooltip()
     end,
     OnLeave = function(self)
         tooltipUpdateFrame:SetScript("OnUpdate", nil)
@@ -300,2190 +306,226 @@ function Config:OnInitialize()
 	LDBIcon:Register("NotPlater", Broker_NotPlater, NotPlaterDB.minimap)
 end
 
--- GUI
-local function set(info, value)
-	local arg1, arg2, arg3 = ssplit(".", info.arg)
-	if( tonumber(arg2) ) then arg2 = tonumber(arg2) end
-	
-	if( arg2 and arg3 ) then
-		NotPlater.db.profile[arg1][arg2][arg3] = value
-	elseif( arg2 ) then
-		NotPlater.db.profile[arg1][arg2] = value
-	else
-		NotPlater.db.profile[arg1] = value
+local function SetValue(...)
+	local args = {}
+	local numArgs = #...
+	tinsert(args, NotPlater.db.profile)
+	for k, v in ipairs(...) do
+		tinsert(args, args[k][v])
 	end
-	
+	local lastArgName = select(1, ...)[numArgs]
+	local values = {select(2, ...)}
+	if #values > 1 then
+		args[numArgs][lastArgName] = values
+	else
+		args[numArgs][lastArgName] = select(2, ...)
+	end
 	NotPlater:Reload()
 end
 
-local function get(info)
-	local arg1, arg2, arg3 = ssplit(".", info.arg)
-	if( tonumber(arg2) ) then arg2 = tonumber(arg2) end
-	if( arg2 and arg3 ) then
-		return NotPlater.db.profile[arg1][arg2][arg3]
-	elseif( arg2 ) then
-		return NotPlater.db.profile[arg1][arg2]
+local function GetValue(...)
+	local args = {}
+	local numArgs = #...
+	tinsert(args, NotPlater.db.profile)
+	for k, v in ipairs(...) do
+		tinsert(args, args[k][v])
+	end
+	if type(args[numArgs + 1]) == "table" then
+		return unpack(args[numArgs + 1])
 	else
-		return NotPlater.db.profile[arg1]
+		return args[numArgs + 1]
 	end
 end
 
-local function setNumber(info, value)
-	set(info, tonumber(value))
-end
-
-local function setColor(info, r, g, b, a)
-	local arg1, arg2, arg3, arg4 = ssplit(".", info.arg)
-
-	if( arg2 and arg3 and arg4 ) then
-		NotPlater.db.profile[arg1][arg2][arg3][arg4].r = r
-		NotPlater.db.profile[arg1][arg2][arg3][arg4].g = g
-		NotPlater.db.profile[arg1][arg2][arg3][arg4].b = b
-		NotPlater.db.profile[arg1][arg2][arg3][arg4].a = a
-	elseif( arg2 and arg3 ) then
-		NotPlater.db.profile[arg1][arg2][arg3].r = r
-		NotPlater.db.profile[arg1][arg2][arg3].g = g
-		NotPlater.db.profile[arg1][arg2][arg3].b = b
-		NotPlater.db.profile[arg1][arg2][arg3].a = a
-	elseif( arg2 ) then
-		NotPlater.db.profile[arg1][arg2].r = r
-		NotPlater.db.profile[arg1][arg2].g = g
-		NotPlater.db.profile[arg1][arg2].b = b
-		NotPlater.db.profile[arg1][arg2].a = a
-	else
-		NotPlater.db.profile[arg1].r = r
-		NotPlater.db.profile[arg1].g = g
-		NotPlater.db.profile[arg1].b = b
-		NotPlater.db.profile[arg1].a = a
-	end
-	
-	NotPlater:Reload()
-end
-
-local function getColor(info)
-	local value = get(info)
-	return value.r, value.g, value.b, value.a
-end
--- Return all registered SML textures
-local textures = {}
-function Config:GetTextures()
-	for k in pairs(textures) do textures[k] = nil end
-
-	for _, name in pairs(SML:List(SML.MediaType.STATUSBAR)) do
-		textures[name] = name
-	end
-	
-	return textures
-end
-
--- Return all registered SML fonts
-function Config:GetFonts()
-	local fonts = {}
-	for _, name in pairs(SML:List(SML.MediaType.FONT)) do
-		fonts[name] = name
-	end
-	
-	return fonts
-end
-
-function Config:GetIndicators()
-	local indicators = {}
-	for name, _ in pairs(NotPlater.targetIndicators) do
-		indicators[name] = name
-	end
-	
-	return indicators
-end
-
-local function loadOptions()
+local function LoadOptions()
 	options = {}
 	options.type = "group"
 	options.name = "NotPlater"
 	options.args = {}
-	options.args.general = {
-		order = 0,
-		type = "group",
-		name = L["General"],
-		get = get,
-		set = set,
-		handler = Config,
-		childGroups = "tab",
-		args = {
-			header = {
-				order = 0,
-				name = L["Note: All settings here only work out of combat."],
-				type = "header",
-			},
-			nameplateStacking = {
-				order = 1,
-				type = "group",
-				name = L["Nameplate stacking"],
-				args = {
-					enabled = {
-						order = 0,
-						type = "toggle",
-						name = L["Enabled"],
-						width = "full",
-						desc = L["Only works if the nameplate is visible before you are in combat"],
-						arg = "general.nameplateStacking.enabled",
-					},
-					overlappingCastbars = {
-						order = 0,
-						type = "toggle",
-						name = L["Overlapping castbars"],
-						arg = "general.nameplateStacking.overlappingCastbars",
-					},
-					xMargin = {
-						order = 1,
-						type = "range",
-						name = L["X stacking margin"],
-						min = 0, max = 10, step = 1,
-						set = setNumber,
-						arg = "general.nameplateStacking.xMargin",
-					},
-					yMargin = {
-						order = 2,
-						type = "range",
-						name = L["Y stacking margin"],
-						min = 0, max = 10, step = 1,
-						set = setNumber,
-						arg = "general.nameplateStacking.yMargin",
-					},
-				},
-			},
-			frameStrata = {
-				order = 2,
-				type = "group",
-				name = L["Frame Strata"],
-				args = {
-					frame = {
-						order = 0,
-						type = "select",
-						name = L["Frame"],
-						values = frameStratas,
-						--sorting = strataSort,
-						arg = "general.frameStrata.frame",
-					},
-					targetFrame = {
-						order = 1,
-						type = "select",
-						name = L["Target Frame"],
-						values = frameStratas,
-						--sorting = strataSort,
-						arg = "general.frameStrata.targetFrame",
-					},
-				},
-			},
-		},
-	}
 	options.args.threat = {
 		order = 0,
 		type = "group",
 		name = L["Threat"],
-		get = get,
-		set = set,
+		get = GetValue,
+		set = SetValue,
 		childGroups = "tab",
 		handler = Config,
 		args = {
 			general = {
 				order = 0,
 				type = "group",
-				inline = false,
 				name = L["General"],
-				args = {
-					enableMouseoverUpdate = {
-						order = 0,
-						type = "toggle",
-						name = L["Enable mouseover nameplate threat update"],
-						width = "full",
-						arg = "threat.general.enableMouseoverUpdate",
-					},
-					mode = {
-						order = 1,
-						type = "select",
-						name = L["Mode"],
-						desc = L["Choose between healer or tank selection."],
-						values = {["hdps"] = L["Healer / DPS"], ["tank"] = L["Tank"]},
-						arg = "threat.general.mode",
-					},
-				},
+				args = NotPlater.ConfigPrototypes.ThreatGeneral,
 			},
-			namePlateColors = {
+			nameplateColors = {
 				order = 1,
 				type = "group",
-				name = L["Nameplate threat colors"],
-				args = {
-					enabled = {
-						order = 0,
-						type = "toggle",
-						name = L["Enable Nameplate Threat Colors"],
-						width = "double",
-						arg = "threat.nameplateColors.enabled",
-					},
-					dpsHealerColors = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Threat DPS / healer colors"],
-						args = {
-							aggroOnYou = {
-								order = 0,
-								type = "color",
-								name = L["Aggro on You"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.nameplateColors.dpsHealerAggroOnYou",
-							},
-							highThreat = {
-								order = 2,
-								type = "color",
-								name = L["High Threat"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.nameplateColors.dpsHealerHighThreat",
-							},
-							defaultNoAggro = {
-								order = 4,
-								type = "color",
-								name = L["Default / No Aggro"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.nameplateColors.dpsHealerDefaultNoAggro",
-							},
-						},
-					},
-					tankColors = {
-						order = 2,
-						type = "group",
-						inline = true,
-						name = L["Threat tank colors"],
-						args = {
-							aggroOnYou = {
-								order = 0,
-								type = "color",
-								name = L["Aggro on You"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.nameplateColors.tankAggroOnYou",
-							},
-							highThreat = {
-								order = 2,
-								type = "color",
-								name = L["Tank no aggro"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.nameplateColors.tankNoAggro",
-							},
-							defaultNoAggro = {
-								order = 4,
-								type = "color",
-								name = L["Dps close"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.nameplateColors.tankDpsClose",
-							},
-						},
-					},
-				},
+				name = L["Nameplate Colors"],
+				args = 	NotPlater.ConfigPrototypes.ThreatNameplateColors
 			},
-			threatPercentBarText = {
+			percent = {
 				order = 2,
 				type = "group",
-				inline = false,
-				name = L["Threat % statusbar/text"],
+				name = L["Percent Status Bar/Text"],
+				childGroups = "tab",
 				args = {
-					font = {
-						order = 2,
-						type = "group",
-						inline = true,
-						name = L["Font"],
-						args = {
-							fontEnabled = {
-								order = 1,
-								width = "full",
-								type = "toggle",
-								name = L["Enable font"],
-								arg = "threat.threatPercentBarText.fontEnabled",
-							},
-							fontName = {
-								order = 2,
-								type = "select",
-								name = L["Font name"],
-								desc = L["Font name for the health bar text."],
-								values = "GetFonts",
-								arg = "threat.threatPercentBarText.fontName",
-							},
-							fontSize = {
-								order = 3,
-								type = "range",
-								name = L["Font size"],
-								min = 1, max = 20, step = 1,
-								set = setNumber,
-								arg = "threat.threatPercentBarText.fontSize",
-							},
-							fontBorder = {
-								order = 4,
-								type = "select",
-								name = L["Font border"],
-								values = fontBorders,
-								arg = "threat.threatPercentBarText.fontBorder",
-							},
-							fontUseThreatColors = {
-								order = 5,
-								type = "toggle",
-								name = L["Use threat colors"],
-								arg = "threat.threatPercentBarText.fontUseThreatColors",
-							},
-							fontColor = {
-								order = 6,
-								type = "color",
-								name = L["Font color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.threatPercentBarText.fontColor",
-							},
-							fontPosition = {
-								order = 7,
-								type = "group",
-								inline = true,
-								name = L["Position"],
-								args = {
-									anchor = {
-										order = 1,
-										type = "select",
-										name = L["Anchor"],
-										values = anchors,
-										arg = "threat.threatPercentBarText.fontAnchor",
-									},
-									xOffset = {
-										order = 2,
-										type = "range",
-										name = L["Offset X"],
-										min = -100, max = 100, step = 1,
-										set = setNumber,
-										arg = "threat.threatPercentBarText.fontXOffset",
-									},
-									yOffset = {
-										order = 3,
-										type = "range",
-										name = L["Offset Y"],
-										min = -100, max = 100, step = 1,
-										set = setNumber,
-										arg = "threat.threatPercentBarText.fontYOffset",
-									},
-								},
-							},
-							fontShadow = {
-								order = 8,
-								type = "group",
-								inline = true,
-								name = L["Shadow"],
-								args = {
-									fontShadowEnabled = {
-										order = 5,
-										type = "toggle",
-										name = L["Enable shadow"],
-										width = "full",
-										arg = "threat.threatPercentBarText.fontShadowEnabled",
-									},
-									fontShadowColor = {
-										order = 6,
-										type = "color",
-										name = L["Shadow color"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatPercentBarText.fontShadowColor",
-									},
-									fontShadowXOffset = {
-										order = 7,
-										type = "range",
-										name = L["Shadow offset X"],
-										min = -2, max = 2, step = 1,
-										set = setNumber,
-										arg = "threat.threatPercentBarText.fontShadowXOffset",
-									},
-									fontShadowYOffset = {
-										order = 8,
-										type = "range",
-										name = L["Shadow offset Y"],
-										min = -2, max = 2, step = 1,
-										set = setNumber,
-										arg = "threat.threatPercentBarText.fontShadowYOffset",
-									},
-								},
-							},
-						},
-					},
-					bar = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Statusbar"],
-						args = {
-							barEnabled = {
-								order = 0,
-								type = "toggle",
-								name = L["Enable bar"],
-								arg = "threat.threatPercentBarText.barEnabled",
-							},
-							barTexture = {
-								order = 1,
-								width = "double",
-								type = "select",
-								name = L["Bar texture"],
-								values = "GetTextures",
-								arg = "threat.threatPercentBarText.barTexture",
-							},
-							barUseThreatColors = {
-								order = 2,
-								type = "toggle",
-								name = L["Use threat colors"],
-								arg = "threat.threatPercentBarText.barUseThreatColors",
-							},
-							barColor = {
-								order = 3,
-								type = "color",
-								name = L["Bar color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.threatPercentBarText.barColor",
-							},
-							barBackgroundColor = {
-								order = 4,
-								type = "color",
-								name = L["Background color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.threatPercentBarText.barBackgroundColor",
-							},
-							barBorder = {
-								order = 5,
-								type = "group",
-								inline = true,
-								name = L["Border"],
-								args = {
-									barBorderEnabled = {
-										order = 0,
-										type = "toggle",
-										name = L["Enable border"],
-										arg = "threat.threatPercentBarText.barBorderEnabled",
-									},
-									barBorderColor = {
-										order = 1,
-										type = "color",
-										name = L["Border color"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatPercentBarText.barBorderColor",
-									},
-									barBorderThickness = {
-										order = 2,
-										type = "range",
-										name = L["Border thickness"],
-										min = 1, max = 10, step = 1,
-										set = setNumber,
-										arg = "threat.threatPercentBarText.barBorderThickness",
-									},
-								},
-							},
-							barPosition = {
-								order = 6,
-								type = "group",
-								inline = true,
-								name = L["Positioning / Scaling"],
-								args = {
-									anchor = {
-										order = 1,
-										type = "select",
-										name = L["Anchor"],
-										values = anchors,
-										arg = "threat.threatPercentBarText.barAnchor",
-									},
-									xOffset = {
-										order = 2,
-										type = "range",
-										name = L["Offset X"],
-										min = -100, max = 100, step = 1,
-										set = setNumber,
-										arg = "threat.threatPercentBarText.barXOffset",
-									},
-									yOffset = {
-										order = 3,
-										type = "range",
-										name = L["Offset Y"],
-										min = -100, max = 100, step = 1,
-										set = setNumber,
-										arg = "threat.threatPercentBarText.barYOffset",
-									},
-									xSize = {
-										order = 4,
-										type = "range",
-										name = L["Size X"],
-										min = 0, max = 500, step = 1,
-										set = setNumber,
-										arg = "threat.threatPercentBarText.barXSize",
-									},
-									ySize = {
-										order = 5,
-										type = "range",
-										name = L["Size Y"],
-										min = 0, max = 500, step = 1,
-										set = setNumber,
-										arg = "threat.threatPercentBarText.barYSize",
-									},
-								},
-							},
-						},
-					},
-					colors = {
+					statusBar = {
 						order = 0,
 						type = "group",
-						inline = true,
-						name = L["Threat colors"],
-						args = {
-							dpsHealerColors = {
-								order = 1,
-								type = "group",
-								inline = true,
-								name = L["Threat DPS / healer colors"],
-								args = {
-									aggroOnYou = {
-										order = 0,
-										type = "color",
-										name = L["100%"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatPercentBarText.dpsHealerOneHundredPercent",
-									},
-									highThreat = {
-										order = 2,
-										type = "color",
-										name = L["Above 90%"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatPercentBarText.dpsHealerAboveNinetyPercent",
-									},
-									defaultNoAggro = {
-										order = 4,
-										type = "color",
-										name = L["Below 90%"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatPercentBarText.dpsHealerBelowNinetyPercent",
-									},
-								},
-							},
-							tankColors = {
-								order = 2,
-								type = "group",
-								inline = true,
-								name = L["Threat tank colors"],
-								args = {
-									aggroOnYou = {
-										order = 0,
-										type = "color",
-										name = L["100%"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatPercentBarText.tankOneHundredPercent",
-									},
-									highThreat = {
-										order = 2,
-										type = "color",
-										name = L["Above 90%"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatPercentBarText.tankAboveNinetyPercent",
-									},
-									defaultNoAggro = {
-										order = 4,
-										type = "color",
-										name = L["Below 90%"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatPercentBarText.tankBelowNinetyPercent",
-									},
-								},
-							},
-						},
+						name = L["Status Bar"],
+						args = 	NotPlater.ConfigPrototypes.ThreatPercentStatusBar,
+					},
+					text = {
+						order = 1,
+						type = "group",
+						name = L["Text"],
+						args = NotPlater.ConfigPrototypes.ThreatPercentText,
 					},
 				},
 			},
-			threatDifferentialText = {
-				order = 1,
+			differentialText = {
+				order = 3,
 				type = "group",
-				inline = false,
-				name = L["Threat differential text"],
-				args = {
-					general = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["General"],
-						args = {
-							fontEnabled = {
-								order = 1,
-								width = "full",
-								type = "toggle",
-								name = L["Enable font"],
-								arg = "threat.threatDifferentialText.enabled",
-							},
-							fontName = {
-								order = 2,
-								type = "select",
-								name = L["Font name"],
-								desc = L["Font name for the health bar text."],
-								values = "GetFonts",
-								arg = "threat.threatDifferentialText.fontName",
-							},
-							fontSize = {
-								order = 3,
-								type = "range",
-								name = L["Font size"],
-								min = 1, max = 20, step = 1,
-								set = setNumber,
-								arg = "threat.threatDifferentialText.fontSize",
-							},
-							fontBorder = {
-								order = 5,
-								type = "select",
-								name = L["Font border"],
-								values = fontBorders,
-								arg = "threat.threatDifferentialText.fontBorder",
-							},
-						},
-					},
-					position = {
-						order = 2,
-						type = "group",
-						inline = true,
-						name = L["Position"],
-						args = {
-							anchor = {
-								order = 1,
-								type = "select",
-								name = L["Anchor"],
-								values = anchors,
-								arg = "threat.threatDifferentialText.anchor",
-							},
-							xOffset = {
-								order = 2,
-								type = "range",
-								name = L["Offset X"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "threat.threatDifferentialText.xOffset",
-							},
-							yOffset = {
-								order = 3,
-								type = "range",
-								name = L["Offset Y"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "threat.threatDifferentialText.yOffset",
-							},
-						},
-					},
-					colors = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Threat colors"],
-						args = {
-							dpsHealerColors = {
-								order = 1,
-								type = "group",
-								inline = true,
-								name = L["Threat DPS / healer colors"],
-								args = {
-									aggroOnYou = {
-										order = 0,
-										type = "color",
-										name = L["Aggro on You"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatDifferentialText.dpsHealerAggroOnYou",
-									},
-									highThreat = {
-										order = 2,
-										type = "color",
-										name = L["High Threat"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatDifferentialText.dpsHealerHighThreat",
-									},
-									defaultNoAggro = {
-										order = 4,
-										type = "color",
-										name = L["Default / No Aggro"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatDifferentialText.dpsHealerDefaultNoAggro",
-									},
-								},
-							},
-							tankColors = {
-								order = 2,
-								type = "group",
-								inline = true,
-								name = L["Threat tank colors"],
-								args = {
-									aggroOnYou = {
-										order = 0,
-										type = "color",
-										name = L["Aggro on You"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatDifferentialText.tankAggroOnYou",
-									},
-									highThreat = {
-										order = 2,
-										type = "color",
-										name = L["Tank no aggro"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatDifferentialText.tankNoAggro",
-									},
-									defaultNoAggro = {
-										order = 4,
-										type = "color",
-										name = L["Dps close"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatDifferentialText.tankDpsClose",
-									},
-								},
-							},
-						},
-					},
-					shadow = {
-						order = 3,
-						type = "group",
-						inline = true,
-						name = L["Shadow"],
-						args = {
-							fontShadowEnabled = {
-								order = 5,
-								type = "toggle",
-								name = L["Enable shadow"],
-								width = "full",
-								arg = "threat.threatDifferentialText.fontShadowEnabled",
-							},
-							fontShadowColor = {
-								order = 6,
-								type = "color",
-								name = L["Shadow color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.threatDifferentialText.fontShadowColor",
-							},
-							fontShadowXOffset = {
-								order = 7,
-								type = "range",
-								name = L["Shadow offset X"],
-								min = -2, max = 2, step = 1,
-								set = setNumber,
-								arg = "threat.threatDifferentialText.fontShadowXOffset",
-							},
-							fontShadowYOffset = {
-								order = 8,
-								type = "range",
-								name = L["Shadow offset Y"],
-								min = -2, max = 2, step = 1,
-								set = setNumber,
-								arg = "threat.threatDifferentialText.fontShadowYOffset",
-							},
-						},
-					},
-				},
+				name = L["Differential Text"],
+				args = NotPlater.ConfigPrototypes.ThreatDifferentialText,
 			},
-			threatNumberText = {
-				order = 2,
+			numberText = {
+				order = 4,
 				type = "group",
-				inline = false,
-				name = L["Threat number text"],
-				args = {
-					general = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["General"],
-						args = {
-							fontEnabled = {
-								order = 1,
-								width = "full",
-								type = "toggle",
-								name = L["Enable font"],
-								arg = "threat.threatNumberText.enabled",
-							},
-							fontName = {
-								order = 2,
-								type = "select",
-								name = L["Font name"],
-								desc = L["Font name for the health bar text."],
-								values = "GetFonts",
-								arg = "threat.threatNumberText.fontName",
-							},
-							fontSize = {
-								order = 3,
-								type = "range",
-								name = L["Font size"],
-								min = 1, max = 20, step = 1,
-								set = setNumber,
-								arg = "threat.threatNumberText.fontSize",
-							},
-							fontBorder = {
-								order = 5,
-								type = "select",
-								name = L["Font border"],
-								values = fontBorders,
-								arg = "threat.threatNumberText.fontBorder",
-							},
-						},
-					},
-					position = {
-						order = 2,
-						type = "group",
-						inline = true,
-						name = L["Position"],
-						args = {
-							anchor = {
-								order = 1,
-								type = "select",
-								name = L["Anchor"],
-								values = anchors,
-								arg = "threat.threatNumberText.anchor",
-							},
-							xOffset = {
-								order = 2,
-								type = "range",
-								name = L["Offset X"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "threat.threatNumberText.xOffset",
-							},
-							yOffset = {
-								order = 3,
-								type = "range",
-								name = L["Offset Y"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "threat.threatNumberText.yOffset",
-							},
-						},
-					},
-					colors = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Threat colors"],
-						args = {
-							dpsHealerColors = {
-								order = 1,
-								type = "group",
-								inline = true,
-								name = L["Threat DPS / healer colors"],
-								args = {
-									firstOnThreat = {
-										order = 0,
-										type = "color",
-										name = L["First on Threat"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatNumberText.dpsHealerFirstOnThreat",
-									},
-									upperTwentyPercentOnThreat = {
-										order = 2,
-										type = "color",
-										name = L["Upper 20% on Threat"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatNumberText.dpsHealerUpperTwentyPercentOnThreat",
-									},
-									lowerEightyPercentOnThreat = {
-										order = 4,
-										type = "color",
-										name = L["Lower 80% on Threat"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatNumberText.dpsHealerLowerEightyPercentOnThreat",
-									},
-								},
-							},
-							tankColors = {
-								order = 2,
-								type = "group",
-								inline = true,
-								name = L["Threat tank colors"],
-								args = {
-									firstOnThreat = {
-										order = 0,
-										type = "color",
-										name = L["First on Threat"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatNumberText.tankFirstOnThreat",
-									},
-									upperTwentyPercentOnThreat = {
-										order = 2,
-										type = "color",
-										name = L["Upper 20% on Threat"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatNumberText.tankUpperTwentyPercentOnThreat",
-									},
-									lowerEightyPercentOnThreat = {
-										order = 4,
-										type = "color",
-										name = L["Lower 80% on Threat"],
-										hasAlpha = true,
-										set = setColor,
-										get = getColor,
-										arg = "threat.threatNumberText.tankLowerEightyPercentOnThreat",
-									},
-								},
-							},
-						},
-					},
-					shadow = {
-						order = 3,
-						type = "group",
-						inline = true,
-						name = L["Shadow"],
-						args = {
-							fontShadowEnabled = {
-								order = 5,
-								type = "toggle",
-								name = L["Enable shadow"],
-								width = "full",
-								arg = "threat.threatNumberText.fontShadowEnabled",
-							},
-							fontShadowColor = {
-								order = 6,
-								type = "color",
-								name = L["Shadow color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "threat.threatNumberText.fontShadowColor",
-							},
-							fontShadowXOffset = {
-								order = 7,
-								type = "range",
-								name = L["Shadow offset X"],
-								min = -2, max = 2, step = 1,
-								set = setNumber,
-								arg = "threat.threatNumberText.fontShadowXOffset",
-							},
-							fontShadowYOffset = {
-								order = 8,
-								type = "range",
-								name = L["Shadow offset Y"],
-								min = -2, max = 2, step = 1,
-								set = setNumber,
-								arg = "threat.threatNumberText.fontShadowYOffset",
-							},
-						},
-					},
-				},
-			},
-		},
+				name = L["Number Text"],
+				args = 	NotPlater.ConfigPrototypes.ThreatNumberText,
+			}
+		}
 	}
 	options.args.healthBar = {
 		type = "group",
 		order = 1,
-		name = L["Healthbar"],
-		get = get,
-		set = set,
+		name = L["Health Bar"],
+		get = GetValue,
+		set = SetValue,
 		handler = Config,
 		childGroups = "tab",
 		args = {
-			general = {
+			statusBar = {
 				order = 0,
 				type = "group",
-				inline = false,
-				name = L["General"],
-				args = {
-					texture = {
-						order = 0,
-						type = "select",
-						name = L["Bar texture"],
-						values = "GetTextures",
-						arg = "healthBar.texture",
-					},
-					backgroundColor = {
-						order = 2,
-						type = "color",
-						name = L["Background color"],
-						hasAlpha = true,
-						set = setColor,
-						get = getColor,
-						arg = "healthBar.backgroundColor",
-					},
-					position = {
-						order = 3,
-						type = "group",
-						inline = true,
-						name = L["Positioning / Scaling"],
-						args = {
-							xSize = {
-								order = 4,
-								type = "range",
-								name = L["Size X"],
-								min = 0, max = 500, step = 1,
-								set = setNumber,
-								arg = "healthBar.position.xSize",
-							},
-							ySize = {
-								order = 5,
-								type = "range",
-								name = L["Size Y"],
-								min = 0, max = 500, step = 1,
-								set = setNumber,
-								arg = "healthBar.position.ySize",
-							},
-						},
-					},
-					border = {
-						order = 4,
-						type = "group",
-						inline = true,
-						name = L["Border"],
-						args = {
-							enabled = {
-								order = 0,
-								type = "toggle",
-								name = L["Enable border"],
-								arg = "healthBar.border.enabled",
-							},
-							color = {
-								order = 1,
-								type = "color",
-								name = L["Border color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "healthBar.border.color",
-							},
-							thickness = {
-								order = 2,
-								type = "range",
-								name = L["Border thickness"],
-								min = 1, max = 10, step = 1,
-								set = setNumber,
-								arg = "healthBar.border.thickness",
-							},
-						},
-					},
-				},
+				name = L["Status Bar"],
+				args = NotPlater.ConfigPrototypes.HealthBar,
 			},
 			healthText = {
 				order = 1,
 				type = "group",
-				inline = false,
-				name = L["Health text"],
-				args = {
-					general = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["General"],
-						args = {
-							type = {
-								order = 1,
-								type = "select",
-								name = L["Health text display"],
-								desc = L["Style of display for health bar text."],
-								values = {["none"] = L["None"], ["minmax"] = L["Min / Max"], ["both"] = L["Both"], ["percent"] = L["Percent"]},
-								arg = "healthBar.healthText.type",
-							},
-							fontName = {
-								order = 2,
-								type = "select",
-								name = L["Font name"],
-								desc = L["Font name for the health bar text."],
-								values = "GetFonts",
-								arg = "healthBar.healthText.fontName",
-							},
-							fontColor = {
-								order = 4,
-								type = "color",
-								name = L["Font color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "healthBar.healthText.fontColor",
-							},
-							fontSize = {
-								order = 3,
-								type = "range",
-								name = L["Font size"],
-								min = 1, max = 20, step = 1,
-								set = setNumber,
-								arg = "healthBar.healthText.fontSize",
-							},
-							fontBorder = {
-								order = 5,
-								type = "select",
-								name = L["Font border"],
-								values = fontBorders,
-								arg = "healthBar.healthText.fontBorder",
-							},
-						},
-					},
-					position = {
-						order = 2,
-						type = "group",
-						inline = true,
-						name = L["Position"],
-						args = {
-							anchor = {
-								order = 1,
-								type = "select",
-								name = L["Anchor"],
-								values = anchors,
-								arg = "healthBar.healthText.anchor",
-							},
-							xOffset = {
-								order = 2,
-								type = "range",
-								name = L["Offset X"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "healthBar.healthText.xOffset",
-							},
-							yOffset = {
-								order = 3,
-								type = "range",
-								name = L["Offset Y"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "healthBar.healthText.yOffset",
-							},
-						},
-					},
-					shadow = {
-						order = 3,
-						type = "group",
-						inline = true,
-						name = L["Shadow"],
-						args = {
-							fontShadowEnabled = {
-								order = 5,
-								type = "toggle",
-								name = L["Enable shadow"],
-								width = "full",
-								arg = "healthBar.healthText.fontShadowEnabled",
-							},
-							fontShadowColor = {
-								order = 6,
-								type = "color",
-								name = L["Shadow color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "healthBar.healthText.fontShadowColor",
-							},
-							fontShadowXOffset = {
-								order = 7,
-								type = "range",
-								name = L["Shadow offset X"],
-								min = -2, max = 2, step = 1,
-								set = setNumber,
-								arg = "healthBar.healthText.fontShadowXOffset",
-							},
-							fontShadowYOffset = {
-								order = 8,
-								type = "range",
-								name = L["Shadow offset Y"],
-								min = -2, max = 2, step = 1,
-								set = setNumber,
-								arg = "healthBar.healthText.fontShadowYOffset",
-							},
-						},
-					},
-				},
+				name = L["Health Text"],
+				args = NotPlater.ConfigPrototypes.HealthText
 			},
 		},
 	}
 	options.args.castBar = {
 		type = "group",
 		order = 2,
-		name = L["Castbar"],
-		get = get,
-		set = set,
+		name = L["Cast Bar"],
+		get = GetValue,
+		set = SetValue,
 		childGroups = "tab",
 		handler = Config,
-		args = {
-			general = {
+		args =  {
+			statusBar = {
 				order = 0,
 				type = "group",
-				inline = false,
-				name = L["General"],
-				args = {
-					enabled = {
-						order = 0,
-						type = "toggle",
-						name = L["Enabled"],
-						width = "full",
-						arg = "castBar.enabled",
-					},
-					texture = {
-						order = 1,
-						type = "select",
-						name = L["Bar texture"],
-						values = "GetTextures",
-						arg = "castBar.texture",
-					},
-					barColor = {
-						order = 2,
-						type = "color",
-						name = L["Bar color"],
-						hasAlpha = true,
-						set = setColor,
-						get = getColor,
-						arg = "castBar.barColor",
-					},
-					backgroundColor = {
-						order = 3,
-						type = "color",
-						name = L["Background color"],
-						hasAlpha = true,
-						set = setColor,
-						get = getColor,
-						arg = "castBar.backgroundColor",
-					},
-					position = {
-						order = 4,
-						type = "group",
-						inline = true,
-						name = L["Positioning / Scaling"],
-						args = {
-							anchor = {
-								order = 1,
-								type = "select",
-								name = L["Anchor"],
-								values = anchors,
-								arg = "castBar.position.anchor",
-							},
-							xOffset = {
-								order = 2,
-								type = "range",
-								name = L["Offset X"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "castBar.position.xOffset",
-							},
-							yOffset = {
-								order = 3,
-								type = "range",
-								name = L["Offset Y"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "castBar.position.yOffset",
-							},
-							xSize = {
-								order = 4,
-								type = "range",
-								name = L["Size X"],
-								min = 0, max = 500, step = 1,
-								set = setNumber,
-								arg = "castBar.position.xSize",
-							},
-							ySize = {
-								order = 5,
-								type = "range",
-								name = L["Size Y"],
-								min = 0, max = 500, step = 1,
-								set = setNumber,
-								arg = "castBar.position.ySize",
-							},
-						},
-					},
-					border = {
-						order = 5,
-						type = "group",
-						inline = true,
-						name = L["Border"],
-						args = {
-							enabled = {
-								order = 0,
-								type = "toggle",
-								name = L["Enable border"],
-								arg = "castBar.border.enabled",
-							},
-							color = {
-								order = 1,
-								type = "color",
-								name = L["Border color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "castBar.border.color",
-							},
-							thickness = {
-								order = 2,
-								type = "range",
-								name = L["Border thickness"],
-								min = 1, max = 10, step = 1,
-								set = setNumber,
-								arg = "castBar.border.thickness",
-							},
-						},
-					},
-				},
+				name = L["Status Bar"],
+				args = NotPlater.ConfigPrototypes.CastBar,
 			},
-			castSpellIcon = {
-				order = 4,
+			spellIcon = {
+				order = 1,
 				type = "group",
-				inline = false,
-				name = L["Cast spellicon"],
-				args = {
-					general = {
-						order = 0,
-						type = "group",
-						inline = true,
-						name = L["General"],
-						args = {
-							opacity = {
-								order = 0,
-								type = "range",
-								name = L["Opacity"],
-								min = 0, max = 1, step = 0.01,
-								set = setNumber,
-								arg = "castBar.castSpellIcon.opacity",
-							},
-						},
-					},
-					position = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Position"],
-						args = {
-							anchor = {
-								order = 1,
-								type = "select",
-								name = L["Anchor"],
-								values = anchors,
-								arg = "castBar.castSpellIcon.anchor",
-							},
-							xOffset = {
-								order = 2,
-								type = "range",
-								name = L["Offset X"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "castBar.castSpellIcon.xOffset",
-							},
-							yOffset = {
-								order = 3,
-								type = "range",
-								name = L["Offset Y"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "castBar.castSpellIcon.yOffset",
-							},
-							xSize = {
-								order = 4,
-								type = "range",
-								name = L["Size X"],
-								min = 0, max = 500, step = 1,
-								set = setNumber,
-								arg = "castBar.castSpellIcon.xSize",
-							},
-							ySize = {
-								order = 5,
-								type = "range",
-								name = L["Size Y"],
-								min = 0, max = 500, step = 1,
-								set = setNumber,
-								arg = "castBar.castSpellIcon.ySize",
-							},
-						},
-					},
-				},
+				name = L["Spell Icon"],
+				args = NotPlater.ConfigPrototypes.Icon
 			},
-			castTimeText = {
-				order = 4,
+			spellTimeText = {
+				order = 2,
 				type = "group",
-				inline = false,
-				name = L["Casttime text"],
-				args = {
-					general = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["General"],
-						args = {
-							type = {
-								order = 1,
-								type = "select",
-								name = L["Cast text display"],
-								desc = L["Style of display for cast bar text."],
-								values = {["crtmax"] = L["Current / Max"], ["none"] = L["None"], ["crt"] = L["Current"], ["percent"] = L["Percent"], ["timeleft"] = L["Time left"]},
-								arg = "castBar.castTimeText.type",
-							},
-							fontName = {
-								order = 2,
-								type = "select",
-								name = L["Font name"],
-								desc = L["Font name for the health bar text."],
-								values = "GetFonts",
-								arg = "castBar.castTimeText.fontName",
-							},
-							fontColor = {
-								order = 4,
-								type = "color",
-								name = L["Font color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "castBar.castTimeText.fontColor",
-							},
-							fontSize = {
-								order = 3,
-								type = "range",
-								name = L["Font size"],
-								min = 1, max = 20, step = 1,
-								set = setNumber,
-								arg = "castBar.castTimeText.fontSize",
-							},
-							fontBorder = {
-								order = 5,
-								type = "select",
-								name = L["Font border"],
-								values = fontBorders,
-								arg = "castBar.castTimeText.fontBorder",
-							},
-						},
-					},
-					position = {
-						order = 2,
-						type = "group",
-						inline = true,
-						name = L["Position"],
-						args = {
-							anchor = {
-								order = 1,
-								type = "select",
-								name = L["Anchor"],
-								values = anchors,
-								arg = "castBar.castTimeText.anchor",
-							},
-							xOffset = {
-								order = 2,
-								type = "range",
-								name = L["Offset X"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "castBar.castTimeText.xOffset",
-							},
-							yOffset = {
-								order = 3,
-								type = "range",
-								name = L["Offset Y"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "castBar.castTimeText.yOffset",
-							},
-						},
-					},
-					shadow = {
-						order = 3,
-						type = "group",
-						inline = true,
-						name = L["Shadow"],
-						args = {
-							fontShadowEnabled = {
-								order = 5,
-								type = "toggle",
-								name = L["Enable shadow"],
-								width = "full",
-								arg = "castBar.castTimeText.fontShadowEnabled",
-							},
-							fontShadowColor = {
-								order = 6,
-								type = "color",
-								name = L["Shadow color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "castBar.castTimeText.fontShadowColor",
-							},
-							fontShadowXOffset = {
-								order = 7,
-								type = "range",
-								name = L["Shadow offset X"],
-								min = -2, max = 2, step = 1,
-								set = setNumber,
-								arg = "castBar.castTimeText.fontShadowXOffset",
-							},
-							fontShadowYOffset = {
-								order = 8,
-								type = "range",
-								name = L["Shadow offset Y"],
-								min = -2, max = 2, step = 1,
-								set = setNumber,
-								arg = "castBar.castTimeText.fontShadowYOffset",
-							},
-						},
-					},
-				},
+				name = L["Spell Time Text"],
+				args = NotPlater.ConfigPrototypes.SpellTimeText
 			},
-			castNameText = {
-				order = 4,
+			spellNameText = {
+				order = 3,
 				type = "group",
-				inline = false,
-				name = L["Castname text"],
-				args = {
-					general = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["General"],
-						args = {
-							fontName = {
-								order = 2,
-								type = "select",
-								name = L["Font name"],
-								desc = L["Font name for the health bar text."],
-								values = "GetFonts",
-								arg = "castBar.castNameText.fontName",
-							},
-							fontColor = {
-								order = 4,
-								type = "color",
-								name = L["Font color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "castBar.castNameText.fontColor",
-							},
-							fontSize = {
-								order = 3,
-								type = "range",
-								name = L["Font size"],
-								min = 1, max = 20, step = 1,
-								set = setNumber,
-								arg = "castBar.castNameText.fontSize",
-							},
-							fontBorder = {
-								order = 5,
-								type = "select",
-								name = L["Font border"],
-								values = fontBorders,
-								arg = "castBar.castNameText.fontBorder",
-							},
-							maxLetters = {
-								order = 6,
-								type = "range",
-								name = L["Max. letters"],
-								min = 1, max = 40, step = 1,
-								set = setNumber,
-								arg = "castBar.castNameText.maxLetters",
-							},
-						},
-					},
-					position = {
-						order = 2,
-						type = "group",
-						inline = true,
-						name = L["Position"],
-						args = {
-							anchor = {
-								order = 1,
-								type = "select",
-								name = L["Anchor"],
-								values = anchors,
-								arg = "castBar.castNameText.anchor",
-							},
-							xOffset = {
-								order = 2,
-								type = "range",
-								name = L["Offset X"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "castBar.castNameText.xOffset",
-							},
-							yOffset = {
-								order = 3,
-								type = "range",
-								name = L["Offset Y"],
-								min = -100, max = 100, step = 1,
-								set = setNumber,
-								arg = "castBar.castNameText.yOffset",
-							},
-						},
-					},
-					shadow = {
-						order = 3,
-						type = "group",
-						inline = true,
-						name = L["Shadow"],
-						args = {
-							fontShadowEnabled = {
-								order = 5,
-								type = "toggle",
-								name = L["Enable shadow"],
-								width = "full",
-								arg = "castBar.castNameText.fontShadowEnabled",
-							},
-							fontShadowColor = {
-								order = 6,
-								type = "color",
-								name = L["Shadow color"],
-								hasAlpha = true,
-								set = setColor,
-								get = getColor,
-								arg = "castBar.castNameText.fontShadowColor",
-							},
-							fontShadowXOffset = {
-								order = 7,
-								type = "range",
-								name = L["Shadow offset X"],
-								min = -2, max = 2, step = 1,
-								set = setNumber,
-								arg = "castBar.castNameText.fontShadowXOffset",
-							},
-							fontShadowYOffset = {
-								order = 8,
-								type = "range",
-								name = L["Shadow offset Y"],
-								min = -2, max = 2, step = 1,
-								set = setNumber,
-								arg = "castBar.castNameText.fontShadowYOffset",
-							},
-						},
-					},
-				},
+				name = L["Spell Name Text"],
+				args = NotPlater.ConfigPrototypes.SpellNameText
 			},
 		},
 	}
 	options.args.nameText = {
-		order = 4,
+		order = 3,
 		type = "group",
-		name = L["Name text"],
-		get = get,
-		set = set,
+		name = L["Name Text"],
+		get = GetValue,
+		set = SetValue,
 		handler = Config,
-		args = {
-			general = {
-				order = 1,
-				type = "group",
-				inline = true,
-				name = L["General"],
-				args = {
-					fontEnabled = {
-						order = 0,
-						width = "full",
-						type = "toggle",
-						name = L["Enable font"],
-						arg = "nameText.fontEnabled",
-					},
-					fontName = {
-						order = 1,
-						type = "select",
-						name = L["Font name"],
-						desc = L["Font name for the actual name text above name plate bars."],
-						values = "GetFonts",
-						arg = "nameText.fontName",
-					},
-					fontSize = {
-						order = 2,
-						type = "range",
-						name = L["Font size"],
-						min = 1, max = 20, step = 1,
-						set = setNumber,
-						arg = "nameText.fontSize",
-					},
-					fontBorder = {
-						order = 3,
-						type = "select",
-						name = L["Font border"],
-						values = fontBorders,
-						arg = "nameText.fontBorder",
-					},
-				},
-			},
-			position = {
-				order = 2,
-				type = "group",
-				inline = true,
-				name = L["Position"],
-				args = {
-					anchor = {
-						order = 1,
-						type = "select",
-						name = L["Anchor"],
-						values = anchors,
-						arg = "nameText.anchor",
-					},
-					xOffset = {
-						order = 2,
-						type = "range",
-						name = L["Offset X"],
-						min = -100, max = 100, step = 1,
-						set = setNumber,
-						arg = "nameText.xOffset",
-					},
-					yOffset = {
-						order = 3,
-						type = "range",
-						name = L["Offset Y"],
-						min = -100, max = 100, step = 1,
-						set = setNumber,
-						arg = "nameText.yOffset",
-					},
-				},
-			},
-			shadow = {
-				order = 3,
-				type = "group",
-				inline = true,
-				name = L["Shadow"],
-				args = {
-					fontShadowEnabled = {
-						order = 0,
-						type = "toggle",
-						name = L["Enable shadow"],
-						width = "full",
-						arg = "nameText.fontShadowEnabled",
-					},
-					fontShadowColor = {
-						order = 1,
-						type = "color",
-						name = L["Shadow color"],
-						hasAlpha = true,
-						set = setColor,
-						get = getColor,
-						arg = "nameText.fontShadowColor",
-					},
-					fontShadowXOffset = {
-						order = 2,
-						type = "range",
-						name = L["Shadow offset X"],
-						min = -2, max = 2, step = 1,
-						set = setNumber,
-						arg = "nameText.fontShadowXOffset",
-					},
-					fontShadowYOffset = {
-						order = 3,
-						type = "range",
-						name = L["Shadow offset Y"],
-						min = -2, max = 2, step = 1,
-						set = setNumber,
-						arg = "nameText.fontShadowYOffset",
-					},
-				},
-			},
-		},
+		args = NotPlater.ConfigPrototypes.NameText
 	}
 	options.args.levelText = {
-		order = 5,
+		order = 4,
 		type = "group",
-		name = L["Level text"],
-		get = get,
-		set = set,
+		name = L["Level Text"],
+		get = GetValue,
+		set = SetValue,
 		handler = Config,
-		args = {
-			general = {
-				order = 1,
-				type = "group",
-				inline = true,
-				name = L["General"],
-				args = {
-					fontName = {
-						order = 1,
-						type = "select",
-						name = L["Font name"],
-						desc = L["Font name for the actual name text above name plate bars."],
-						values = "GetFonts",
-						arg = "levelText.fontName",
-					},
-					fontSize = {
-						order = 2,
-						type = "range",
-						name = L["Font size"],
-						min = 1, max = 20, step = 1,
-						set = setNumber,
-						arg = "levelText.fontSize",
-					},
-					fontOpacity = {
-						order = 2,
-						type = "range",
-						name = L["Font opacity"],
-						min = 0, max = 1, step = 0.01,
-						set = setNumber,
-						arg = "levelText.fontOpacity",
-					},
-					fontBorder = {
-						order = 3,
-						type = "select",
-						name = L["Font border"],
-						values = fontBorders,
-						arg = "levelText.fontBorder",
-					},
-				},
-			},
-			position = {
-				order = 2,
-				type = "group",
-				inline = true,
-				name = L["Position"],
-				args = {
-					anchor = {
-						order = 1,
-						type = "select",
-						name = L["Anchor"],
-						values = anchors,
-						arg = "levelText.anchor",
-					},
-					xOffset = {
-						order = 2,
-						type = "range",
-						name = L["Offset X"],
-						min = -100, max = 100, step = 1,
-						set = setNumber,
-						arg = "levelText.xOffset",
-					},
-					yOffset = {
-						order = 3,
-						type = "range",
-						name = L["Offset Y"],
-						min = -100, max = 100, step = 1,
-						set = setNumber,
-						arg = "levelText.yOffset",
-					},
-				},
-			},
-			shadow = {
-				order = 3,
-				type = "group",
-				inline = true,
-				name = L["Shadow"],
-				args = {
-					fontShadowEnabled = {
-						order = 0,
-						type = "toggle",
-						name = L["Enable shadow"],
-						width = "full",
-						arg = "levelText.fontShadowEnabled",
-					},
-					fontShadowColor = {
-						order = 1,
-						type = "color",
-						name = L["Shadow color"],
-						hasAlpha = true,
-						set = setColor,
-						get = getColor,
-						arg = "levelText.fontShadowColor",
-					},
-					fontShadowXOffset = {
-						order = 2,
-						type = "range",
-						name = L["Shadow offset X"],
-						min = -2, max = 2, step = 1,
-						set = setNumber,
-						arg = "levelText.fontShadowXOffset",
-					},
-					fontShadowYOffset = {
-						order = 3,
-						type = "range",
-						name = L["Shadow offset Y"],
-						min = -2, max = 2, step = 1,
-						set = setNumber,
-						arg = "levelText.fontShadowYOffset",
-					},
-				},
-			},
-		},
+		args = NotPlater.ConfigPrototypes.LevelText
 	}
 	options.args.raidIcon = {
-		order = 6,
+		order = 5,
 		type = "group",
-		name = L["Raid icon"],
-		get = get,
-		set = set,
+		name = L["Raid Icon"],
+		get = GetValue,
+		set = SetValue,
 		handler = Config,
-		args = {
-			general = {
-				order = 1,
-				type = "group",
-				inline = true,
-				name = L["General"],
-				args = {
-					fontOpacity = {
-						order = 2,
-						type = "range",
-						name = L["Opacity"],
-						min = 0, max = 1, step = 0.01,
-						set = setNumber,
-						arg = "raidIcon.opacity",
-					},
-				},
-			},
-			position = {
-				order = 2,
-				type = "group",
-				inline = true,
-				name = L["Positioning / Scaling"],
-				args = {
-					anchor = {
-						order = 1,
-						type = "select",
-						name = L["Anchor"],
-						values = anchors,
-						arg = "raidIcon.anchor",
-					},
-					xOffset = {
-						order = 2,
-						type = "range",
-						name = L["Offset X"],
-						min = -100, max = 100, step = 1,
-						set = setNumber,
-						arg = "raidIcon.xOffset",
-					},
-					yOffset = {
-						order = 3,
-						type = "range",
-						name = L["Offset Y"],
-						min = -100, max = 100, step = 1,
-						set = setNumber,
-						arg = "raidIcon.yOffset",
-					},
-					xSize = {
-						order = 4,
-						type = "range",
-						name = L["Size X"],
-						min = 0, max = 500, step = 1,
-						set = setNumber,
-						arg = "raidIcon.xSize",
-					},
-					ySize = {
-						order = 5,
-						type = "range",
-						name = L["Size Y"],
-						min = 0, max = 500, step = 1,
-						set = setNumber,
-						arg = "raidIcon.ySize",
-					},
-				},
-			},
-		},
+		args = NotPlater.ConfigPrototypes.Icon
 	}
 	options.args.bossIcon = {
+		order = 6,
+		type = "group",
+		name = L["Boss Icon"],
+		get = GetValue,
+		set = SetValue,
+		handler = Config,
+		args = NotPlater.ConfigPrototypes.Icon
+	}
+	options.args.target = {
 		order = 7,
 		type = "group",
-		name = L["Boss icon"],
-		get = get,
-		set = set,
+		name = L["Target"],
+		get = GetValue,
+		set = SetValue,
 		handler = Config,
-		args = {
-			general = {
-				order = 1,
-				type = "group",
-				inline = true,
-				name = L["General"],
-				args = {
-					fontOpacity = {
-						order = 2,
-						type = "range",
-						name = L["Opacity"],
-						min = 0, max = 1, step = 0.01,
-						set = setNumber,
-						arg = "bossIcon.opacity",
-					},
-				},
-			},
-			position = {
-				order = 2,
-				type = "group",
-				inline = true,
-				name = L["Positioning / Scaling"],
-				args = {
-					anchor = {
-						order = 1,
-						type = "select",
-						name = L["Anchor"],
-						values = anchors,
-						arg = "bossIcon.anchor",
-					},
-					xOffset = {
-						order = 2,
-						type = "range",
-						name = L["Offset X"],
-						min = -100, max = 100, step = 1,
-						set = setNumber,
-						arg = "bossIcon.xOffset",
-					},
-					yOffset = {
-						order = 3,
-						type = "range",
-						name = L["Offset Y"],
-						min = -100, max = 100, step = 1,
-						set = setNumber,
-						arg = "bossIcon.yOffset",
-					},
-					xSize = {
-						order = 4,
-						type = "range",
-						name = L["Size X"],
-						min = 0, max = 500, step = 1,
-						set = setNumber,
-						arg = "bossIcon.xSize",
-					},
-					ySize = {
-						order = 5,
-						type = "range",
-						name = L["Size Y"],
-						min = 0, max = 500, step = 1,
-						set = setNumber,
-						arg = "bossIcon.ySize",
-					},
-				},
-			},
-		},
+		args = NotPlater.ConfigPrototypes.Target
 	}
-	options.args.targetBorder = {
+	options.args.stacking = {
 		order = 8,
 		type = "group",
-		name = L["Target border"],
-		get = get,
-		set = set,
+		get = GetValue,
+		set = SetValue,
+		name = L["Stacking"],
 		handler = Config,
-		args = {
-			indicator = {
-				order = 0,
-				type = "group",
-				inline = true,
-				name = L["Indicator"],
-				args = {
-					enabled = {
-						order = 0,
-						type = "toggle",
-						name = L["Enabled"],
-						arg = "targetBorder.indicator.enabled",
-					},
-					selection = {
-						order = 1,
-						type = "select",
-						name = L["Indicator selection"],
-						values = "GetIndicators",
-						arg = "targetBorder.indicator.selection",
-					},
-				},
-			},
-			highlight = {
-				order = 1,
-				type = "group",
-				inline = true,
-				name = L["Highlight"],
-				args = {
-					enabled = {
-						order = 0,
-						type = "toggle",
-						name = L["Enabled"],
-						width = "full",
-						arg = "targetBorder.highlight.enabled",
-					},
-					color = {
-						order = 1,
-						type = "color",
-						name = L["Highlight color"],
-						hasAlpha = true,
-						set = setColor,
-						get = getColor,
-						arg = "targetBorder.highlight.color",
-					},
-					texture = {
-						order = 2,
-						type = "select",
-						name = L["Highlight texture"],
-						values = NotPlater.targetHighlights,
-						arg = "targetBorder.highlight.texture",
-					},
-					thickness = {
-						order = 3,
-						type = "range",
-						name = L["Highlight thickness"],
-						min = 1, max = 30, step = 1,
-						set = setNumber,
-						arg = "targetBorder.highlight.thickness",
-					},
-				},
-			},
-		},
+		args = NotPlater.ConfigPrototypes.NameplateStacking,
 	}
 	options.args.simulator = {
 		order = 9,
 		type = "group",
 		name = L["Simulator"],
-		get = get,
-		set = set,
+		get = GetValue,
+		set = SetValue,
 		handler = Config,
-		args = {
-			general = {
-				order = 1,
-				type = "group",
-				inline = true,
-				name = L["General"],
-				args = {
-					showOnConfig = {
-						order = 0,
-						type = "toggle",
-						width = "double",
-						name = L["Show simulator when showing config"],
-						arg = "simulator.showOnConfig",
-					},
-					execSim = {
-						order = 1,
-						type = "execute",
-						name = L["Toggle simulator frame"],
-						func = function () NotPlater:ToggleSimulatorFrame() end,
-					},
-				},
-			},
-		},
+		args = NotPlater.ConfigPrototypes.Simulator
 	}
 
-	-- DB Profiles
 	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(NotPlater.db)
 	options.args.profile.order = 10
 end
 
 function Config:ToggleConfig()
 	if dialog.OpenFrames["NotPlater"] then
-		if NotPlater.db.profile.simulator.showOnConfig then
+		if NotPlater.db.profile.simulator.general.showOnConfig then
 			NotPlater:HideSimulatorFrame()
 		end
 		dialog:Close("NotPlater")
@@ -2495,14 +537,15 @@ end
 function Config:OpenConfig()
 	if( not registered ) then
 		if( not options ) then
-			loadOptions()
+			NotPlater.ConfigPrototypes:LoadConfigPrototypes()
+			LoadOptions()
 		end
 
 		config:RegisterOptionsTable("NotPlater", options)
-		dialog:SetDefaultSize("NotPlater", 830, 600)
+		dialog:SetDefaultSize("NotPlater", 850, 650)
 		registered = true
 	end
-	if NotPlater.db.profile.simulator.showOnConfig then
+	if NotPlater.db.profile.simulator.general.showOnConfig then
 		NotPlater:ShowSimulatorFrame()
 	end
 	dialog:Open("NotPlater")
@@ -2537,7 +580,10 @@ end
 local register = CreateFrame("Frame", nil, InterfaceOptionsFrame)
 register:SetScript("OnShow", function(self)
 	self:SetScript("OnShow", nil)
-	loadOptions()
+	if not options then
+		NotPlater.ConfigPrototypes:LoadConfigPrototypes()
+		LoadOptions()
+	end
 
 	config:RegisterOptionsTable("NotPlater-Bliz", {
 		name = "NotPlater",

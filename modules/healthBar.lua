@@ -1,93 +1,99 @@
 if( not NotPlater ) then return end
 
-function NotPlater:HealthOnValueChanged(health, value)
-	local _, maxValue = health:GetMinMaxValues()
+function NotPlater:HealthOnValueChanged(oldHealthBar, value)
+	local _, maxValue = oldHealthBar:GetMinMaxValues()
 	local healthBarConfig = self.db.profile.healthBar
 
-	if( healthBarConfig.healthText.type == "minmax" ) then
+	local healthFrame = oldHealthBar.healthBar
+	healthFrame:GetParent().healthBar:SetMinMaxValues(0, maxValue)
+	healthFrame:SetValue(value)
+
+	if healthBarConfig.healthText.general.displayType == "minmax" then
 		if( maxValue == 100 ) then
-			health.npHealthText:SetFormattedText("%d%% / %d%%", value, maxValue)	
+			healthFrame.healthText:SetFormattedText("%d%% / %d%%", value, maxValue)
 		else
 			if(maxValue > 1000) then
 				if(value > 1000) then
-					health.npHealthText:SetFormattedText("%.1fk / %.1fk", value / 1000, maxValue / 1000)
+					healthFrame.healthText:SetFormattedText("%.1fk / %.1fk", value / 1000, maxValue / 1000)
 				else
-					health.npHealthText:SetFormattedText("%d / %.1fk", value, maxValue / 1000)
+					healthFrame.healthText:SetFormattedText("%d / %.1fk", value, maxValue / 1000)
 				end
 			else
-				health.npHealthText:SetFormattedText("%d / %d", value, maxValue)
+				healthFrame.healthText:SetFormattedText("%d / %d", value, maxValue)
 			end
 		end
-	elseif( healthBarConfig.healthText.type == "both" ) then
+	elseif healthBarConfig.healthText.general.displayType == "both" then
 		if(value > 1000) then
-			health.npHealthText:SetFormattedText("%.1fk (%d%%)", value/1000, value/maxValue * 100)
+			healthFrame.healthText:SetFormattedText("%.1fk (%d%%)", value/1000, value/maxValue * 100)
 		else
-			health.npHealthText:SetFormattedText("%d (%d%%)", value, value/maxValue * 100)
+			healthFrame.healthText:SetFormattedText("%d (%d%%)", value, value/maxValue * 100)
 		end
-	elseif( healthBarConfig.healthText.type == "percent" ) then
-		health.npHealthText:SetFormattedText("%d%%", value / maxValue * 100)
+	elseif healthBarConfig.healthText.general.displayType == "percent" then
+		healthFrame.healthText:SetFormattedText("%d%%", value / maxValue * 100)
 	else
-		health.npHealthText:SetText("")
+		healthFrame.healthText:SetText("")
 	end
 
-	self:ThreatCheck(health)
+	self:ThreatCheck(oldHealthBar:GetParent())
 end
 
-function NotPlater:HealthBarOnShow(healthFrame)
-	local healthBarConfig = self.db.profile.healthBar
-	local generalConfig = self.db.profile.general
-
-	healthFrame:ClearAllPoints()
-	self:SetSize(healthFrame, healthBarConfig.position.xSize, healthBarConfig.position.ySize)
-	healthFrame:SetPoint("TOP", 0, generalConfig.nameplateStacking.yMargin)
+function NotPlater:ScaleHealthBar(healthFrame, isTarget)
+	local scaleConfig = self.db.profile.target.scale
+	if scaleConfig.healthBar then
+    	local healthBarConfig = self.db.profile.healthBar
+		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
+		self:ScaleGeneralisedStatusBar(healthFrame, scalingFactor, healthBarConfig.statusBar)
+		self:ScaleGeneralisedText(healthFrame.healthText, scalingFactor, healthBarConfig.healthText)
+	end
 end
 
-function NotPlater:ConfigureHealthBar(healthFrame)
+function NotPlater:HealthBarOnShow(oldHealthBar)
+	oldHealthBar.healthBar:SetStatusBarColor(oldHealthBar:GetStatusBarColor())
+	oldHealthBar.healthBar.highlightTexture:SetAllPoints(oldHealthBar.healthBar)
+end
+
+function NotPlater:ConfigureHealthBar(frame, oldHealthBar)
 	local healthBarConfig = self.db.profile.healthBar
+	local healthFrame = frame.healthBar
+	-- Configure statusbar
+	self:ConfigureGeneralisedStatusBar(healthFrame, healthBarConfig.statusBar)
 
 	-- Set points
-	self:HealthBarOnShow(healthFrame)
-
-	-- Set textures for health- and castbar
-	healthFrame:SetStatusBarTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, healthBarConfig.texture))
+	healthFrame:ClearAllPoints()
+	self:SetSize(healthFrame, healthBarConfig.statusBar.size.width, healthBarConfig.statusBar.size.height)
+	healthFrame:SetPoint("TOP", 0, self.db.profile.stacking.margin.yStacking)
 
 	-- Set health text
-	healthFrame.npHealthText:ClearAllPoints()
-	healthFrame.npHealthText:SetPoint(healthBarConfig.healthText.anchor, healthFrame, healthBarConfig.healthText.xOffset, healthBarConfig.healthText.yOffset)
-	self:SetupFontString(healthFrame.npHealthText, healthBarConfig.healthText, true)
+	self:ConfigureGeneralisedText(healthFrame.healthText, healthFrame, healthBarConfig.healthText)
 
-	-- Set background
-	healthFrame.npHealthBackground:SetAllPoints(healthFrame)
-	healthFrame.npHealthBackground:SetTexture(healthBarConfig.backgroundColor.r, healthBarConfig.backgroundColor.g, healthBarConfig.backgroundColor.b, healthBarConfig.backgroundColor.a)
-
-	-- Set border
-	if healthBarConfig.border.enabled then
-		healthFrame.npHealthBorder:ClearAllPoints()
-		healthFrame.npHealthBorder:SetAllPoints(healthFrame)
-		healthFrame.npHealthBorder:SetBackdrop({bgFile="Interface\\BUTTONS\\WHITE8X8", edgeFile="Interface\\BUTTONS\\WHITE8X8", tileSize=16, tile=true, edgeSize=healthBarConfig.border.thickness})
-		healthFrame.npHealthBorder:SetBackdropColor(0, 0, 0, 0)
-		healthFrame.npHealthBorder:SetBackdropBorderColor(self:GetColor(healthBarConfig.border.color))
-		healthFrame.npHealthBorder:Show()
+	-- Set Mouseover highlight
+	frame.highlightTexture:SetAlpha(self.db.profile.target.mouseoverHighlight.opacity)
+	if self.db.profile.target.mouseoverHighlight.enable then
+		frame.highlightTexture:SetTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, healthBarConfig.statusBar.general.texture))
 	else
-		healthFrame.npHealthBorder:Hide()
+		frame.highlightTexture:SetTexture(0, 0, 0, 0)
 	end
 
-	self:HealthOnValueChanged(healthFrame, healthFrame:GetValue())
+	self:HealthBarOnShow(oldHealthBar)
+	self:HealthOnValueChanged(oldHealthBar, oldHealthBar:GetValue())
 end
 
-function NotPlater:ConstructHealthBar(healthFrame)
-	local healthBarConfig = self.db.profile.healthBar
+function NotPlater:ConstructHealthBar(frame, oldHealthBar)
+	-- Construct statusbar components
 
-    -- Background
-    healthFrame.npHealthBackground = healthFrame:CreateTexture(nil, 'BORDER')
+	local healthFrame = CreateFrame("StatusBar", "$parentHealthBar", frame)
+	self:ConstructGeneralisedStatusBar(healthFrame)
 
     -- Create health text
-    healthFrame.npHealthText = healthFrame:CreateFontString(nil, "ARTWORK")
+    healthFrame.healthText = healthFrame:CreateFontString(nil, "ARTWORK")
 
-	-- Border
-	healthFrame.npHealthBorder = CreateFrame("Frame", nil, healthFrame)
-    healthFrame.npHealthBorder:SetFrameLevel(healthFrame:GetFrameLevel() + 1)
-    
-    -- Hook to set health text
-	self:HookScript(healthFrame, "OnValueChanged", "HealthOnValueChanged")
+	-- Create Mouseover highlight
+	frame.highlightTexture:SetBlendMode("ADD")
+	healthFrame.highlightTexture = frame.highlightTexture
+
+	-- Hook to set health text
+	self:HookScript(oldHealthBar, "OnValueChanged", "HealthOnValueChanged")
+
+	oldHealthBar.healthBar = healthFrame
+	frame.healthBar = healthFrame
 end
