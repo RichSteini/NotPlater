@@ -83,8 +83,7 @@ function NotPlater:PrepareFrame(frame)
 						NotPlater:ClassCheck(self)
 					end
 					if self.unitClass then
-						local color = RAID_CLASS_COLORS[self.unitClass]
-						frame.healthBar:SetStatusBarColor(color.r, color.g, color.b, 1)
+						frame.healthBar:SetStatusBarColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
 					end
 				end
 				NotPlater:SetTargetTargetText(self)
@@ -142,8 +141,11 @@ function NotPlater:PLAYER_TARGET_CHANGED()
 end
 
 function NotPlater:ClassCheck(frame)
+	if frame.unitClass then return end
+
 	if self:IsTarget(frame) then
 		frame.unitClass = select(2, UnitClass("target"))
+		if frame.unitClass then frame.unitClass = RAID_CLASS_COLORS[frame.unitClass] end
 		return
 	end
 
@@ -158,16 +160,19 @@ function NotPlater:ClassCheck(frame)
 			local targetString = unitID .. "-target"
 			if name == UnitName(targetString) and level == tostring(UnitLevel(targetString)) and healthValue == UnitHealth(targetString) then
 				frame.unitClass = select(2, UnitClass("target"))
+				if frame.unitClass then frame.unitClass = RAID_CLASS_COLORS[frame.unitClass] end
 				return
 			end
 		end
 	end
 	if name == UnitName("mouseover") and level == tostring(UnitLevel("mouseover")) and healthValue == UnitHealth("mouseover") then
 		frame.unitClass = select(2, UnitClass("mouseover"))
+		if frame.unitClass then frame.unitClass = RAID_CLASS_COLORS[frame.unitClass] end
 		return
 	end
 	if name == UnitName("focus") and level == tostring(UnitLevel("focus")) and healthValue == UnitHealth("focus") then
 		frame.unitClass = select(2, UnitClass("focus"))
+		if frame.unitClass then frame.unitClass = RAID_CLASS_COLORS[frame.unitClass] end
 	end
 end
 

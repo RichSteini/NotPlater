@@ -118,7 +118,10 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 				end
 			end
 
-			if threatConfig.nameplateColors.general.enable then
+			local frame = healthFrame:GetParent()
+			if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
+				healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
+			elseif threatConfig.nameplateColors.general.enable then
 				healthFrame:SetStatusBarColor(self:GetColor(barColor))
 			end
 
@@ -208,7 +211,12 @@ function NotPlater:MouseoverThreatCheck(healthFrame, guid)
 		local group = self.raid or self.party
 		self:OnNameplateMatch(healthFrame, group)
 	else
-		healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
+		local frame = healthFrame:GetParent().unitClass
+		if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
+			healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
+		else
+			healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
+		end
 	end
 end
 
@@ -249,7 +257,11 @@ function NotPlater:ThreatCheck(frame)
 	else -- Not in party
 		if UnitCanAttack("player", "target") and not UnitIsDeadOrGhost("target") and UnitAffectingCombat("target") then
 			if name == UnitName("target") and level == tostring(UnitLevel("target")) and healthValue == UnitHealth("target") and healthValue ~= healthMaxValue then
-				healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
+				if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
+					healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
+				else
+					healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
+				end
 			end
 		end
 	end
