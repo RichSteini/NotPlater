@@ -53,7 +53,7 @@ function NotPlater:LoadDefaultConfig()
                         position = {
                             anchor = "TOPLEFT",
                             xOffset = 31,
-                            yOffset = 3,
+                            yOffset = 4,
                         },
                         colors = {
                             tank = {
@@ -178,8 +178,8 @@ function NotPlater:LoadDefaultConfig()
                         texture = "NotPlater Background",
                     },
                     size = {
-                        width = 113,
-                        height = 16,
+                        width = 112,
+                        height = 14,
                     },
                     border = {
                         enable = true,
@@ -222,13 +222,13 @@ function NotPlater:LoadDefaultConfig()
                         color = {0.1, 0.1, 0.1, 0.8},
                     },
                     size = {
-                        width = 113,
+                        width = 112,
                         height = 14,
                     },
                     position = {
                         anchor = "BOTTOM",
                         xOffset = 0,
-                        yOffset = 0,
+                        yOffset = -1,
                     },
                     border = {
                         enable = false,

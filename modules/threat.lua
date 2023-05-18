@@ -222,6 +222,7 @@ end
 
 function NotPlater:ThreatCheck(frame)
 	local _, _, _, _, nameText, levelText = frame:GetRegions()
+	if not nameText or not levelText then return end
 	local healthFrame = frame.healthBar
 	local name = nameText:GetText()
 	local level = levelText:GetText()

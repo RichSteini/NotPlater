@@ -580,7 +580,7 @@ SlashCmdList["NOTPLATER"] = function(input)
     end
 end
 
--- Add the general options + profile, we don't add spells/anchors because it doesn't support sub cats
+--[[
 local register = CreateFrame("Frame", nil, InterfaceOptionsFrame)
 register:SetScript("OnShow", function(self)
 	self:SetScript("OnShow", nil)
@@ -600,11 +600,8 @@ register:SetScript("OnShow", function(self)
 		},
 	})
 	
-	dialog:SetDefaultSize("NotPlater-Bliz", 830, 600)
+	dialog:SetDefaultSize("NotPlater-Bliz", 850, 650)
 	dialog:AddToBlizOptions("NotPlater-Bliz", "NotPlater")
-
-	config:RegisterOptionsTable("NotPlater-General", options.args.general)
-	dialog:AddToBlizOptions("NotPlater-General", options.args.general.name, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-Threat", options.args.threat)
 	dialog:AddToBlizOptions("NotPlater-Threat", options.args.threat.name, "NotPlater")
@@ -627,8 +624,11 @@ register:SetScript("OnShow", function(self)
 	config:RegisterOptionsTable("NotPlater-BossIcon", options.args.bossIcon)
 	dialog:AddToBlizOptions("NotPlater-BossIcon", options.args.bossIcon.name, "NotPlater")
 
-	config:RegisterOptionsTable("NotPlater-TargetBorder", options.args.targetBorder)
-	dialog:AddToBlizOptions("NotPlater-TargetBorder", options.args.targetBorder.name, "NotPlater")
+	config:RegisterOptionsTable("NotPlater-Target", options.args.target)
+	dialog:AddToBlizOptions("NotPlater-Target", options.args.target.name, "NotPlater")
+
+	config:RegisterOptionsTable("NotPlater-Stacking", options.args.stacking)
+	dialog:AddToBlizOptions("NotPlater-Stacking", options.args.stacking.name, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-Simulator", options.args.simulator)
 	dialog:AddToBlizOptions("NotPlater-Simulator", options.args.simulator.name, "NotPlater")
@@ -636,3 +636,4 @@ register:SetScript("OnShow", function(self)
 	config:RegisterOptionsTable("NotPlater-Profile", options.args.profile)
 	dialog:AddToBlizOptions("NotPlater-Profile", options.args.profile.name, "NotPlater")
 end)
+]]

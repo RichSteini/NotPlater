@@ -5,6 +5,7 @@ local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local unpack = unpack
 local slen = string.len
 local ssub = string.sub
+local tinsert = table.insert
 
 function NotPlater:GetColor(config)
 	return unpack(config)
@@ -82,6 +83,64 @@ function NotPlater:ConfigureGeneralisedPositionedStatusBar(bar, anchorFrame, con
 	self:ConfigureGeneralisedStatusBar(bar, config)
 end
 
+function NotPlater:ConfigureFullBorder(border, parent, config)
+	border.left:ClearAllPoints()
+	border.left:SetTexture(self:GetColor(config.color))
+	border.left:SetWidth(config.thickness)
+	border.left:SetPoint("TOPRIGHT", parent, "TOPLEFT", 0, config.thickness)
+	border.left:SetPoint("BOTTOMRIGHT", parent, "BOTTOMLEFT", 0, -config.thickness)
+
+	border.right:ClearAllPoints()
+	border.right:SetPoint("TOPLEFT", parent, "TOPRIGHT", 0, config.thickness)
+	border.right:SetPoint("BOTTOMLEFT", parent, "BOTTOMRIGHT", 0, -config.thickness)
+	border.right:SetTexture(self:GetColor(config.color))
+	border.right:SetWidth(config.thickness)
+
+	border.bottom:ClearAllPoints()
+	border.bottom:SetTexture(self:GetColor(config.color))
+	border.bottom:SetHeight(config.thickness)
+	border.bottom:SetPoint("TOPLEFT", parent, "BOTTOMLEFT", 0, 0)
+	border.bottom:SetPoint("TOPRIGHT", parent, "BOTTOMRIGHT", 0, 0)
+
+	border.top:ClearAllPoints()
+	border.top:SetTexture(self:GetColor(config.color))
+	border.top:SetHeight(config.thickness)
+	border.top:SetPoint("BOTTOMLEFT", parent, "TOPLEFT", 0, 0)
+	border.top:SetPoint("BOTTOMRIGHT", parent, "TOPRIGHT", 0, 0)
+end
+
+function NotPlater:CreateFullBorder(parent)
+	local border = {}
+
+	local left = parent:CreateTexture("$parentLeft", "BACKGROUND")
+	border.left = left
+
+	local right = parent:CreateTexture("$parentRight", "BACKGROUND")
+	border.right = right
+
+	local bottom = parent:CreateTexture("$parentBottom", "BACKGROUND")
+	border.bottom = bottom
+
+	local top = parent:CreateTexture("$parentTop", "BACKGROUND")
+	border.top = top
+
+	border.Show = function()
+		border.left:Show()
+		border.right:Show()
+		border.bottom:Show()
+		border.top:Show()
+	end
+
+	border.Hide = function()
+		border.left:Hide()
+		border.right:Hide()
+		border.bottom:Hide()
+		border.top:Hide()
+	end
+
+	return border
+end
+
 function NotPlater:ConfigureGeneralisedStatusBar(bar, config)
 	-- Set textures for health- and castbar
 	bar:SetStatusBarTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, config.general.texture))
@@ -97,9 +156,7 @@ function NotPlater:ConfigureGeneralisedStatusBar(bar, config)
 
 	-- Set border
 	if config.border.enable then
-		bar.border:SetBackdrop({bgFile="Interface\\BUTTONS\\WHITE8X8", edgeFile="Interface\\BUTTONS\\WHITE8X8", tileSize=16, tile=true, edgeSize=config.border.thickness})
-		bar.border:SetBackdropColor(0, 0, 0, 0)
-		bar.border:SetBackdropBorderColor(self:GetColor(config.border.color))
+		self:ConfigureFullBorder(bar.border, bar, config.border)
 		bar.border:Show()
 	else
 		bar.border:Hide()
@@ -113,9 +170,7 @@ function NotPlater:ConstructGeneralisedStatusBar(bar)
 	bar.background:SetAllPoints(bar)
 
 	-- Border
-	bar.border = CreateFrame("Frame", nil, bar)
-    bar.border:SetFrameLevel(bar:GetFrameLevel() + 1)
-	bar.border:SetAllPoints()
+	bar.border = self:CreateFullBorder(bar)
 
 	bar.scaleAnim = CreateAnimationGroup(bar)
 	bar.scaleAnim.width = bar.scaleAnim:CreateAnimation("Width")

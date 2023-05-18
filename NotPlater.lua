@@ -181,18 +181,20 @@ function NotPlater:UPDATE_MOUSEOVER_UNIT()
 		local mouseOverGuid = UnitGUID("mouseover")
 		local targetGuid = UnitGUID("target")
 		for frame in pairs(frames) do
-			if mouseOverGuid == targetGuid then
-				if self:IsTarget(frame) then
-					self:MouseoverThreatCheck(frame.healthBar, targetGuid)
-				end
-			else
-				local _, _, _, _, nameText, levelText = frame:GetRegions()
-				local name = nameText:GetText()
-				local level = levelText:GetText()
-				local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
-				local healthValue = frame.healthBar:GetValue()
-				if name == UnitName("mouseover") and level == tostring(UnitLevel("mouseover")) and healthValue == UnitHealth("mouseover") and healthValue ~= healthMaxValue then
-					self:MouseoverThreatCheck(frame.healthBar, mouseOverGuid)
+			if frame:IsShown() then
+				if mouseOverGuid == targetGuid then
+					if self:IsTarget(frame) then
+						self:MouseoverThreatCheck(frame.healthBar, targetGuid)
+					end
+				else
+					local _, _, _, _, nameText, levelText = frame:GetRegions()
+					local name = nameText:GetText()
+					local level = levelText:GetText()
+					local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
+					local healthValue = frame.healthBar:GetValue()
+					if name == UnitName("mouseover") and level == tostring(UnitLevel("mouseover")) and healthValue == UnitHealth("mouseover") and healthValue ~= healthMaxValue then
+						self:MouseoverThreatCheck(frame.healthBar, mouseOverGuid)
+					end
 				end
 			end
 		end
@@ -209,20 +211,22 @@ end)
 
 NotPlater.frame:SetScript("OnEvent", function(self, event, unit)
 	for frame in pairs(frames) do
-		if unit == "target" then
-			if NotPlater:IsTarget(frame) then
-				frame.healthBar.lastUnitMatch = UnitGUID(unit)
-				NotPlater:CastBarOnCast(frame, event, unit)
-			end
-		else
-			local _, _, _, _, nameText, levelText = frame:GetRegions()
-			local name = nameText:GetText()
-			local level = levelText:GetText()
-			local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
-			local healthValue = frame.healthBar:GetValue()
-			if name == UnitName(unit) and level == tostring(UnitLevel(unit)) and healthValue == UnitHealth(unit) and healthValue ~= healthMaxValue then
-				frame.healthBar.lastUnitMatch = UnitGUID(unit)
-				NotPlater:CastBarOnCast(frame, event, unit)
+		if frame:IsShown() then
+			if unit == "target" then
+				if NotPlater:IsTarget(frame) then
+					frame.healthBar.lastUnitMatch = UnitGUID(unit)
+					NotPlater:CastBarOnCast(frame, event, unit)
+				end
+			else
+				local _, _, _, _, nameText, levelText = frame:GetRegions()
+				local name = nameText:GetText()
+				local level = levelText:GetText()
+				local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
+				local healthValue = frame.healthBar:GetValue()
+				if name == UnitName(unit) and level == tostring(UnitLevel(unit)) and healthValue == UnitHealth(unit) and healthValue ~= healthMaxValue then
+					frame.healthBar.lastUnitMatch = UnitGUID(unit)
+					NotPlater:CastBarOnCast(frame, event, unit)
+				end
 			end
 		end
 	end
