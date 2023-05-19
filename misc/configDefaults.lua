@@ -363,7 +363,7 @@ function NotPlater:LoadDefaultConfig()
             target = {
                 general = {
                     scale = {
-                        scalingFactor = 1.12,
+                        scalingFactor = 1.11,
                         threat = false,
                         healthBar = true,
                         castBar = true,
@@ -438,6 +438,10 @@ function NotPlater:LoadDefaultConfig()
             simulator = {
                 general = {
                     showOnConfig = true
+                },
+                size = {
+                    width = 200,
+                    height = 100
                 },
             },
         },

@@ -705,5 +705,6 @@ function ConfigPrototypes:LoadConfigPrototypes()
                 },
             },
         },
+        size = ConfigPrototypes:GetGeneralisedSizeConfig()
     }
 end

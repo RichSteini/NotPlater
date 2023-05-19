@@ -273,7 +273,13 @@ function NotPlater:HideSimulatorFrame()
     end
 end
 
+function NotPlater:SetSimulatorSize()
+    local simulatorConfig = self.db.profile.simulator
+    self:SetSize(self.simulatorFrame, simulatorConfig.size.width, simulatorConfig.size.height)
+end
+
 function NotPlater:SimulatorReload()
+    self:SetSimulatorSize()
     self:PrepareFrame(self.simulatorFrame.defaultFrame)
     --self.simulatorFrame.defaultFrame.castBar.casting = false
 end
@@ -320,7 +326,7 @@ end
 function NotPlater:ConstructSimulatorFrame()
     if simulatorFrameConstructed then return end
     simulatorFrameConstructed = true
-    local simulatorFrame = CreateFrame("Frame", "NotPlaterSimulatorFrame", UIParent)
+    local simulatorFrame = CreateFrame("Frame", "NotPlaterSimulatorFrame", WorldFrame)
     self.simulatorFrame = simulatorFrame
     local simulatorFrameCloseButton = CreateFrame("Button", "NotPlaterSimulatorFrameCloseButton", simulatorFrame, "UIPanelCloseButton")
     simulatorFrameCloseButton:SetPoint("TOPRIGHT")
@@ -343,14 +349,14 @@ function NotPlater:ConstructSimulatorFrame()
     simulatorFrame:SetScript("OnLeave", function() GameTooltip:Hide() end)
     simulatorFrame:SetFrameStrata("TOOLTIP")
     simulatorFrame:ClearAllPoints()
-    self:SetSize(simulatorFrame, 200, 100)
-    simulatorFrame:SetPoint("CENTER", 0, -2)
-    simulatorFrame:SetBackdrop({bgFile="Interface\\BUTTONS\\WHITE8X8", edgeFile="Interface\\BUTTONS\\WHITE8X8", tileSize=16, tile=true, edgeSize=1, insets = {left=4,right=4,top=4,bottom=4}})
+    self:SetSimulatorSize()
+    simulatorFrame:SetPoint("CENTER", -1, -1)
+    simulatorFrame:SetBackdrop({bgFile="Interface\\BUTTONS\\WHITE8X8", edgeFile="Interface\\BUTTONS\\WHITE8X8", tileSize=16, tile=true, edgeSize=2, insets = {left=4,right=4,top=4,bottom=4}})
 	simulatorFrame:SetBackdropColor(0, 0, 0, 0)
     simulatorFrame:SetBackdropBorderColor(1, 1, 1, 0.3)
     simulatorFrame.outlineText = simulatorFrame:CreateFontString(nil, "ARTWORK")
 	simulatorFrame.outlineText:SetFont(self.SML:Fetch(self.SML.MediaType.FONT, "Arial Narrow"), 16, "OUTLINE")
-	simulatorFrame.outlineText:SetPoint("BOTTOM", simulatorFrame, 0, 1)
+	simulatorFrame.outlineText:SetPoint("BOTTOM", simulatorFrame, 0, 2)
 	simulatorFrame.outlineText:SetText(L["NotPlater Simulator Frame"])
 	simulatorFrame.outlineText:SetAlpha(0.3)
     simulatorFrame.dragMeTexture = simulatorFrame:CreateTexture(nil, "BORDER")
