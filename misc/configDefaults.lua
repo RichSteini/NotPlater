@@ -431,7 +431,7 @@ function NotPlater:LoadDefaultConfig()
                     yStacking = 0,
                 },
                 frameStrata = {
-                    normalframe = "LOW",
+                    normalFrame = "LOW",
                     targetFrame = "MEDIUM"
                 },
             },

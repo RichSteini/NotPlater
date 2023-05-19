@@ -313,6 +313,7 @@ function NotPlater:SimulatorFrameOnShow()
         NotPlater:SimulatorReload()
         NotPlater.oldReload(...)
     end
+    NotPlater.simulatorFrame.defaultFrame:SetFrameStrata(NotPlater.simulatorFrame:GetFrameStrata())
 end
 
 function NotPlater:SimulatorFrameOnHide()
@@ -350,7 +351,7 @@ function NotPlater:ConstructSimulatorFrame()
     simulatorFrame:SetFrameStrata("TOOLTIP")
     simulatorFrame:ClearAllPoints()
     self:SetSimulatorSize()
-    simulatorFrame:SetPoint("CENTER", -1, -1)
+    simulatorFrame:SetPoint("CENTER", 4, -1)
     simulatorFrame:SetBackdrop({bgFile="Interface\\BUTTONS\\WHITE8X8", edgeFile="Interface\\BUTTONS\\WHITE8X8", tileSize=16, tile=true, edgeSize=2, insets = {left=4,right=4,top=4,bottom=4}})
 	simulatorFrame:SetBackdropColor(0, 0, 0, 0)
     simulatorFrame:SetBackdropBorderColor(1, 1, 1, 0.3)

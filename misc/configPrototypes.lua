@@ -375,7 +375,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
             inline = true,
             name = L["Frame Strata"],
             args = {
-                normalframe = {
+                normalFrame = {
                     order = 0,
                     type = "select",
                     name = L["Normal Frame"],

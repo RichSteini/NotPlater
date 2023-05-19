@@ -1,5 +1,7 @@
 if( not NotPlater ) then return end
 
+local UnitAffectingCombat = UnitAffectingCombat
+
 function NotPlater:SetTargetFrameStrata(frame)
 	local stackingConfig = self.db.profile.stacking
 	if stackingConfig.general.enable and not UnitAffectingCombat("player") then
@@ -24,8 +26,8 @@ end
 
 function NotPlater:StackingCheck(frame)
 	local stackingConfig = self.db.profile.stacking
-	local healthBarConfig = self.db.profile.healthBar
-	local castBarConfig = self.db.profile.castBar
+	local healthBarConfig = self.db.profile.healthBar.statusBar
+	local castBarConfig = self.db.profile.castBar.statusBar
 	if stackingConfig.general.enable and not UnitAffectingCombat("player") then
 		-- Set the clickable frame size
 		if stackingConfig.general.overlappingCastbars then
