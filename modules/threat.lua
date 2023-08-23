@@ -215,7 +215,9 @@ function NotPlater:MouseoverThreatCheck(healthFrame, guid)
 		if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
 			healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
 		else
-			healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
+			if self.db.profile.healthBar.statusBar.general.enable then
+				healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
+			end
 		end
 	end
 end
@@ -261,7 +263,9 @@ function NotPlater:ThreatCheck(frame)
 				if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
 					healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
 				else
-					healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
+					if self.db.profile.healthBar.statusBar.general.enable then
+						healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
+					end
 				end
 			end
 		end
