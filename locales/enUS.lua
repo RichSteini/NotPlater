@@ -65,6 +65,7 @@ NotPlaterLocals = {
 	["Name"] = "Name",
 	["Nameplate Colors"] = "Nameplate Colors",
 	["Name Text"] = "Name Text",
+	["Non-Target Alpha"] = "Non-Target Alpha",
 	["Non-Target Shading"] = "Non-Target Shading",
 	["None"] = "None",
 	["Note: All settings here only work out of combat."] = "Note: All settings here only work out of combat.",

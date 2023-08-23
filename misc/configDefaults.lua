@@ -390,6 +390,10 @@ function NotPlater:LoadDefaultConfig()
                         texture = "Flat",
                         color = {1, 1, 1, 0.05}
                     },
+                    nonTargetAlpha = {
+                        enable = true,
+                        opacity = 0.95
+                    },
                     nonTargetShading = {
                         enable = true,
                         opacity = 0.4

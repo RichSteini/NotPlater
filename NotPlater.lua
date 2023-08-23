@@ -46,6 +46,7 @@ function NotPlater:PrepareFrame(frame)
 	-- Hooks and creation (only once that way settings can be applied while frame is visible)
 	if not frame.npHooked then
 		frame.npHooked = true
+
 		frame.highlightTexture, frame.nameText, frame.levelText, frame.bossIcon, frame.raidIcon = highlightTexture, nameText, levelText, bossIcon, raidIcon
 
 		-- Hide default border
@@ -88,6 +89,13 @@ function NotPlater:PrepareFrame(frame)
 				end
 				NotPlater:SetTargetTargetText(self)
 				self.targetCheckElapsed = 0
+			end
+			if NotPlater:IsTarget(self) then
+				self:SetAlpha(1)
+			else
+				if NotPlater.db.profile.target.general.nonTargetAlpha.enable then
+					self:SetAlpha(NotPlater.db.profile.target.general.nonTargetAlpha.opacity)
+				end
 			end
 		end)
 	end

@@ -614,7 +614,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
             },
         },
         overlay = {
-            order = 3,
+            order = 2,
             type = "group",
             name = L["Overlay"],
             inline = true,
@@ -638,8 +638,27 @@ function ConfigPrototypes:LoadConfigPrototypes()
                 },
             },
         },
-        nonTargetShading = {
+        nonTargetAlpha = {
             order = 3,
+            type = "group",
+            name = L["Non-Target Alpha"],
+            inline = true,
+            args = {
+                enable = {
+                    order = 0,
+                    type = "toggle",
+                    name = L["Enable"],
+                },
+                opacity = {
+                    order = 1,
+                    type = "range",
+                    name = L["Opacity"],
+                    min = 0, max = 0.98, step = 0.01,
+                },
+            },
+        },
+        nonTargetShading = {
+            order = 4,
             type = "group",
             name = L["Non-Target Shading"],
             inline = true,
@@ -658,7 +677,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
             },
         },
         mouseoverHighlight = {
-            order = 4,
+            order = 5,
             type = "group",
             name = L["Mouseover Highlight"],
             inline = true,
