@@ -11,7 +11,7 @@ end
 function NotPlater:LevelTextOnShow(levelText, anchorFrame)
 	local levelTextConfig = self.db.profile.levelText
 	levelText:ClearAllPoints()
-	levelText:SetPoint(levelTextConfig.position.anchor, anchorFrame, levelTextConfig.position.xOffset, levelTextConfig.position.yOffset)
+	levelText:SetPoint(levelTextConfig.position.anchor, anchorFrame, levelTextConfig.position.anchor, levelTextConfig.position.xOffset, levelTextConfig.position.yOffset)
 	levelText:SetAlpha(levelTextConfig.general.opacity)
 end
 

@@ -111,7 +111,7 @@ function NotPlater:LoadDefaultConfig()
                     },
                     position = {
                         anchor = "LEFT",
-                        xOffset = -10,
+                        xOffset = -25,
                         yOffset = 0,
                     },
                     shadow = {
@@ -142,7 +142,7 @@ function NotPlater:LoadDefaultConfig()
                     },
                     position = {
                         anchor = "RIGHT",
-                        xOffset = 10,
+                        xOffset = 25,
                         yOffset = 0,
                     },
                     shadow = {
@@ -261,7 +261,7 @@ function NotPlater:LoadDefaultConfig()
                     },
                     position = {
                         anchor = "RIGHT",
-                        xOffset = -20,
+                        xOffset = 0,
                         yOffset = 0
                     },
                     shadow = {
@@ -303,7 +303,7 @@ function NotPlater:LoadDefaultConfig()
                 position = {
                     anchor = "BOTTOM",
                     xOffset = 0,
-                    yOffset = 0
+                    yOffset = -12
                 },
                 shadow = {
                     enable = true,
@@ -322,8 +322,8 @@ function NotPlater:LoadDefaultConfig()
                 },
                 position = {
                     anchor = "TOPRIGHT",
-                    xOffset = -10,
-                    yOffset = 2
+                    xOffset = -2,
+                    yOffset = 10 
                 },
                 shadow = {
                     enable = true,

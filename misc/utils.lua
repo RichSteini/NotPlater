@@ -58,7 +58,7 @@ end
 
 function NotPlater:ConfigureGeneralisedText(text, anchorFrame, config)
     text:ClearAllPoints()
-	text:SetPoint(self.oppositeAnchors[config.position.anchor], anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
+	text:SetPoint(config.position.anchor, anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
 	self:SetupFontString(text, config)
 	if config.general.enable then
 		text:Show()
