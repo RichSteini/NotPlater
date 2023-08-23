@@ -97,6 +97,12 @@ function NotPlater:PrepareFrame(frame)
 					self:SetAlpha(NotPlater.db.profile.target.general.nonTargetAlpha.opacity)
 				end
 			end
+			if NotPlater.db.profile.levelText.general.enable then
+				levelText:Show()
+				levelText:SetAlpha(NotPlater.db.profile.levelText.general.opacity)
+			else
+				levelText:Hide()
+			end
 		end)
 	end
 	
