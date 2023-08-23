@@ -102,7 +102,7 @@ function NotPlater:CastBarOnCast(frame, event, unit)
 		frame.castBar:SetValue(frame.castBar.value)
 
 		if frame.castBar.icon then
-			frame.castBar.icon:SetTexture(texture)
+			frame.castBar.icon.texture:SetTexture(texture)
 		end
 
 		frame.castBar.casting = true
@@ -169,7 +169,7 @@ function NotPlater:CastBarOnCast(frame, event, unit)
 		frame.castBar:SetValue(frame.castBar.value)
 
 		if frame.castBar.icon then
-			frame.castBar.icon:SetTexture(texture)
+			frame.castBar.icon.texture:SetTexture(texture)
 		end
 
 		frame.castBar.casting = nil
@@ -253,7 +253,7 @@ function NotPlater:ConstructCastBar(frame)
 	castFrame:SetFrameLevel(frame:GetFrameLevel() + 2)
 
     -- Create the icon
-	castFrame.icon = castFrame:CreateTexture(nil, "BORDER")
+	self:ConstructIcon(castFrame)
 
     -- Create cast time text and set font
     castFrame.spellTimeText = castFrame:CreateFontString(nil, "ARTWORK")

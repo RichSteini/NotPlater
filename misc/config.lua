@@ -436,7 +436,7 @@ local function LoadOptions()
 				order = 1,
 				type = "group",
 				name = L["Spell Icon"],
-				args = NotPlater.ConfigPrototypes.Icon
+				args = NotPlater.ConfigPrototypes.CastBarIcon
 			},
 			spellTimeText = {
 				order = 2,

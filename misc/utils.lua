@@ -141,6 +141,13 @@ function NotPlater:CreateFullBorder(parent)
 	return border
 end
 
+function NotPlater:ConfigureGeneralisedIcon(iconFrame, anchorFrame, config)
+    iconFrame:ClearAllPoints()
+    self:SetSize(iconFrame, config.size.width, config.size.height)
+    iconFrame:SetPoint(self.oppositeAnchors[config.position.anchor], anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
+    iconFrame:SetAlpha(config.general.opacity)
+end
+
 function NotPlater:ConfigureGeneralisedStatusBar(bar, config)
 	-- Set textures for health- and castbar
 	bar:SetStatusBarTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, config.general.texture))

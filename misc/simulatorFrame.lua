@@ -226,7 +226,7 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
         self.defaultFrame.castBar:SetValue(self.defaultFrame.castBar.value)
 
         if self.defaultFrame.castBar.icon then
-            self.defaultFrame.castBar.icon:SetTexture("Interface\\Icons\\Temp")
+            self.defaultFrame.castBar.icon.texture:SetTexture("Interface\\Icons\\Temp")
         end
         self.defaultFrame.castBar.casting = true
 		self.defaultFrame.castBar:Show()

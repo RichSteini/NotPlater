@@ -153,6 +153,34 @@ function ConfigPrototypes:GetGeneralisedSizeConfig()
     }
 end
 
+function ConfigPrototypes:GetGeneralisedBorderConfig()
+    return { 
+        order = 2,
+        type = "group",
+        inline = true,
+        name = L["Border"],
+        args = {
+            enable = {
+                order = 0,
+                type = "toggle",
+                name = L["Enable"],
+            },
+            color = {
+                order = 1,
+                type = "color",
+                name = L["Color"],
+                hasAlpha = true,
+            },
+            thickness = {
+                order = 2,
+                type = "range",
+                name = L["Thickness"],
+                min = 1, max = 10, step = 1,
+            },
+        },
+    }
+end
+
 function ConfigPrototypes:GetGeneralisedFontConfig()
     return {
         general = {
@@ -295,31 +323,28 @@ function ConfigPrototypes:GetGeneralisedStatusBarConfig()
             },
         },
         size = ConfigPrototypes:GetGeneralisedSizeConfig(),
-        border = {
-            order = 2,
+        border = ConfigPrototypes:GetGeneralisedBorderConfig()
+    }
+end
+
+function ConfigPrototypes:GetGeneralisedIconConfig()
+    return {
+        general = {
+            order = 0,
             type = "group",
             inline = true,
-            name = L["Border"],
+            name = L["General"],
             args = {
-                enable = {
-                    order = 0,
-                    type = "toggle",
-                    name = L["Enable"],
-                },
-                color = {
+                opacity = {
                     order = 1,
-                    type = "color",
-                    name = L["Color"],
-                    hasAlpha = true,
-                },
-                thickness = {
-                    order = 2,
                     type = "range",
-                    name = L["Thickness"],
-                    min = 1, max = 10, step = 1,
+                    name = L["Opacity"],
+                    min = 0, max = 1, step = 0.01,
                 },
             },
         },
+        size = ConfigPrototypes:GetGeneralisedSizeConfig(),
+        position = ConfigPrototypes:GetGeneralisedPositionConfig()
     }
 end
 
@@ -483,24 +508,9 @@ function ConfigPrototypes:LoadConfigPrototypes()
         name = L["Opacity"],
         min = 0, max = 1, step = 0.01,
     }
-    ConfigPrototypes.Icon = {
-        general = {
-            order = 0,
-            type = "group",
-            inline = true,
-            name = L["General"],
-            args = {
-                opacity = {
-                    order = 1,
-                    type = "range",
-                    name = L["Opacity"],
-                    min = 0, max = 1, step = 0.01,
-                },
-            },
-        },
-        size = ConfigPrototypes:GetGeneralisedSizeConfig(),
-        position = ConfigPrototypes:GetGeneralisedPositionConfig()
-    }
+    ConfigPrototypes.Icon = ConfigPrototypes:GetGeneralisedIconConfig()
+    ConfigPrototypes.CastBarIcon = ConfigPrototypes:GetGeneralisedIconConfig()
+    ConfigPrototypes.CastBarIcon.border = ConfigPrototypes:GetGeneralisedBorderConfig()
     ConfigPrototypes.Target = {
         scale = {
             order = 0,

@@ -21,9 +21,19 @@ function NotPlater:ScaleRaidIcon(iconFrame, isTarget)
 end
 
 function NotPlater:ConfigureIcon(iconFrame, anchorFrame, config)
-    iconFrame:ClearAllPoints()
-    self:SetSize(iconFrame, config.size.width, config.size.height)
-    iconFrame:SetPoint(self.oppositeAnchors[config.position.anchor], anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
-    iconFrame:SetAlpha(config.general.opacity)
+    self:ConfigureGeneralisedIcon(iconFrame, anchorFrame, config)
+	-- Set border
+	if config.border.enable then
+		self:ConfigureFullBorder(iconFrame.border, iconFrame, config.border)
+		iconFrame.border:Show()
+	else
+		iconFrame.border:Hide()
+	end
 end
 
+function NotPlater:ConstructIcon(parentFrame)
+	parentFrame.icon = CreateFrame("Frame", nil, parentFrame)
+	parentFrame.icon.texture = parentFrame.icon:CreateTexture(nil, "BORDER")
+	parentFrame.icon.texture:SetAllPoints()
+	parentFrame.icon.border = self:CreateFullBorder(parentFrame.icon)
+end

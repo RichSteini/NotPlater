@@ -248,7 +248,12 @@ function NotPlater:LoadDefaultConfig()
                         anchor = "LEFT",
                         xOffset = 0,
                         yOffset = 0,
-                    }
+                    },
+                    border = {
+                        enable = false,
+                        color = {0, 0, 0, 1},
+                        thickness = 1
+                    },
                 },
                 spellTimeText = {
                     general = {
