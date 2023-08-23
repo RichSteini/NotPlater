@@ -254,6 +254,11 @@ function NotPlater:LoadDefaultConfig()
                         color = {0, 0, 0, 1},
                         thickness = 1
                     },
+                    background = {
+                        enable = false,
+                        texture = "NotPlater Background",
+                        color = {0.5, 0.5, 0.5, 0.8},
+                    }
                 },
                 spellTimeText = {
                     general = {

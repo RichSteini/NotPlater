@@ -153,6 +153,34 @@ function ConfigPrototypes:GetGeneralisedSizeConfig()
     }
 end
 
+function ConfigPrototypes:GetGeneralisedBackgroundConfig()
+    return {
+        order = 0.5,
+        type = "group",
+        inline = true,
+        name = L["Background"],
+        args = {
+            enable = {
+                order = 0,
+                type = "toggle",
+                name = L["Enable"],
+            },
+            color = {
+                order = 1,
+                type = "color",
+                name = L["Color"],
+                hasAlpha = true,
+            },
+            texture = {
+                order = 2,
+                type = "select",
+                name = L["Texture"],
+                values = GetTextures,
+            },
+        },
+    }
+end
+
 function ConfigPrototypes:GetGeneralisedBorderConfig()
     return { 
         order = 2,
@@ -297,31 +325,7 @@ function ConfigPrototypes:GetGeneralisedStatusBarConfig()
                 },
             },
         },
-        background = {
-            order = 0.5,
-            type = "group",
-            inline = true,
-            name = L["Background"],
-            args = {
-                enable = {
-                    order = 0,
-                    type = "toggle",
-                    name = L["Enable"],
-                },
-                color = {
-                    order = 1,
-                    type = "color",
-                    name = L["Color"],
-                    hasAlpha = true,
-                },
-                texture = {
-                    order = 2,
-                    type = "select",
-                    name = L["Texture"],
-                    values = GetTextures,
-                },
-            },
-        },
+        background = ConfigPrototypes:GetGeneralisedBackgroundConfig(),
         size = ConfigPrototypes:GetGeneralisedSizeConfig(),
         border = ConfigPrototypes:GetGeneralisedBorderConfig()
     }
@@ -511,6 +515,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
     ConfigPrototypes.Icon = ConfigPrototypes:GetGeneralisedIconConfig()
     ConfigPrototypes.CastBarIcon = ConfigPrototypes:GetGeneralisedIconConfig()
     ConfigPrototypes.CastBarIcon.border = ConfigPrototypes:GetGeneralisedBorderConfig()
+    ConfigPrototypes.CastBarIcon.background = ConfigPrototypes:GetGeneralisedBackgroundConfig()
     ConfigPrototypes.Target = {
         scale = {
             order = 0,

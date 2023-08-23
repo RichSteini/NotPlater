@@ -29,6 +29,14 @@ function NotPlater:ConfigureIcon(iconFrame, anchorFrame, config)
 	else
 		iconFrame.border:Hide()
 	end
+	-- Set background
+	if config.background.enable then
+		iconFrame.background:SetTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, config.background.texture))
+		iconFrame.background:SetVertexColor(self:GetColor(config.background.color))
+		iconFrame.background:Show()
+	else
+		iconFrame.background:Hide()
+	end
 end
 
 function NotPlater:ConstructIcon(parentFrame)
@@ -36,4 +44,6 @@ function NotPlater:ConstructIcon(parentFrame)
 	parentFrame.icon.texture = parentFrame.icon:CreateTexture(nil, "BORDER")
 	parentFrame.icon.texture:SetAllPoints()
 	parentFrame.icon.border = self:CreateFullBorder(parentFrame.icon)
+    parentFrame.icon.background = parentFrame.icon:CreateTexture(nil, "BACKGROUND")
+	parentFrame.icon.background:SetAllPoints(parentFrame.icon)
 end
