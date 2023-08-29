@@ -88,8 +88,10 @@ ThreatLib_funcs[#ThreatLib_funcs+1] = function()
 	-- Feign is a rather unique case. It's cast on all targets, but may be resisted by any one target. There is no combat log message - only an error event with ERR_FEIGN_DEATH_RESISTED from GlobalStrings
 	-- ERR_FEIGN_DEATH_RESISTED always happens before SPELLCAST_SUCCESSFUL, so we "prime" FD when we get SENT, then invalidate it if we get a resist, let it through otherwise.
 	-- The net effect is that a resist on any one target invalidates the threat reset on all targets, but we can't help that since we don't have target data on who resisted
+	-- Fixed for Netherwing by Sadfrog - Immersion
 	local FeignDeathPrimed = 0
-	function Hunter:FeignDeath()
+	function Hunter:TryReset()
+		ThreatLib:Debug("reset check")
 		if GetTime() - FeignDeathPrimed < 5 then
 			FeignDeathPrimed = 0
 			self:MultiplyThreat(0)
@@ -111,4 +113,44 @@ ThreatLib_funcs[#ThreatLib_funcs+1] = function()
 			FeignDeathPrimed = 0
 		end
 	end
+
+	local waitTable = {};
+	local waitFrame = nil;
+
+	function Hunter:FeignDeath()
+		ThreatLib:Debug("FD handled")
+		Hunter:Wait(0.5, self.TryReset, self)
+	end
+
+	function Hunter:Wait(delay,func, ...)
+		ThreatLib:Debug("Delay table start")
+		-- if(type(delay)~="number" or type(func)~="function") then
+		-- ThreatLib:Debug("delay false!")
+		-- return false;
+		-- end
+		if(waitFrame == nil) then
+			waitFrame = CreateFrame("Frame","WaitFrame", UIParent);
+			waitFrame:SetScript("onUpdate",function (self,elapse)
+				local count = #waitTable;
+				local i = 1;
+				while(i<=count) do
+					local waitRecord = tremove(waitTable,i);
+					local d = tremove(waitRecord,1);
+					local f = tremove(waitRecord,1);
+					local p = tremove(waitRecord,1);
+					if(d>elapse) then
+						tinsert(waitTable,i,{d-elapse,f,p});
+						i = i + 1;
+					else
+						count = count - 1;
+						f(unpack(p));
+					end
+				end
+			end);
+		end
+		tinsert(waitTable,{delay,func,{...}});
+		ThreatLib:Debug("Delay table set")
+		return true;
+	end
+
 end

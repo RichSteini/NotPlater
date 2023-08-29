@@ -1,5 +1,5 @@
 NotPlater = LibStub("AceAddon-3.0"):NewAddon("NotPlater", "AceEvent-3.0", "AceHook-3.0")
-NotPlater.revision = "v2.0.0"
+NotPlater.revision = "v2.0.5"
 
 local UnitName = UnitName
 local UnitLevel = UnitLevel
