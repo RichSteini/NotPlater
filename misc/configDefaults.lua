@@ -1,7 +1,5 @@
 if not NotPlater then return end
 
-if not NotPlater then return end
-
 function NotPlater:LoadDefaultConfig()
     self.defaults = {
         profile = {
@@ -358,7 +356,7 @@ function NotPlater:LoadDefaultConfig()
             },
             bossIcon = {
                 general = {
-                    opacity = 0,
+                    opacity = 1,
                 },
                 size = {
                     width = 20,
@@ -390,7 +388,7 @@ function NotPlater:LoadDefaultConfig()
                         },
                         highlight = {
                             enable = true,
-                            texture = [[Interface\AddOns\NotPlater\images\targetBorders\selection_indicator3]],
+                            texture = NotPlater.defaultHighlightTexture,
                             color = {0, 0.521568, 1, 0.75},
                             thickness = 14
                         },

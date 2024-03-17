@@ -1,5 +1,7 @@
 if not NotPlater then return end
 
+local addonName, addonShared = ...
+
 local Config = NotPlater:NewModule("Config")
 local LDB = LibStub("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
@@ -31,13 +33,13 @@ NotPlater.oppositeAnchors = {
 	["BOTTOMRIGHT"] = "TOPLEFT",
 }
 
-local TEXTURE_BASE_PATH = [[Interface\Addons\NotPlater\images\statusbarTextures\]]
+local TEXTURE_BASE_PATH = [[Interface\Addons\]]..addonName..[[\images\statusbarTextures\]]
 local textures = {"NotPlater Default", "NotPlater Background", "NotPlater HealthBar", "Flat", "BarFill", "Banto", "Smooth", "Perl", "Glaze", "Charcoal", "Otravi", "Striped", "LiteStep"}
 
-NotPlater.defaultHighlightTexture = [[Interface\AddOns\NotPlater\images\targetBorders\selection_indicator3]] 
+NotPlater.defaultHighlightTexture = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\selection_indicator3]] 
 NotPlater.targetIndicators = {
 	["NONE"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\UI-Achievement-WoodBorder-Corner]],
+		path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\UI-Achievement-WoodBorder-Corner]],
 		coords = {{.9, 1, .9, 1}, {.9, 1, .9, 1}, {.9, 1, .9, 1}, {.9, 1, .9, 1}}, --texcoords, support 4 or 8 coords method
 		desaturated = false,
 		width = 10,
@@ -47,7 +49,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Magneto"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\RelicIconFrame]],
+		path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\RelicIconFrame]],
 		coords = {{0, .5, 0, .5}, {0, .5, .5, 1}, {.5, 1, .5, 1}, {.5, 1, 0, .5}},
 		desaturated = false,
 		width = 8,
@@ -58,7 +60,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Gray Bold"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\UI-Icon-QuestBorder]],
+		path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\UI-Icon-QuestBorder]],
 		coords = {{0, .5, 0, .5}, {0, .5, .5, 1}, {.5, 1, .5, 1}, {.5, 1, 0, .5}},
 		desaturated = true,
 		width = 10,
@@ -69,7 +71,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Pins"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\UI-ItemSockets]],
+		path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\UI-ItemSockets]],
 		coords = {{145/256, 161/256, 3/256, 19/256}, {145/256, 161/256, 19/256, 3/256}, {161/256, 145/256, 19/256, 3/256}, {161/256, 145/256, 3/256, 19/256}},
 		desaturated = 1,
 		width = 4,
@@ -80,7 +82,7 @@ NotPlater.targetIndicators = {
 	},
 
 	["Silver"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\PETBATTLEHUD]],
+		path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\PETBATTLEHUD]],
 		coords = {
 			{336/512, 356/512, 454/512, 474/512}, 
 			{336/512, 356/512, 474/512, 495/512}, 
@@ -96,7 +98,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Ornament"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\PETJOURNAL]],
+		path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\PETJOURNAL]],
 		coords = {
 			{124/512, 161/512, 71/512, 99/512}, 
 			{119/512, 156/512, 29/512, 57/512}
@@ -112,7 +114,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Golden"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\Artifacts]],
+		path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\Artifacts]],
 		coords = {
 			{137/512, (137+29)/512, 408/512, 466/512},
 			{(137+30)/512, 195/512, 408/512, 466/512},
@@ -128,7 +130,7 @@ NotPlater.targetIndicators = {
 	},
 
 	["Ornament Gray"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\challenges-besttime-bg]],
+		path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\challenges-besttime-bg]],
 		coords = {
 			{89/512, 123/512, 0, 1},
 			{123/512, 89/512, 0, 1},
@@ -146,7 +148,7 @@ NotPlater.targetIndicators = {
 	},
 
 	["Epic"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\WowUI_Horizontal_Frame]],
+		path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\WowUI_Horizontal_Frame]],
 		coords = {
 			{30/256, 40/256, 15/64, 49/64},
 			{40/256, 30/256, 15/64, 49/64}, 
@@ -163,7 +165,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Arrow"] = {
-        path = [[Interface\AddOns\NotPlater\images\targetBorders\arrow_single_right_64]],
+        path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\arrow_single_right_64]],
         coords = {
             {0, 1, 0, 1}, 
             {1, 0, 0, 1}
@@ -181,7 +183,7 @@ NotPlater.targetIndicators = {
     },
 	
 	["Arrow Thin"] = {
-        path = [[Interface\AddOns\NotPlater\images\targetBorders\arrow_thin_right_64]],
+        path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\arrow_thin_right_64]],
         coords = {
             {0, 1, 0, 1}, 
             {1, 0, 0, 1}
@@ -199,7 +201,7 @@ NotPlater.targetIndicators = {
     },
 	
 	["Double Arrows"] = {
-        path = [[Interface\AddOns\NotPlater\images\targetBorders\arrow_double_right_64]],
+        path = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\arrow_double_right_64]],
         coords = {
             {0, 1, 0, 1}, 
             {1, 0, 0, 1}
@@ -217,7 +219,7 @@ NotPlater.targetIndicators = {
     },
 }
 
-local HIGHLIGHT_BASE_PATH = [[Interface\AddOns\NotPlater\images\targetBorders\]]
+local HIGHLIGHT_BASE_PATH = [[Interface\AddOns\]]..addonName..[[\images\targetBorders\]]
 NotPlater.targetHighlights = {
 	[HIGHLIGHT_BASE_PATH .. "selection_indicator1"] =  "Highlight 1",
 	[HIGHLIGHT_BASE_PATH .. "selection_indicator2"] =  "Highlight 2",
@@ -263,7 +265,7 @@ local tooltipUpdateFrame = CreateFrame("Frame")
 local Broker_NotPlater = LDB:NewDataObject("NotPlater", {
     type = "launcher",
     text = "NotPlater",
-    icon = "Interface\\AddOns\\NotPlater\\images\\logo",
+    icon = "Interface\\AddOns\\"..addonName.."\\images\\logo",
     OnClick = function(self, button)
 		if(button == "LeftButton") then
 			Config:ToggleConfig()
@@ -507,14 +509,15 @@ local function LoadOptions()
 			}
 		}
 	}
-	options.args.stacking = {
-		order = 9,
-		type = "group",
-		get = GetValue,
-		set = SetValue,
-		name = L["Stacking"],
-		args = NotPlater.ConfigPrototypes.NameplateStacking,
-	}
+	-- stacking in 3.3.5 already exists by default in interface options
+	--options.args.stacking = {
+		--order = 9,
+		--type = "group",
+		--get = GetValue,
+		--set = SetValue,
+		--name = L["Stacking"],
+		--args = NotPlater.ConfigPrototypes.NameplateStacking,
+	--}
 	options.args.simulator = {
 		order = 10,
 		type = "group",

@@ -1,4 +1,4 @@
-# NotPlater Addon for TBC 2.4.3
+# NotPlater Nameplate Addon for 2.4.3 and 3.3.5 Clients
 
 <p align="center">
   <img src="/images/demo.png">
@@ -57,12 +57,16 @@ This frame simulates a nameplate and is meant to ease the process of configuring
 
 The image above shows the settings that are available for the addon. You can either access them over the minimap button or with the slash commands /np or /notplater. All features that have been described are adjustable in the settings dialog.
 
-## Addon folder structure
+## Installation 2.4.3
 
-Rename the downloaded folder to "NotPlater" (remove "-versionnumber" from the folder name) and put the folder in:\
-..\Interface\AddOns\
+Rename the downloaded folder to "NotPlater" and put the folder in the AddOns directory:\
 ..\Interface\AddOns\NotPlater
+
+## Installation 3.3.5
+
+Rename the downloaded folder to "NotPlater-3.3.5" and put the folder in the AddOns directory:\
+..\Interface\AddOns\NotPlater-3.3.5
 
 ## Acknowledgements
 
-- As already mentioned, the design is inspired by the Plater addon.
+As already mentioned, the design is inspired by the Plater addon.
