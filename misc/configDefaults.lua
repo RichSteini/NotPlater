@@ -510,6 +510,7 @@ function NotPlater:LoadDefaultConfig()
                     },
                 },
                 swipeAnimation = {
+                    style = "vertical",
                     texture = "Texture 2",
                     showSwipe = true,
                     invertSwipe = true,

@@ -20,7 +20,6 @@ local UnitCanAttack = UnitCanAttack
 local UnitIsPlayer = UnitIsPlayer
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local GameTooltip = GameTooltip
-local CooldownFrame_SetTimer = CooldownFrame_SetTimer
 local DebuffTypeColor = DebuffTypeColor
 local GetSpellInfo = GetSpellInfo
 local wipe = wipe
@@ -34,6 +33,8 @@ local huge = math.huge
 local math_max = math.max
 local math_min = math.min
 local math_ceil = math.ceil
+
+local DEFAULT_COOLDOWN_STYLE = "vertical"
 
 local function SafeUnit(unit)
 	return unit and UnitExists(unit) and UnitCanAttack("player", unit) and not UnitIsDeadOrGhost(unit)
@@ -103,6 +104,48 @@ function Auras:Init()
 	self.mouseoverElapsed = 0
 	self.initialized = true
 end
+
+local function ResolveCooldownProvider(style)
+	if style == "swirl" and NotPlater.AuraCooldownSwirl then
+		return NotPlater.AuraCooldownSwirl
+	end
+	if NotPlater.AuraCooldownVertical then
+		return NotPlater.AuraCooldownVertical
+	end
+	return NotPlater.AuraCooldownSwirl
+end
+
+function Auras:GetCooldownProvider()
+	local style = (self.swipe and self.swipe.style) or DEFAULT_COOLDOWN_STYLE
+	return ResolveCooldownProvider(style)
+end
+
+function Auras:EnsureIconCooldownProvider(icon)
+	local provider = self:GetCooldownProvider()
+	if icon.cooldownProvider ~= provider then
+		if icon.cooldownProvider and icon.cooldownProvider.Detach then
+			icon.cooldownProvider:Detach(icon)
+		end
+		if provider and provider.Attach then
+			provider:Attach(icon, self)
+		end
+		icon.cooldownProvider = provider
+	end
+	return provider
+end
+
+function Auras:ResetIconCooldown(icon)
+	if icon.cooldownProvider and icon.cooldownProvider.Reset then
+		icon.cooldownProvider:Reset(icon)
+	end
+end
+
+function Auras:UpdateIconCooldown(icon)
+	if icon.cooldownProvider and icon.cooldownProvider.Update then
+		icon.cooldownProvider:Update(icon, self.swipe, self)
+	end
+end
+
 
 function Auras:RegisterEvents()
 	if not self.eventFrame then
@@ -181,6 +224,7 @@ function Auras:OnUpdate(elapsed)
 	self.elapsed = 0
 	for icon in pairs(self.activeIcons) do
 		self:UpdateIconTimer(icon)
+		self:UpdateIconCooldown(icon)
 	end
 end
 
@@ -229,6 +273,7 @@ function Auras:RefreshConfig()
 	self.tracking.lists = self.tracking.lists or {}
 	self.swipe.showSwipe = self.swipe.showSwipe ~= false
 	self.swipe.invertSwipe = self.swipe.invertSwipe == true
+	self.swipe.style = self.swipe.style or DEFAULT_COOLDOWN_STYLE
 	if self.tracker and self.tracker.ApplySettings then
 		self.tracker:ApplySettings()
 	end
@@ -374,9 +419,7 @@ function Auras:HideIcon(icon)
 		icon.showAnimation:Stop()
 	end
 	icon:SetScale(1)
-	if icon.cooldown then
-		icon.cooldown:Hide()
-	end
+	self:ResetIconCooldown(icon)
 end
 
 function Auras:EnsureIconAnimation(icon)
@@ -972,10 +1015,6 @@ function Auras:CreateIcon(container)
 	icon.icon:SetAllPoints()
 	icon.border = icon:CreateTexture(nil, "ARTWORK")
 	icon.border:SetTexture(1, 1, 1, 1)
-	icon.cooldown = CreateFrame("Cooldown", "$parentCooldown", icon, "CooldownFrameTemplate")
-	icon.cooldown:SetFrameLevel(icon:GetFrameLevel() + 1)
-	icon.cooldown:SetFrameStrata(icon:GetFrameStrata())
-	icon.cooldown:SetAllPoints()
 	icon.stackText = icon:CreateFontString(nil, "OVERLAY")
 	icon.timerText = icon:CreateFontString(nil, "OVERLAY")
 	icon:EnableMouse(true)
@@ -1019,20 +1058,14 @@ function Auras:SetupIcon(icon, aura, size, index)
 		icon.timerText:SetText("")
 		icon.timerText:Hide()
 	end
-	if aura.duration and aura.duration > 0 and aura.expirationTime < huge and self.swipe.showSwipe then
-		icon.cooldown.noCooldownCount = self.auraTimer.general and self.auraTimer.general.hideExternalTimer or nil
-		icon.cooldown:SetReverse(self.swipe.invertSwipe)
-		if icon.cooldown.SetSwipeTexture and NotPlater.auraSwipeTextures then
-			local swipeTexture = NotPlater.auraSwipeTextures[self.swipe.texture]
-			if swipeTexture then
-				icon.cooldown:SetSwipeTexture(swipeTexture)
-			end
+	local hasCooldown = aura.duration and aura.duration > 0 and aura.expirationTime < huge
+	if hasCooldown and self.swipe.showSwipe then
+		local provider = self:EnsureIconCooldownProvider(icon)
+		if provider and provider.Setup then
+			provider:Setup(icon, aura, self.swipe, self)
 		end
-		local start = aura.expirationTime - aura.duration
-		CooldownFrame_SetTimer(icon.cooldown, start, aura.duration, 1)
-		icon.cooldown:Show()
 	else
-		icon.cooldown:Hide()
+		self:ResetIconCooldown(icon)
 	end
 	aura.remaining = aura.expirationTime and math_max(0, aura.expirationTime - GetTime()) or 0
 	self:UpdateIconTimer(icon)

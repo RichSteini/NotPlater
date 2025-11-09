@@ -32,4 +32,6 @@ modules\stacking.lua
 modules\target.lua
 modules\threat-3.3.5.lua
 modules\auraTracker-3.3.5.lua
+modules\auraCooldownVertical.lua
+modules\auraCooldownSwirl.lua
 modules\auras.lua

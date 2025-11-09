@@ -281,6 +281,20 @@ local trackedUnitOptions = {
 
 local auraPopupContext
 
+local function TraverseBuffDB(info)
+	if not NotPlater.db or not NotPlater.db.profile then return end
+	local db = NotPlater.db.profile.buffs
+	if not db then return end
+	for i = 2, #info - 1 do
+		local key = info[i]
+		if key ~= "frames" then
+			db = db and db[key]
+		end
+	end
+	if not db then return end
+	return db, info[#info]
+end
+
 local function GetFontValues()
 	local media = NotPlater.SML or SML or LibStub("LibSharedMedia-3.0", true)
 	local fonts = {}
@@ -300,6 +314,17 @@ local function GetSwipeTextureValues()
 	return values
 end
 
+local swipeStyleValues = {
+	vertical = L["Top to Bottom"],
+	swirl = L["Swirl"],
+}
+
+local function IsSwipeTextureDisabled(info)
+	local db = TraverseBuffDB(info)
+	db.swipeAnimation = db.swipeAnimation or {}
+	return (db.swipeAnimation.style or "vertical") ~= "swirl"
+end
+
 local function NotifyAuraOptions()
 	if registry then
 		registry:NotifyChange("NotPlater")
@@ -311,20 +336,6 @@ local function RefreshAuraModule()
 	if module and module.ApplyProfile then
 		module:ApplyProfile()
 	end
-end
-
-local function TraverseBuffDB(info)
-	if not NotPlater.db or not NotPlater.db.profile then return end
-	local db = NotPlater.db.profile.buffs
-	if not db then return end
-	for i = 2, #info - 1 do
-		local key = info[i]
-		if key ~= "frames" then
-			db = db and db[key]
-		end
-	end
-	if not db then return end
-	return db, info[#info]
 end
 
 local function BuffsSet(info, ...)
@@ -1011,9 +1022,10 @@ local function LoadOptions()
 				type = "group",
 				name = L["Swipe Animation"],
 				args = {
-					texture = { order = 0, type = "select", name = L["Texture"], values = GetSwipeTextureValues },
-					showSwipe = { order = 1, type = "toggle", name = L["Show Swipe"] },
-					invertSwipe = { order = 2, type = "toggle", name = L["Invert Swipe"] },
+					style = { order = 0, type = "select", name = L["Cooldown Style"], values = swipeStyleValues },
+					texture = { order = 1, type = "select", name = L["Texture"], values = GetSwipeTextureValues, disabled = IsSwipeTextureDisabled },
+					showSwipe = { order = 2, type = "toggle", name = L["Show Swipe"] },
+					invertSwipe = { order = 3, type = "toggle", name = L["Invert Swipe"] },
 				},
 			},
 			borderColors = {
