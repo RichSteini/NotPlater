@@ -6,15 +6,84 @@ local UnitLevel = UnitLevel
 local UnitHealth = UnitHealth
 local UnitGUID = UnitGUID
 local UnitExists = UnitExists
+local UnitCanAttack = UnitCanAttack
+local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
+local GetCVar = GetCVar
+local SetCVar = SetCVar
+
+local NAMEPLATE_CASTBAR_CVAR = "ShowVKeyCastbar"
 
 local frames = {}
+local DEFAULT_TRACKED_UNITS = {"target", "focus", "mouseover"}
 
 NotPlater.frame = CreateFrame("Frame")
+
+function NotPlater:SetTrackedMatchUnits(units)
+	self.trackedMatchUnits = {}
+	if type(units) == "table" then
+		for index = 1, #units do
+			self.trackedMatchUnits[#self.trackedMatchUnits + 1] = units[index]
+		end
+	end
+	if #self.trackedMatchUnits == 0 then
+		for index = 1, #DEFAULT_TRACKED_UNITS do
+			self.trackedMatchUnits[index] = DEFAULT_TRACKED_UNITS[index]
+		end
+	end
+end
+
+function NotPlater:GetTrackedMatchUnits()
+	if not self.trackedMatchUnits or #self.trackedMatchUnits == 0 then
+		self:SetTrackedMatchUnits(DEFAULT_TRACKED_UNITS)
+	end
+	return self.trackedMatchUnits
+end
+
+function NotPlater:DisableDefaultNameplateCastBar()
+	local current = GetCVar(NAMEPLATE_CASTBAR_CVAR)
+	if not self._originalNameplateCastBarCVar then
+		self._originalNameplateCastBarCVar = current
+	end
+	if current ~= "0" then
+		SetCVar(NAMEPLATE_CASTBAR_CVAR, "0")
+	end
+end
+
+function NotPlater:RestoreDefaultNameplateCastBar()
+	if self._originalNameplateCastBarCVar then
+		SetCVar(NAMEPLATE_CASTBAR_CVAR, self._originalNameplateCastBarCVar)
+		self._originalNameplateCastBarCVar = nil
+	end
+end
+
+function NotPlater:UpdateNameplateCastBarCVar()
+	if self.db and self.db.profile and self.db.profile.castBar and self.db.profile.castBar.statusBar.general.enable then
+		self:DisableDefaultNameplateCastBar()
+	else
+		self:RestoreDefaultNameplateCastBar()
+	end
+end
+
+function NotPlater:GetAuraModule()
+	return self.Auras
+end
+
 function NotPlater:OnInitialize()
 	self:LoadDefaultConfig()
 
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("NotPlaterDB", self.defaults)
+	self:SetTrackedMatchUnits(DEFAULT_TRACKED_UNITS)
+	self.SML = LibStub:GetLibrary("LibSharedMedia-3.0")
+	
+	if self.Auras then
+		if self.Auras.Init then
+			self.Auras:Init()
+		end
+		if self.Auras.Enable then
+			self.Auras:Enable()
+		end
+	end
 
 	self:PARTY_MEMBERS_CHANGED()
 	self:RAID_ROSTER_UPDATE()
@@ -23,8 +92,6 @@ function NotPlater:OnInitialize()
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
 	self:Reload()
-
-	self.SML = LibStub:GetLibrary("LibSharedMedia-3.0")
 end
 
 function NotPlater:IsTarget(frame)
@@ -37,6 +104,82 @@ function NotPlater:IsTarget(frame)
     local targetName = UnitName('target')
 
 	return nameText and targetName == nameText:GetText() and frame:GetAlpha() >= 0.99
+end
+
+function NotPlater:PlateMatchesUnit(frame, unit)
+	if not unit or not UnitExists(unit) then
+		return false
+	end
+	if not frame or not frame.healthBar then
+		return false
+	end
+	if not UnitCanAttack("player", unit) or UnitIsDeadOrGhost(unit) then
+		return false
+	end
+	local nameText, levelText = frame.nameText, frame.levelText
+	if not nameText then
+		return false
+	end
+	local plateName = nameText:GetText()
+	if not plateName or plateName ~= UnitName(unit) then
+		return false
+	end
+	if levelText then
+		local plateLevel = levelText:GetText()
+		if plateLevel then
+			local unitLevel = UnitLevel(unit)
+			local levelString = unitLevel and tostring(unitLevel) or plateLevel
+			if plateLevel ~= levelString then
+				return false
+			end
+		end
+	end
+	local healthBar = frame.healthBar
+	if healthBar then
+		local healthValue = healthBar:GetValue()
+		if healthValue ~= UnitHealth(unit) then
+			return false
+		end
+	end
+	return true
+end
+
+function NotPlater:SetFrameMatch(frame, unit)
+	local healthFrame = frame.healthBar
+	if not healthFrame then
+		return
+	end
+	local guid = unit and UnitGUID(unit) or nil
+	frame.lastUnitMatch = unit
+	healthFrame.lastUnitMatch = unit
+	frame.lastGuidMatch = guid
+	healthFrame.lastGuidMatch = guid
+end
+
+function NotPlater:UpdateFrameMatch(frame)
+	if not frame or not frame:IsShown() or not frame.healthBar then
+		return
+	end
+	local match
+	for _, unit in ipairs(self:GetTrackedMatchUnits()) do
+		if self:PlateMatchesUnit(frame, unit) then
+			match = unit
+			break
+		end
+	end
+	if not match then
+		local group = self.raid or self.party
+		if group then
+			for _, unitID in pairs(group) do
+				local targetString = unitID .. "-target"
+				if self:PlateMatchesUnit(frame, targetString) then
+					match = targetString
+					break
+				end
+			end
+		end
+	end
+	self:SetFrameMatch(frame, match)
 end
 
 function NotPlater:PrepareFrame(frame)
@@ -63,6 +206,10 @@ function NotPlater:PrepareFrame(frame)
 		self:ConstructThreatComponents(frame.healthBar)
 		self:ConstructCastBar(frame)
 		self:ConstructTarget(frame)
+		local auraModule = self:GetAuraModule()
+		if auraModule and auraModule.AttachToFrame then
+			auraModule:AttachToFrame(frame)
+		end
 
 		-- Hide old healthbar
 		health:Hide()
@@ -75,6 +222,7 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:ThreatComponentsOnShow(self)
 			NotPlater:TargetCheck(self)
 			self.targetChanged = true
+			NotPlater:UpdateFrameMatch(self)
 		end)
 
 		self:HookScript(frame, 'OnUpdate', function(self, elapsed)
@@ -94,6 +242,7 @@ function NotPlater:PrepareFrame(frame)
 					end
 				end
 				NotPlater:SetTargetTargetText(self)
+				NotPlater:UpdateFrameMatch(self)
 				self.targetCheckElapsed = 0
 			end
 			if NotPlater:IsTarget(self) then
@@ -122,6 +271,7 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureLevelText(levelText, frame.healthBar)
 	self:ConfigureNameText(nameText, frame.healthBar)
 	self:ConfigureTarget(frame)
+	self:UpdateFrameMatch(frame)
 	self:TargetCheck(frame)
 end
 
@@ -142,6 +292,7 @@ function NotPlater:Reload()
 	else
 		self:UnregisterCastBarEvents(NotPlater.frame)
 	end
+	self:UpdateNameplateCastBarCVar()
 
 	if self.db.profile.threat.general.enableMouseoverUpdate then
 		self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
@@ -152,12 +303,21 @@ function NotPlater:Reload()
 	for frame in pairs(frames) do
 		self:PrepareFrame(frame)
 	end
+
+	local auraModule = self:GetAuraModule()
+	if auraModule and auraModule.ApplyProfile then
+		auraModule:ApplyProfile()
+	end
 end
 
 function NotPlater:PLAYER_TARGET_CHANGED()
 	for frame in pairs(frames) do
 		frame.targetChanged = true
 	end
+end
+
+function NotPlater:OnDisable()
+	self:RestoreDefaultNameplateCastBar()
 end
 
 function NotPlater:ClassCheck(frame)
@@ -204,16 +364,14 @@ function NotPlater:UPDATE_MOUSEOVER_UNIT()
 			if frame:IsShown() then
 				if mouseOverGuid == targetGuid then
 					if self:IsTarget(frame) then
+						self:SetFrameMatch(frame, "mouseover")
 						self:MouseoverThreatCheck(frame.healthBar, targetGuid)
 						frame.highlightTexture:Show()
 					end
 				else
-					local nameText, levelText = select(7, frame:GetRegions())
-					local name = nameText:GetText()
-					local level = levelText:GetText()
 					local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
-					local healthValue = frame.healthBar:GetValue()
-					if name == UnitName("mouseover") and level == tostring(UnitLevel("mouseover")) and healthValue == UnitHealth("mouseover") and healthValue ~= healthMaxValue then
+					if self:PlateMatchesUnit(frame, "mouseover") and frame.healthBar:GetValue() ~= healthMaxValue then
+						self:SetFrameMatch(frame, "mouseover")
 						self:MouseoverThreatCheck(frame.healthBar, mouseOverGuid)
 					end
 				end
@@ -235,17 +393,13 @@ NotPlater.frame:SetScript("OnEvent", function(self, event, unit)
 		if frame:IsShown() then
 			if unit == "target" then
 				if NotPlater:IsTarget(frame) then
-					frame.healthBar.lastUnitMatch = "target"
+					NotPlater:SetFrameMatch(frame, "target")
 					NotPlater:CastBarOnCast(frame, event, unit)
 				end
 			else
-				local nameText, levelText = select(7, frame:GetRegions())
-				local name = nameText:GetText()
-				local level = levelText:GetText()
 				local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
-				local healthValue = frame.healthBar:GetValue()
-				if name == UnitName(unit) and level == tostring(UnitLevel(unit)) and healthValue == UnitHealth(unit) and healthValue ~= healthMaxValue then
-					frame.healthBar.lastUnitMatch = unit
+				if NotPlater:PlateMatchesUnit(frame, unit) and frame.healthBar:GetValue() ~= healthMaxValue then
+					NotPlater:SetFrameMatch(frame, unit)
 					NotPlater:CastBarOnCast(frame, event, unit)
 				end
 			end

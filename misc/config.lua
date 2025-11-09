@@ -272,6 +272,13 @@ NotPlater.auraSwipeTextures = NotPlater.auraSwipeTextures or {
 }
 local auraSwipeTextures = NotPlater.auraSwipeTextures
 
+local trackedUnitOptions = {
+	target = L["Target"],
+	focus = L["Focus"],
+	mouseover = L["Mouseover"],
+	arena = L["Arena"],
+}
+
 local auraPopupContext
 
 local function GetFontValues()
@@ -357,6 +364,38 @@ end
 
 local function BuffsSetValue(value, ...)
 	BuffsSet(BuildBuffInfo(...), value)
+end
+
+local trackedUnitOrder = {"target", "focus", "mouseover", "arena"}
+
+local function GetTrackedUnitOption(info)
+	local unit = info[#info]
+	return BuffsGetValue("tracking", "units", unit) ~= false
+end
+
+local function SetTrackedUnitOption(info, value)
+	local unit = info[#info]
+	BuffsSetValue(value, "tracking", "units", unit)
+end
+
+local trackedUnitArgs = {
+	description = {
+		order = 0,
+		type = "description",
+		name = L["Choose which unit IDs NotPlater polls with UnitAura. Only these units provide exact aura timers when combat log tracking is disabled."],
+		fontSize = "medium",
+	},
+}
+
+for order, unitID in ipairs(trackedUnitOrder) do
+	trackedUnitArgs[unitID] = {
+		order = order,
+		type = "toggle",
+		name = trackedUnitOptions[unitID],
+		get = GetTrackedUnitOption,
+		set = SetTrackedUnitOption,
+		width = "half",
+	}
 end
 
 local function BuffsGetWithDefaults(info)
@@ -827,6 +866,14 @@ local function LoadOptions()
 					showShortestStackTime = { order = 6, type = "toggle", name = L["Show Shortest Remaining Time"] },
 					sortAuras = { order = 7, type = "toggle", name = L["Sort Auras"] },
 					showAnimations = { order = 8, type = "toggle", name = L["Show Animations"] },
+					trackedUnits = {
+						order = 9,
+						type = "group",
+						inline = true,
+						name = L["Tracked Units"],
+						args = trackedUnitArgs,
+					},
+					enableCombatLogTracking = { order = 10, type = "toggle", name = L["Combat Log Tracking"], desc = L["Learns aura durations from the combat log so timers persist after you stop targeting a unit. Timers may be inaccurate until the addon has seen an aura at least twice."] },
 				},
 			},
 			frames = {
@@ -975,7 +1022,6 @@ local function LoadOptions()
 				name = L["Aura Border Colors"],
 				args = {
 					useTypeColors = { order = 0, type = "toggle", name = L["Use Type Colors"] },
-					important = { order = 1, type = "color", name = L["Important"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
 					dispellable = { order = 2, type = "color", name = L["Dispellable"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
 					enrage = { order = 3, type = "color", name = L["Enrage"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
 					buff = { order = 4, type = "color", name = L["Buff"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
@@ -1009,7 +1055,6 @@ local function LoadOptions()
 						args = {
 							showPlayerAuras = { order = 0, type = "toggle", name = L["Show Player Auras"] },
 							showOtherPlayerAuras = { order = 1, type = "toggle", name = L["Show Other Player Auras"] },
-							showImportantAuras = { order = 2, type = "toggle", name = L["Show Important Auras"] },
 							showDispellableBuffs = { order = 3, type = "toggle", name = L["Show Dispellable Buffs"] },
 							showEnrageBuffs = { order = 4, type = "toggle", name = L["Show Enrage Buffs"] },
 							showMagicBuffs = { order = 5, type = "toggle", name = L["Show Magic Buffs"] },
@@ -1021,7 +1066,7 @@ local function LoadOptions()
 						},
 					},
 					blacklistDebuffs = {
-						order = 0,
+						order = 2,
 						type = "group",
 						name = L["Debuff Blacklist"],
 						args = {
@@ -1031,7 +1076,7 @@ local function LoadOptions()
 						},
 					},
 					blacklistBuffs = {
-						order = 1,
+						order = 3,
 						type = "group",
 						name = L["Buff Blacklist"],
 						args = {
@@ -1041,7 +1086,7 @@ local function LoadOptions()
 						},
 					},
 					extraDebuffs = {
-						order = 2,
+						order = 4,
 						type = "group",
 						name = L["Extra Debuffs"],
 						args = {
@@ -1051,7 +1096,7 @@ local function LoadOptions()
 						},
 					},
 					extraBuffs = {
-						order = 3,
+						order = 5,
 						type = "group",
 						name = L["Extra Buffs"],
 						args = {

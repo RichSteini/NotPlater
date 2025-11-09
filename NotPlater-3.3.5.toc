@@ -17,8 +17,9 @@ NotPlater-3.3.5.lua
 # Config and utility functions
 misc\simulatorFrame-3.3.5.lua
 misc\configPrototypes.lua
-misc\config-3.3.5.lua
+misc\config.lua
 misc\configDefaults.lua
+misc\diminishingReturnsData-3.3.5.lua
 misc\utils.lua
 
 # Modules
@@ -30,3 +31,5 @@ modules\nameText.lua
 modules\stacking.lua
 modules\target.lua
 modules\threat-3.3.5.lua
+modules\auraTracker-3.3.5.lua
+modules\auras.lua
