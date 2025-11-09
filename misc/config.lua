@@ -3,12 +3,24 @@ if not NotPlater then return end
 local Config = NotPlater:NewModule("Config")
 local LDB = LibStub("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
+local registry = LibStub("AceConfigRegistry-3.0")
 local L = NotPlaterLocals
+
+local addonName = ...
+if type(addonName) ~= "string" or addonName == "" then
+	addonName = (NotPlater and NotPlater.addonName) or "NotPlater"
+else
+	NotPlater.addonName = addonName
+end
+
+local ADDON_BASE_PATH = ("Interface\\AddOns\\%s\\"):format(addonName)
 
 local ssplit = string.split
 local sgmatch = string.gmatch
 local sformat = string.format
+local slower = string.lower
 local tinsert = table.insert
+local tconcat = table.concat
 local tonumber = tonumber
 local ipairs = ipairs
 local unpack = unpack
@@ -18,6 +30,19 @@ local InterfaceOptionsFrame = InterfaceOptionsFrame
 local UIParent = UIParent
 
 local SML, registered, options, config, dialog
+
+local function BuildAssetPath(...)
+	local segments = {...}
+	for index = 1, #segments do
+		local segment = tostring(segments[index] or "")
+		segment = segment:gsub("^\\+", "")
+		segment = segment:gsub("/", "\\")
+		segments[index] = segment
+	end
+	return ADDON_BASE_PATH .. tconcat(segments, "\\")
+end
+
+NotPlater.BuildAssetPath = NotPlater.BuildAssetPath or BuildAssetPath
 
 NotPlater.oppositeAnchors = {
 	["LEFT"] = "RIGHT",
@@ -31,13 +56,13 @@ NotPlater.oppositeAnchors = {
 	["BOTTOMRIGHT"] = "TOPLEFT",
 }
 
-local TEXTURE_BASE_PATH = [[Interface\Addons\NotPlater\images\statusbarTextures\]]
+local TEXTURE_BASE_PATH = BuildAssetPath("images", "statusbarTextures") .. "\\"
 local textures = {"NotPlater Default", "NotPlater Background", "NotPlater HealthBar", "Flat", "BarFill", "Banto", "Smooth", "Perl", "Glaze", "Charcoal", "Otravi", "Striped", "LiteStep"}
 
-NotPlater.defaultHighlightTexture = [[Interface\AddOns\NotPlater\images\targetBorders\selection_indicator3]] 
+NotPlater.defaultHighlightTexture = BuildAssetPath("images", "targetBorders", "selection_indicator3")
 NotPlater.targetIndicators = {
 	["NONE"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\UI-Achievement-WoodBorder-Corner]],
+		path = BuildAssetPath("images", "targetBorders", "UI-Achievement-WoodBorder-Corner"),
 		coords = {{.9, 1, .9, 1}, {.9, 1, .9, 1}, {.9, 1, .9, 1}, {.9, 1, .9, 1}}, --texcoords, support 4 or 8 coords method
 		desaturated = false,
 		width = 10,
@@ -47,7 +72,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Magneto"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\RelicIconFrame]],
+		path = BuildAssetPath("images", "targetBorders", "RelicIconFrame"),
 		coords = {{0, .5, 0, .5}, {0, .5, .5, 1}, {.5, 1, .5, 1}, {.5, 1, 0, .5}},
 		desaturated = false,
 		width = 8,
@@ -58,7 +83,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Gray Bold"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\UI-Icon-QuestBorder]],
+		path = BuildAssetPath("images", "targetBorders", "UI-Icon-QuestBorder"),
 		coords = {{0, .5, 0, .5}, {0, .5, .5, 1}, {.5, 1, .5, 1}, {.5, 1, 0, .5}},
 		desaturated = true,
 		width = 10,
@@ -69,7 +94,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Pins"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\UI-ItemSockets]],
+		path = BuildAssetPath("images", "targetBorders", "UI-ItemSockets"),
 		coords = {{145/256, 161/256, 3/256, 19/256}, {145/256, 161/256, 19/256, 3/256}, {161/256, 145/256, 19/256, 3/256}, {161/256, 145/256, 3/256, 19/256}},
 		desaturated = 1,
 		width = 4,
@@ -80,7 +105,7 @@ NotPlater.targetIndicators = {
 	},
 
 	["Silver"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\PETBATTLEHUD]],
+		path = BuildAssetPath("images", "targetBorders", "PETBATTLEHUD"),
 		coords = {
 			{336/512, 356/512, 454/512, 474/512}, 
 			{336/512, 356/512, 474/512, 495/512}, 
@@ -96,7 +121,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Ornament"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\PETJOURNAL]],
+		path = BuildAssetPath("images", "targetBorders", "PETJOURNAL"),
 		coords = {
 			{124/512, 161/512, 71/512, 99/512}, 
 			{119/512, 156/512, 29/512, 57/512}
@@ -112,7 +137,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Golden"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\Artifacts]],
+		path = BuildAssetPath("images", "targetBorders", "Artifacts"),
 		coords = {
 			{137/512, (137+29)/512, 408/512, 466/512},
 			{(137+30)/512, 195/512, 408/512, 466/512},
@@ -128,7 +153,7 @@ NotPlater.targetIndicators = {
 	},
 
 	["Ornament Gray"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\challenges-besttime-bg]],
+		path = BuildAssetPath("images", "targetBorders", "challenges-besttime-bg"),
 		coords = {
 			{89/512, 123/512, 0, 1},
 			{123/512, 89/512, 0, 1},
@@ -146,7 +171,7 @@ NotPlater.targetIndicators = {
 	},
 
 	["Epic"] = {
-		path = [[Interface\AddOns\NotPlater\images\targetBorders\WowUI_Horizontal_Frame]],
+		path = BuildAssetPath("images", "targetBorders", "WowUI_Horizontal_Frame"),
 		coords = {
 			{30/256, 40/256, 15/64, 49/64},
 			{40/256, 30/256, 15/64, 49/64}, 
@@ -163,7 +188,7 @@ NotPlater.targetIndicators = {
 	},
 	
 	["Arrow"] = {
-        path = [[Interface\AddOns\NotPlater\images\targetBorders\arrow_single_right_64]],
+        path = BuildAssetPath("images", "targetBorders", "arrow_single_right_64"),
         coords = {
             {0, 1, 0, 1}, 
             {1, 0, 0, 1}
@@ -181,7 +206,7 @@ NotPlater.targetIndicators = {
     },
 	
 	["Arrow Thin"] = {
-        path = [[Interface\AddOns\NotPlater\images\targetBorders\arrow_thin_right_64]],
+        path = BuildAssetPath("images", "targetBorders", "arrow_thin_right_64"),
         coords = {
             {0, 1, 0, 1}, 
             {1, 0, 0, 1}
@@ -199,7 +224,7 @@ NotPlater.targetIndicators = {
     },
 	
 	["Double Arrows"] = {
-        path = [[Interface\AddOns\NotPlater\images\targetBorders\arrow_double_right_64]],
+        path = BuildAssetPath("images", "targetBorders", "arrow_double_right_64"),
         coords = {
             {0, 1, 0, 1}, 
             {1, 0, 0, 1}
@@ -217,7 +242,7 @@ NotPlater.targetIndicators = {
     },
 }
 
-local HIGHLIGHT_BASE_PATH = [[Interface\AddOns\NotPlater\images\targetBorders\]]
+local HIGHLIGHT_BASE_PATH = BuildAssetPath("images", "targetBorders") .. "\\"
 NotPlater.targetHighlights = {
 	[HIGHLIGHT_BASE_PATH .. "selection_indicator1"] =  "Highlight 1",
 	[HIGHLIGHT_BASE_PATH .. "selection_indicator2"] =  "Highlight 2",
@@ -229,6 +254,279 @@ NotPlater.targetHighlights = {
 	[HIGHLIGHT_BASE_PATH .. "selection_indicator8"] =  "Highlight 8"
 }
 
+
+local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick Outline"], ["MONOCHROME"] = L["Monochrome"]}
+local anchorPoints = {
+	["CENTER"] = L["Center"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"],
+	["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["BOTTOMLEFT"] = L["Bottom Left"],
+	["TOPRIGHT"] = L["Top Right"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["TOPLEFT"] = L["Top Left"]
+}
+local auraGrowthDirections = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["CENTER"] = L["Center"]}
+
+NotPlater.auraSwipeTextures = NotPlater.auraSwipeTextures or {
+	["Texture 1"] = BuildAssetPath("images", "cooldownTextures", "cooldown_edge_1"),
+	["Texture 2"] = BuildAssetPath("images", "cooldownTextures", "cooldown_edge_2"),
+	["Texture 3"] = "Interface\\Cooldown\\edge",
+	["Texture 4"] = "Interface\\Cooldown\\edge-LoC",
+	["Texture 5"] = BuildAssetPath("images", "cooldownTextures", "transparent"),
+}
+local auraSwipeTextures = NotPlater.auraSwipeTextures
+
+local auraPopupContext
+
+local function GetFontValues()
+	local media = NotPlater.SML or SML or LibStub("LibSharedMedia-3.0", true)
+	local fonts = {}
+	if media then
+		for _, name in ipairs(media:List(media.MediaType.FONT)) do
+			fonts[name] = name
+		end
+	end
+	return fonts
+end
+
+local function GetSwipeTextureValues()
+	local values = {}
+	for name in pairs(auraSwipeTextures) do
+		values[name] = name
+	end
+	return values
+end
+
+local function NotifyAuraOptions()
+	if registry then
+		registry:NotifyChange("NotPlater")
+	end
+end
+
+local function RefreshAuraModule()
+	local module = NotPlater.GetAuraModule and NotPlater:GetAuraModule()
+	if module and module.ApplyProfile then
+		module:ApplyProfile()
+	end
+end
+
+local function TraverseBuffDB(info)
+	if not NotPlater.db or not NotPlater.db.profile then return end
+	local db = NotPlater.db.profile.buffs
+	if not db then return end
+	for i = 2, #info - 1 do
+		local key = info[i]
+		if key ~= "frames" then
+			db = db and db[key]
+		end
+	end
+	if not db then return end
+	return db, info[#info]
+end
+
+local function BuffsSet(info, ...)
+	local db, key = TraverseBuffDB(info)
+	if not db or not key then return end
+	local valueCount = select("#", ...)
+	if valueCount > 1 then
+		db[key] = {...}
+	else
+		db[key] = select(1, ...)
+	end
+	RefreshAuraModule()
+	NotifyAuraOptions()
+end
+
+local function BuffsGet(info)
+	local db, key = TraverseBuffDB(info)
+	if not db or not key then return end
+	local value = db[key]
+	if type(value) == "table" and type(value[1]) == "number" then
+		return unpack(value)
+	end
+	return value
+end
+
+local function BuildBuffInfo(...)
+	local info = {"buffs"}
+	for i = 1, select("#", ...) do
+		info[#info + 1] = select(i, ...)
+	end
+	return info
+end
+
+local function BuffsGetValue(...)
+	return BuffsGet(BuildBuffInfo(...))
+end
+
+local function BuffsSetValue(value, ...)
+	BuffsSet(BuildBuffInfo(...), value)
+end
+
+local function BuffsGetWithDefaults(info)
+	local value = BuffsGet(info)
+	local key = info[#info]
+	if value == nil then
+		if key == "growDirection" then
+			return "RIGHT"
+		elseif key == "anchor" then
+			return "TOP"
+		elseif key == "mode" then
+			return "AUTOMATIC"
+		elseif key == "showSwipe" then
+			return true
+		elseif key == "invertSwipe" then
+			return false
+		end
+	end
+	return value
+end
+
+local function BuffsGetColor(info)
+	local r, g, b, a = BuffsGet(info)
+	if r == nil then
+		return 1, 1, 1, 1
+	end
+	return r or 1, g or 1, b or 1, a or 1
+end
+
+local function BuffsSetColor(info, r, g, b, a)
+	BuffsSet(info, r or 1, g or 1, b or 1, a or 1)
+end
+
+local function GetAuraList(listKey)
+	if not NotPlater.db or not NotPlater.db.profile then return {} end
+	local profile = NotPlater.db.profile
+	profile.buffs = profile.buffs or {}
+	profile.buffs.tracking = profile.buffs.tracking or {}
+	profile.buffs.tracking.lists = profile.buffs.tracking.lists or {}
+	profile.buffs.tracking.lists[listKey] = profile.buffs.tracking.lists[listKey] or {}
+	return profile.buffs.tracking.lists[listKey]
+end
+
+local function BuildAuraListValues(listKey)
+	local values = {}
+	local list = GetAuraList(listKey)
+	for index, data in ipairs(list) do
+		local icon = data.icon or "Interface\\Icons\\INV_Misc_QuestionMark"
+		local spellName = data.name or L["Unknown"]
+		local spellID = data.spellID or 0
+		values[index] = sformat("|T%s:16:16:0:0:64:64:4:60:4:60|t %s (%d)", icon, spellName, spellID)
+	end
+	return values
+end
+
+local function RemoveAuraFromList(listKey, entryIndex)
+	local list = GetAuraList(listKey)
+	local numericIndex = tonumber(entryIndex)
+	if numericIndex and list[numericIndex] then
+		tremove(list, numericIndex)
+		RefreshAuraModule()
+		NotifyAuraOptions()
+	end
+end
+
+local function ResolveSpell(token)
+	if not token or token == "" then
+		return
+	end
+	local lookup = tonumber(token) or token
+	local name, _, icon, _, _, _, spellID = GetSpellInfo(lookup)
+	if not name then
+		return
+	end
+	return spellID or tonumber(token), name, icon or "Interface\\Icons\\INV_Misc_QuestionMark"
+end
+
+local function AuraEntriesMatch(entry, spellID, name)
+	if not entry then
+		return false
+	end
+	if spellID and spellID ~= 0 and entry.spellID and entry.spellID ~= 0 and entry.spellID == spellID then
+		return true
+	end
+	if name and name ~= "" and entry.name and entry.name ~= "" then
+		if slower(entry.name) == slower(name) then
+			return true
+		end
+	end
+	return false
+end
+
+local function AddAuraToList(listKey, token)
+	local spellID, name, icon = ResolveSpell(token)
+	if not spellID then
+		NotPlater:Print(L["Invalid spell name or ID"])
+		return
+	end
+	local list = GetAuraList(listKey)
+	for _, entry in ipairs(list) do
+		if AuraEntriesMatch(entry, spellID, name) then
+			entry.spellID = spellID
+			entry.name = name
+			entry.icon = icon
+			RefreshAuraModule()
+			NotifyAuraOptions()
+			return
+		end
+	end
+	tinsert(list, { spellID = spellID, name = name, icon = icon })
+	RefreshAuraModule()
+	NotifyAuraOptions()
+end
+
+local function IsAuraFrame2Disabled()
+	return not (NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.buffs and NotPlater.db.profile.buffs.auraFrame2.enable)
+end
+
+local function IsAuraTimerDisabled()
+	return not (NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.buffs and NotPlater.db.profile.buffs.auraTimer.general.enable)
+end
+
+local function IsAutomaticTracking()
+	return NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.buffs and NotPlater.db.profile.buffs.tracking.mode == "AUTOMATIC"
+end
+
+local function ShowAuraPrompt(listKey, inputType)
+	auraPopupContext = {
+		listKey = listKey,
+		inputType = inputType,
+	}
+	local dialog = StaticPopup_Show("NOTPLATER_AURA_PROMPT")
+	if dialog then
+		local text = inputType == "ID" and L["Enter a spell ID"] or L["Enter a spell name"]
+		dialog.text:SetText(text)
+		dialog.editBox:SetNumeric(inputType == "ID")
+		dialog.editBox:SetAutoFocus(true)
+		dialog.editBox:SetText("")
+		dialog.editBox:SetFocus()
+	end
+end
+
+StaticPopupDialogs["NOTPLATER_AURA_PROMPT"] = {
+	button1 = ACCEPT,
+	button2 = CANCEL,
+	hasEditBox = true,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	OnShow = function(self)
+		self:SetFrameStrata("FULLSCREEN_DIALOG")
+		self:Raise()
+	end,
+	OnAccept = function(self)
+		local text = self.editBox:GetText()
+		if auraPopupContext then
+			AddAuraToList(auraPopupContext.listKey, text)
+		end
+		self.editBox:SetText("")
+	end,
+	OnHide = function(self)
+		self.editBox:SetText("")
+		auraPopupContext = nil
+	end,
+	EditBoxOnEnterPressed = function(self)
+		local parent = self:GetParent()
+		parent.button1:Click()
+	end,
+	text = "",
+}
 
 local function GetAnchors(frame)
 	local x, y = frame:GetCenter()
@@ -263,7 +561,7 @@ local tooltipUpdateFrame = CreateFrame("Frame")
 local Broker_NotPlater = LDB:NewDataObject("NotPlater", {
     type = "launcher",
     text = "NotPlater",
-    icon = "Interface\\AddOns\\NotPlater\\images\\logo",
+    icon = BuildAssetPath("images", "logo"),
     OnClick = function(self, button)
 		if(button == "LeftButton") then
 			Config:ToggleConfig()
@@ -506,6 +804,265 @@ local function LoadOptions()
 				args = NotPlater.ConfigPrototypes.TargetTargetText
 			}
 		}
+	}
+	options.args.buffs = {
+		order = 8,
+		type = "group",
+		name = L["Buffs"],
+		childGroups = "tab",
+		get = BuffsGetWithDefaults,
+		set = BuffsSet,
+		args = {
+			general = {
+				order = 0,
+				type = "group",
+				name = L["General Settings"],
+				args = {
+					enable = { order = 0, type = "toggle", name = L["Enable"] },
+					showTooltip = { order = 1, type = "toggle", name = L["Show Tooltip"] },
+					alpha = { order = 2, type = "range", name = L["Opacity"], min = 0.1, max = 1, step = 0.05 },
+					iconSpacing = { order = 3, type = "range", name = L["Icon Spacing"], min = 0, max = 20, step = 1 },
+					rowSpacing = { order = 4, type = "range", name = L["Row Spacing"], min = 0, max = 20, step = 1 },
+					stackSimilarAuras = { order = 5, type = "toggle", name = L["Stack Similar Auras"] },
+					showShortestStackTime = { order = 6, type = "toggle", name = L["Show Shortest Remaining Time"] },
+					sortAuras = { order = 7, type = "toggle", name = L["Sort Auras"] },
+					showAnimations = { order = 8, type = "toggle", name = L["Show Animations"] },
+				},
+			},
+			frames = {
+				order = 1,
+				type = "group",
+				name = L["Frames"],
+				args = {
+					auraFrame1 = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["Aura Frame 1"],
+						args = {
+							growDirection = { order = 0, type = "select", name = L["Grow Direction"], values = auraGrowthDirections },
+							anchor = { order = 1, type = "select", name = L["Anchor"], values = anchorPoints },
+							xOffset = { order = 2, type = "range", name = L["X Offset"], min = -100, max = 100, step = 1 },
+							yOffset = { order = 3, type = "range", name = L["Y Offset"], min = -100, max = 100, step = 1 },
+							rowCount = { order = 4, type = "range", name = L["Auras per Row"], min = 1, max = 12, step = 1, get = function() return BuffsGetValue("auraFrame1", "rowCount") or 10 end, set = function(_, value) BuffsSetValue(value, "auraFrame1", "rowCount") end },
+							width = { order = 10, type = "range", name = L["Width"], min = 10, max = 80, step = 1, get = function() return BuffsGetValue("auraFrame1", "width") or 26 end, set = function(_, value) BuffsSetValue(value, "auraFrame1", "width") end },
+							height = { order = 11, type = "range", name = L["Height"], min = 10, max = 80, step = 1, get = function() return BuffsGetValue("auraFrame1", "height") or 16 end, set = function(_, value) BuffsSetValue(value, "auraFrame1", "height") end },
+							borderThickness = { order = 12, type = "range", name = L["Border Thickness"], min = 0, max = 5, step = 0.1, get = function() return BuffsGetValue("auraFrame1", "borderThickness") or 1 end, set = function(_, value) BuffsSetValue(value, "auraFrame1", "borderThickness") end },
+						},
+					},
+					auraFrame2 = {
+						order = 1,
+						type = "group",
+						inline = true,
+						name = L["Aura Frame 2 (Debuffs)"],
+						args = {
+							enable = { order = 0, type = "toggle", name = L["Enable"], desc = L["When enabled, buffs are shown in Aura Frame 1 and debuffs in Aura Frame 2."] },
+							growDirection = { order = 1, type = "select", name = L["Grow Direction"], values = auraGrowthDirections, disabled = IsAuraFrame2Disabled },
+							anchor = { order = 2, type = "select", name = L["Anchor"], values = anchorPoints, disabled = IsAuraFrame2Disabled },
+							xOffset = { order = 3, type = "range", name = L["X Offset"], min = -100, max = 100, step = 1, disabled = IsAuraFrame2Disabled },
+							yOffset = { order = 4, type = "range", name = L["Y Offset"], min = -100, max = 100, step = 1, disabled = IsAuraFrame2Disabled },
+							rowCount = { order = 5, type = "range", name = L["Auras per Row"], min = 1, max = 12, step = 1, disabled = IsAuraFrame2Disabled, get = function() return BuffsGetValue("auraFrame2", "rowCount") or 10 end, set = function(_, value) BuffsSetValue(value, "auraFrame2", "rowCount") end },
+							width = { order = 10, type = "range", name = L["Width"], min = 10, max = 80, step = 1, disabled = IsAuraFrame2Disabled, get = function() return BuffsGetValue("auraFrame2", "width") or 26 end, set = function(_, value) BuffsSetValue(value, "auraFrame2", "width") end },
+							height = { order = 11, type = "range", name = L["Height"], min = 10, max = 80, step = 1, disabled = IsAuraFrame2Disabled, get = function() return BuffsGetValue("auraFrame2", "height") or 16 end, set = function(_, value) BuffsSetValue(value, "auraFrame2", "height") end },
+							borderThickness = { order = 12, type = "range", name = L["Border Thickness"], min = 0, max = 5, step = 0.1, disabled = IsAuraFrame2Disabled, get = function() return BuffsGetValue("auraFrame2", "borderThickness") or 1 end, set = function(_, value) BuffsSetValue(value, "auraFrame2", "borderThickness") end },
+						},
+					},
+				},
+			},
+			stackCounter = {
+				order = 2,
+				type = "group",
+				name = L["Stack Counter"],
+				args = {
+					general = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["General"],
+						args = {
+							enable = { order = 0, type = "toggle", name = L["Enable"] },
+							name = { order = 1, type = "select", name = L["Font"], values = GetFontValues },
+							size = { order = 2, type = "range", name = L["Size"], min = 6, max = 36, step = 1 },
+							border = { order = 3, type = "select", name = L["Outline"], values = fontBorders },
+							color = { order = 4, type = "color", name = L["Color"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+						},
+					},
+					position = {
+						order = 1,
+						type = "group",
+						inline = true,
+						name = L["Position"],
+						args = {
+							anchor = { order = 0, type = "select", name = L["Anchor"], values = anchorPoints },
+							xOffset = { order = 1, type = "range", name = L["X Offset"], min = -50, max = 50, step = 1 },
+							yOffset = { order = 2, type = "range", name = L["Y Offset"], min = -50, max = 50, step = 1 },
+						},
+					},
+					shadow = {
+						order = 2,
+						type = "group",
+						inline = true,
+						name = L["Shadow"],
+						args = {
+							enable = { order = 0, type = "toggle", name = L["Enable"] },
+							color = { order = 1, type = "color", name = L["Color"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+							xOffset = { order = 2, type = "range", name = L["X Offset"], min = -5, max = 5, step = 0.1 },
+							yOffset = { order = 3, type = "range", name = L["Y Offset"], min = -5, max = 5, step = 0.1 },
+						},
+					},
+				},
+			},
+			auraTimer = {
+				order = 3,
+				type = "group",
+				name = L["Aura Timer"],
+				args = {
+					general = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["General"],
+						args = {
+							enable = { order = 0, type = "toggle", name = L["Enable"] },
+							showDecimals = { order = 1, type = "toggle", name = L["Show Decimals"] },
+							hideExternalTimer = { order = 2, type = "toggle", name = L["Hide External Cooldown Text"], desc = L["Hide OmniCC/TullaCC text while the built-in timer is visible."] },
+							name = { order = 3, type = "select", name = L["Font"], values = GetFontValues },
+							size = { order = 4, type = "range", name = L["Size"], min = 6, max = 36, step = 1 },
+							border = { order = 5, type = "select", name = L["Outline"], values = fontBorders },
+							color = { order = 6, type = "color", name = L["Color"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+						},
+					},
+					position = {
+						order = 1,
+						type = "group",
+						inline = true,
+						name = L["Position"],
+						disabled = IsAuraTimerDisabled,
+						args = {
+							anchor = { order = 0, type = "select", name = L["Anchor"], values = anchorPoints },
+							xOffset = { order = 1, type = "range", name = L["X Offset"], min = -50, max = 50, step = 1 },
+							yOffset = { order = 2, type = "range", name = L["Y Offset"], min = -50, max = 50, step = 1 },
+						},
+					},
+					shadow = {
+						order = 2,
+						type = "group",
+						inline = true,
+						name = L["Shadow"],
+						disabled = IsAuraTimerDisabled,
+						args = {
+							enable = { order = 0, type = "toggle", name = L["Enable"] },
+							color = { order = 1, type = "color", name = L["Color"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+							xOffset = { order = 2, type = "range", name = L["X Offset"], min = -5, max = 5, step = 0.1 },
+							yOffset = { order = 3, type = "range", name = L["Y Offset"], min = -5, max = 5, step = 0.1 },
+						},
+					},
+				},
+			},
+			swipeAnimation = {
+				order = 4,
+				type = "group",
+				name = L["Swipe Animation"],
+				args = {
+					texture = { order = 0, type = "select", name = L["Texture"], values = GetSwipeTextureValues },
+					showSwipe = { order = 1, type = "toggle", name = L["Show Swipe"] },
+					invertSwipe = { order = 2, type = "toggle", name = L["Invert Swipe"] },
+				},
+			},
+			borderColors = {
+				order = 5,
+				type = "group",
+				name = L["Aura Border Colors"],
+				args = {
+					useTypeColors = { order = 0, type = "toggle", name = L["Use Type Colors"] },
+					important = { order = 1, type = "color", name = L["Important"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+					dispellable = { order = 2, type = "color", name = L["Dispellable"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+					enrage = { order = 3, type = "color", name = L["Enrage"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+					buff = { order = 4, type = "color", name = L["Buff"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+					crowdControl = { order = 5, type = "color", name = L["Crowd Control"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+					offensiveCD = { order = 6, type = "color", name = L["Offensive Cooldown"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+					defensiveCD = { order = 7, type = "color", name = L["Defensive Cooldown"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+					default = { order = 8, type = "color", name = L["Default"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
+				},
+			},
+			tracking = {
+				order = 6,
+				type = "group",
+				name = L["Tracking"],
+				childGroups = "tab",
+				args = {
+					mode = {
+						order = 0,
+						type = "group",
+						inline = true,
+						name = L["Aura Tracking Method"],
+						args = {
+							mode = { order = 0, type = "select", name = L["Mode"], values = {AUTOMATIC = L["Automatic"], MANUAL = L["Manual"]} },
+						},
+					},
+					automatic = {
+						order = 1,
+						type = "group",
+						inline = true,
+						name = L["Automatic Aura Tracking"],
+						disabled = function() return not IsAutomaticTracking() end,
+						args = {
+							showPlayerAuras = { order = 0, type = "toggle", name = L["Show Player Auras"] },
+							showOtherPlayerAuras = { order = 1, type = "toggle", name = L["Show Other Player Auras"] },
+							showImportantAuras = { order = 2, type = "toggle", name = L["Show Important Auras"] },
+							showDispellableBuffs = { order = 3, type = "toggle", name = L["Show Dispellable Buffs"] },
+							showEnrageBuffs = { order = 4, type = "toggle", name = L["Show Enrage Buffs"] },
+							showMagicBuffs = { order = 5, type = "toggle", name = L["Show Magic Buffs"] },
+							showCrowdControl = { order = 6, type = "toggle", name = L["Show Crowd Control"] },
+							showNpcBuffs = { order = 7, type = "toggle", name = L["Show NPC Buffs"] },
+							showNpcDebuffs = { order = 8, type = "toggle", name = L["Show NPC Debuffs"] },
+							onlyShortDispellableOnPlayers = { order = 9, type = "toggle", name = L["Only Short Dispellable Buffs on Players"] },
+							showOtherNPCAuras = { order = 10, type = "toggle", name = L["Show Other NPC Auras"] },
+						},
+					},
+					blacklistDebuffs = {
+						order = 0,
+						type = "group",
+						name = L["Debuff Blacklist"],
+						args = {
+							entries = { order = 0, type = "multiselect", name = L["Click an entry to remove it."], values = function() return BuildAuraListValues("blacklistDebuffs") end, get = function() return false end, set = function(_, key) RemoveAuraFromList("blacklistDebuffs", key) end, width = "full" },
+							addByName = { order = 1, type = "execute", name = L["Add Debuff by Name"], func = function() ShowAuraPrompt("blacklistDebuffs", "NAME") end },
+							addByID = { order = 2, type = "execute", name = L["Add Debuff by ID"], func = function() ShowAuraPrompt("blacklistDebuffs", "ID") end },
+						},
+					},
+					blacklistBuffs = {
+						order = 1,
+						type = "group",
+						name = L["Buff Blacklist"],
+						args = {
+							entries = { order = 0, type = "multiselect", name = L["Click an entry to remove it."], values = function() return BuildAuraListValues("blacklistBuffs") end, get = function() return false end, set = function(_, key) RemoveAuraFromList("blacklistBuffs", key) end, width = "full" },
+							addByName = { order = 1, type = "execute", name = L["Add Buff by Name"], func = function() ShowAuraPrompt("blacklistBuffs", "NAME") end },
+							addByID = { order = 2, type = "execute", name = L["Add Buff by ID"], func = function() ShowAuraPrompt("blacklistBuffs", "ID") end },
+						},
+					},
+					extraDebuffs = {
+						order = 2,
+						type = "group",
+						name = L["Extra Debuffs"],
+						args = {
+							entries = { order = 0, type = "multiselect", name = L["Click an entry to remove it."], values = function() return BuildAuraListValues("extraDebuffs") end, get = function() return false end, set = function(_, key) RemoveAuraFromList("extraDebuffs", key) end, width = "full" },
+							addByName = { order = 1, type = "execute", name = L["Add Debuff by Name"], func = function() ShowAuraPrompt("extraDebuffs", "NAME") end },
+							addByID = { order = 2, type = "execute", name = L["Add Debuff by ID"], func = function() ShowAuraPrompt("extraDebuffs", "ID") end },
+						},
+					},
+					extraBuffs = {
+						order = 3,
+						type = "group",
+						name = L["Extra Buffs"],
+						args = {
+							entries = { order = 0, type = "multiselect", name = L["Click an entry to remove it."], values = function() return BuildAuraListValues("extraBuffs") end, get = function() return false end, set = function(_, key) RemoveAuraFromList("extraBuffs", key) end, width = "full" },
+							addByName = { order = 1, type = "execute", name = L["Add Buff by Name"], func = function() ShowAuraPrompt("extraBuffs", "NAME") end },
+							addByID = { order = 2, type = "execute", name = L["Add Buff by ID"], func = function() ShowAuraPrompt("extraBuffs", "ID") end },
+						},
+					},
+				},
+			},
+		},
 	}
 	options.args.stacking = {
 		order = 9,
