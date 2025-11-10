@@ -127,7 +127,7 @@ function Auras:EnsureIconCooldownProvider(icon)
 			icon.cooldownProvider:Detach(icon)
 		end
 		if provider and provider.Attach then
-			provider:Attach(icon, self)
+			provider:Attach(icon, self, self.swipe)
 		end
 		icon.cooldownProvider = provider
 	end

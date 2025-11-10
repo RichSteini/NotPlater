@@ -1,5 +1,19 @@
 local Swirl = {}
 NotPlater.AuraCooldownSwirl = Swirl
+local START_DEGREES = 0
+local DEFAULT_EDGE_TEXTURE = "Texture 3"
+
+local function ApplyEdgeTexture(holder, config)
+	if not holder or not holder.edgeTexture then
+		return
+	end
+	local textures = NotPlater.auraSwipeTextures
+	local textureKey = config and config.texture
+	local texture = (textureKey and textures and textures[textureKey]) or (textures and textures[DEFAULT_EDGE_TEXTURE])
+	if texture then
+		holder.edgeTexture:SetTexture(texture)
+	end
+end
 
 local function HolderOnUpdate(holder)
     if not holder.active then
@@ -12,6 +26,7 @@ local function HolderOnUpdate(holder)
         holder:Hide()
         return
     end
+
     local left, bottom = icon:GetLeft(), icon:GetBottom()
     local iconScale = icon:GetEffectiveScale() or 1
     local uiScale = UIParent:GetEffectiveScale() or 1
@@ -25,6 +40,7 @@ local function HolderOnUpdate(holder)
             holder.lastBottom = bottom
         end
     end
+
     local width = icon:GetWidth() * iconScale / uiScale
     local height = icon:GetHeight() * iconScale / uiScale
     if width and height then
@@ -37,6 +53,7 @@ local function HolderOnUpdate(holder)
             holder.lastHeight = height
         end
     end
+
     local ikonLevel = (icon:GetFrameLevel() or 0) + 3
     if holder.lastLevel ~= ikonLevel then
         holder:SetFrameLevel(ikonLevel)
@@ -45,6 +62,7 @@ local function HolderOnUpdate(holder)
         end
         holder.lastLevel = ikonLevel
     end
+
     local strata = icon:GetFrameStrata() or "MEDIUM"
     if holder.lastStrata ~= strata then
         holder:SetFrameStrata(strata)
@@ -53,6 +71,7 @@ local function HolderOnUpdate(holder)
         end
         holder.lastStrata = strata
     end
+
     -- Custom edge update
     if holder.start and holder.duration then
         local progress = (GetTime() - holder.start) / holder.duration
@@ -61,64 +80,67 @@ local function HolderOnUpdate(holder)
             return
         end
         local angle = progress * 360
-        if holder.reverse then
+        if not holder.reverse then
             angle = -angle
         end
-        angle = angle - 90
+        angle = angle + START_DEGREES
         holder.edgeTexture:SetRotation(math.rad(angle))
     end
+
     holder:Show()
 end
 
-function Swirl:Attach(icon)
-    if icon.swirlCooldownHolder then
-        return
-    end
-    local holder = CreateFrame("Frame", nil, UIParent)
-    holder:SetFrameStrata(icon:GetFrameStrata())
-    holder:SetFrameLevel(icon:GetFrameLevel() + 3)
-    holder:Hide()
+function Swirl:Attach(icon, module, config)
+	if icon.swirlCooldownHolder then
+		ApplyEdgeTexture(icon.swirlCooldownHolder, config)
+		return icon.swirlCooldownHolder
+	end
+
+	local holder = CreateFrame("Frame", nil, UIParent)
+	holder:SetFrameStrata(icon:GetFrameStrata())
+	holder:SetFrameLevel(icon:GetFrameLevel() + 3)
+	holder:Hide()
+
     local cooldown = CreateFrame("Frame", nil, holder)
     cooldown:SetAllPoints()
     cooldown:SetFrameLevel(holder:GetFrameLevel() + 1)
     cooldown:Hide()
-    -- Left half
-    cooldown.left_half = CreateFrame("Frame", nil, cooldown)
+
+    -- Left half using ScrollFrame for clipping
+    cooldown.left_half = CreateFrame("ScrollFrame", nil, cooldown)
     cooldown.left_half:SetPoint("TOPLEFT")
     cooldown.left_half:SetPoint("BOTTOMLEFT")
-    if cooldown.left_half.SetClipsChildren then
-        cooldown.left_half:SetClipsChildren(true)
-    end
-    cooldown.left_rotator = cooldown.left_half:CreateTexture(nil, "BACKGROUND")
+    cooldown.left_content = CreateFrame("Frame", nil, cooldown.left_half)
+    cooldown.left_half:SetScrollChild(cooldown.left_content)
+    cooldown.left_half:SetHorizontalScroll(0)
+    cooldown.left_half:SetVerticalScroll(0)
+    cooldown.left_rotator = cooldown.left_content:CreateTexture(nil, "BACKGROUND")
     cooldown.left_rotator:SetBlendMode("BLEND")
     cooldown.left_ag = cooldown.left_rotator:CreateAnimationGroup()
     cooldown.left_rot = cooldown.left_ag:CreateAnimation("Rotation")
     cooldown.left_rot:SetOrigin("RIGHT", 0, 0)
-    cooldown.left_ag:SetScript("OnFinished", function()
-        cooldown.left_rotator:SetRotation(0)
-    end)
-    -- Right half
-    cooldown.right_half = CreateFrame("Frame", nil, cooldown)
+
+    -- Right half using ScrollFrame for clipping
+    cooldown.right_half = CreateFrame("ScrollFrame", nil, cooldown)
     cooldown.right_half:SetPoint("TOPRIGHT")
     cooldown.right_half:SetPoint("BOTTOMRIGHT")
-    if cooldown.right_half.SetClipsChildren then
-        cooldown.right_half:SetClipsChildren(true)
-    end
-    cooldown.right_rotator = cooldown.right_half:CreateTexture(nil, "BACKGROUND")
+    cooldown.right_content = CreateFrame("Frame", nil, cooldown.right_half)
+    cooldown.right_half:SetScrollChild(cooldown.right_content)
+    cooldown.right_half:SetHorizontalScroll(0)
+    cooldown.right_half:SetVerticalScroll(0)
+    cooldown.right_rotator = cooldown.right_content:CreateTexture(nil, "BACKGROUND")
     cooldown.right_rotator:SetBlendMode("BLEND")
     cooldown.right_ag = cooldown.right_rotator:CreateAnimationGroup()
     cooldown.right_rot = cooldown.right_ag:CreateAnimation("Rotation")
     cooldown.right_rot:SetOrigin("LEFT", 0, 0)
-    cooldown.right_ag:SetScript("OnFinished", function()
-        cooldown.right_rotator:SetRotation(0)
-        cooldown:SetAlpha(0)
-    end)
+
     -- Edge texture
-    holder.edgeTexture = holder:CreateTexture(nil, "OVERLAY")
-    holder.edgeTexture:SetTexture("Interface\\Cooldown\\edge")
-    holder.edgeTexture:SetBlendMode("ADD")
-    holder.edgeTexture:SetPoint("TOPLEFT", holder, "TOPLEFT", -3, 3)
-    holder.edgeTexture:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 3, -3)
+	holder.edgeTexture = holder:CreateTexture(nil, "OVERLAY")
+	holder.edgeTexture:SetBlendMode("ADD")
+	holder.edgeTexture:SetPoint("TOPLEFT", holder, "TOPLEFT", -3, 3)
+	holder.edgeTexture:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 3, -3)
+	ApplyEdgeTexture(holder, config)
+
     -- Update sizes function
     function cooldown:UpdateSizes(w, h)
         local half_w = w / 2
@@ -126,19 +148,21 @@ function Swirl:Attach(icon)
         local rot_h = h * 2
         self.left_half:SetWidth(half_w)
         self.left_half:SetHeight(h)
+        self.left_content:SetSize(rot_w, rot_h)
         self.left_rotator:SetSize(rot_w, rot_h)
         self.left_rotator:ClearAllPoints()
-        self.left_rotator:SetPoint("RIGHT", self.left_half, "RIGHT", 0, 0)
-        self.left_rotator:SetPoint("TOP", self.left_half, "TOP", 0, -h)
+        self.left_rotator:SetPoint("RIGHT", self.left_content, "TOPLEFT", half_w, -h/2)
         self.right_half:SetWidth(half_w)
         self.right_half:SetHeight(h)
+        self.right_content:SetSize(rot_w, rot_h)
         self.right_rotator:SetSize(rot_w, rot_h)
         self.right_rotator:ClearAllPoints()
-        self.right_rotator:SetPoint("LEFT", self.right_half, "LEFT", 0, 0)
-        self.right_rotator:SetPoint("TOP", self.right_half, "TOP", 0, -h)
+        self.right_rotator:SetPoint("LEFT", self.right_content, "TOPLEFT", 0, -h/2)
     end
-    holder.cooldown = cooldown
-    icon.swirlCooldownHolder = holder
+
+	holder.cooldown = cooldown
+	icon.swirlCooldownHolder = holder
+	return holder
 end
 
 function Swirl:Setup(icon, aura, config, module)
@@ -146,8 +170,8 @@ function Swirl:Setup(icon, aura, config, module)
         self:Reset(icon)
         return
     end
-    self:Attach(icon)
-    local holder = icon.swirlCooldownHolder
+
+	local holder = self:Attach(icon, module, config)
     if not holder then
         return
     end
@@ -155,6 +179,7 @@ function Swirl:Setup(icon, aura, config, module)
     if not cooldown then
         return
     end
+
     holder.icon = icon
     holder:SetFrameStrata(icon:GetFrameStrata())
     holder:SetFrameLevel(icon:GetFrameLevel() + 3)
@@ -164,33 +189,27 @@ function Swirl:Setup(icon, aura, config, module)
     holder.lastHeight = nil
     holder.active = true
     holder:SetScript("OnUpdate", HolderOnUpdate)
-    local reverse = config and config.invertSwipe or false
+
+    local reverse = config and config.invertSwipe or true
     holder.reverse = reverse
+
     local hideExternal = module and module.auraTimer and module.auraTimer.general and module.auraTimer.general.hideExternalTimer
     -- noCooldownCount for external timers like OmniCC
     icon.noCooldownCount = hideExternal or nil
-    local texture
-    if NotPlater.auraSwipeTextures then
-        texture = (config and config.texture and NotPlater.auraSwipeTextures[config.texture]) or NotPlater.auraSwipeTextures["Texture 3"]
-    end
-    if texture then
-        cooldown.left_rotator:SetTexture(texture)
-        cooldown.right_rotator:SetTexture(texture)
-        cooldown.left_rotator:SetVertexColor(0, 0, 0, 0.6)
-        cooldown.right_rotator:SetVertexColor(0, 0, 0, 0.6)
-    else
-        cooldown.left_rotator:SetTexture("Interface\\Buttons\\WHITE8x8")
-        cooldown.right_rotator:SetTexture("Interface\\Buttons\\WHITE8x8")
-        cooldown.left_rotator:SetVertexColor(0, 0, 0, 0.6)
-        cooldown.right_rotator:SetVertexColor(0, 0, 0, 0.6)
-    end
+
+    cooldown.left_rotator:SetTexture("Interface\\Buttons\\WHITE8x8")
+    cooldown.right_rotator:SetTexture("Interface\\Buttons\\WHITE8x8")
+    cooldown.left_rotator:SetVertexColor(0, 0, 0, 0.6)
+    cooldown.right_rotator:SetVertexColor(0, 0, 0, 0.6)
+
     local duration = aura.duration or 0
     local start = (aura.expirationTime or 0) - duration
     holder.start = start
     holder.duration = duration
+
     -- Setup animations
-    local initial_angle = reverse and 180 or 0
-    local degrees = reverse and -180 or 180
+    local initial_angle = (reverse and 180 or 0) + START_DEGREES
+    local degrees = reverse and 180 or -180
     local first_rot, second_rot, first_ag, second_ag
     if not reverse then
         first_rot = cooldown.right_rot
@@ -203,6 +222,7 @@ function Swirl:Setup(icon, aura, config, module)
         first_ag = cooldown.left_ag
         second_ag = cooldown.right_ag
     end
+
     first_rot:SetDegrees(degrees)
     first_rot:SetDuration(duration / 2)
     first_rot:SetStartDelay(0)
@@ -211,11 +231,22 @@ function Swirl:Setup(icon, aura, config, module)
     second_rot:SetDuration(duration / 2)
     second_rot:SetStartDelay(duration / 2)
     second_rot:SetSmoothing("NONE")
+
+    -- Set OnFinished dynamically
+    first_ag:SetScript("OnFinished", function(self)
+        self:GetParent():SetRotation(0)
+    end)
+    second_ag:SetScript("OnFinished", function(self)
+        self:GetParent():SetRotation(0)
+        cooldown:SetAlpha(0)
+    end)
+
     -- Reset rotations
     cooldown.left_rotator:SetRotation(math.rad(initial_angle))
     cooldown.right_rotator:SetRotation(math.rad(initial_angle))
     cooldown:SetAlpha(1)
     holder.edgeTexture:Show()
+
     -- Play animations
     first_ag:Play()
     second_ag:Play()
