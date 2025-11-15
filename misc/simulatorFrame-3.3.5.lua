@@ -324,6 +324,7 @@ function NotPlater:SimulatorFrameOnShow()
     NotPlater.simulatorFrame.defaultFrame:SetFrameStrata(NotPlater.simulatorFrame:GetFrameStrata())
     if NotPlater.SimulatorAuras and NotPlater.SimulatorAuras.OnShow then
         NotPlater.SimulatorAuras:OnShow()
+        NotPlater:SimulatorReload()
     end
 end
 
