@@ -912,9 +912,9 @@ local function LoadOptions()
 						order = 1,
 						type = "group",
 						inline = true,
-						name = L["Aura Frame 2 (Debuffs)"],
+						name = L["Aura Frame 2 (Buffs)"],
 						args = {
-							enable = { order = 0, type = "toggle", name = L["Enable"], desc = L["When enabled, buffs are shown in Aura Frame 1 and debuffs in Aura Frame 2."] },
+							enable = { order = 0, type = "toggle", name = L["Enable"], desc = L["When enabled, debuffs are shown in Aura Frame 1 and buffs in Aura Frame 2."] },
 							growDirection = { order = 1, type = "select", name = L["Grow Direction"], values = auraGrowthDirections, disabled = IsAuraFrame2Disabled },
 							anchor = { order = 2, type = "select", name = L["Anchor"], values = anchorPoints, disabled = IsAuraFrame2Disabled },
 							xOffset = { order = 3, type = "range", name = L["X Offset"], min = -100, max = 100, step = 1, disabled = IsAuraFrame2Disabled },
