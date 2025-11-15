@@ -164,6 +164,7 @@ NotPlaterLocals = {
 	["Status Bar"] = "Status Bar",
 	["Swipe Animation"] = "Swipe Animation",
 	["Swirl"] = "Swirl",
+	["Swirl animation warning message"] = "Warning: the swirl cooldown uses Blizzard's legacy client templates and may flicker or disappear unless units are standing still.",
 	["Tracked Units"] = "Tracked Units",
 	["Combat Log Tracking"] = "Combat Log Tracking",
 	["Learns aura durations from the combat log so timers persist after you stop targeting a unit. Timers may be inaccurate until the addon has seen an aura at least twice."] = "Learns aura durations from the combat log so timers persist after you stop targeting a unit. Timers may be inaccurate until the addon has seen an aura at least twice.",

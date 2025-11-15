@@ -1,305 +1,164 @@
+if not NotPlater then
+	return
+end
+
 local Swirl = {}
 NotPlater.AuraCooldownSwirl = Swirl
-local START_DEGREES = 0
+
+local CreateFrame = CreateFrame
+local CooldownFrame_SetTimer = CooldownFrame_SetTimer
+local CooldownFrame_SetReverse = CooldownFrame_SetReverse
+local CooldownFrame_SetDrawEdge = CooldownFrame_SetDrawEdge
+
 local DEFAULT_EDGE_TEXTURE = "Texture 3"
 
-local function ApplyEdgeTexture(holder, config)
-	if not holder or not holder.edgeTexture then
+local function ResolveEdgeTexture(config)
+	local textures = NotPlater.auraSwipeTextures
+	if not textures then
+		return nil
+	end
+	local key = config and config.texture
+	return (key and textures[key]) or textures[DEFAULT_EDGE_TEXTURE]
+end
+
+local function ApplyEdgeTexture(cooldown, config)
+	if not cooldown then
 		return
 	end
-	local textures = NotPlater.auraSwipeTextures
-	local textureKey = config and config.texture
-	local texture = (textureKey and textures and textures[textureKey]) or (textures and textures[DEFAULT_EDGE_TEXTURE])
+	local texture = ResolveEdgeTexture(config)
 	if texture then
-		holder.edgeTexture:SetTexture(texture)
+		if cooldown.SetEdgeTexture then
+			cooldown:SetEdgeTexture(texture)
+		elseif cooldown.SetSwipeTexture then
+			cooldown:SetSwipeTexture(texture)
+		end
+	end
+	if cooldown.SetDrawEdge then
+		cooldown:SetDrawEdge(true)
+	elseif CooldownFrame_SetDrawEdge then
+		CooldownFrame_SetDrawEdge(cooldown, true)
 	end
 end
 
-local function HolderOnUpdate(holder)
-    if not holder.active then
-        return
-    end
-    local icon = holder.icon
-    if not icon or not icon:IsShown() or not icon:IsVisible() then
-        holder.active = nil
-        holder:SetScript("OnUpdate", nil)
-        holder:Hide()
-        return
-    end
+local function ApplyReverse(cooldown, config)
+	if not cooldown then
+		return
+	end
+	local reverse = true
+	if config and config.invertSwipe then
+		reverse = false
+	end
+	if cooldown.SetReverse then
+		cooldown:SetReverse(reverse)
+		elseif CooldownFrame_SetReverse then
+		CooldownFrame_SetReverse(cooldown, reverse)
+	end
+end
 
-    local left, bottom = icon:GetLeft(), icon:GetBottom()
-    local iconScale = icon:GetEffectiveScale() or 1
-    local uiScale = UIParent:GetEffectiveScale() or 1
-    if left and bottom then
-        left = left * iconScale / uiScale
-        bottom = bottom * iconScale / uiScale
-        if holder.lastLeft ~= left or holder.lastBottom ~= bottom then
-            holder:ClearAllPoints()
-            holder:SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", left, bottom)
-            holder.lastLeft = left
-            holder.lastBottom = bottom
-        end
-    end
+local function ApplyCooldownConfig(icon, config)
+	local cooldown = icon and icon.swirlCooldown
+	if not icon or not cooldown then
+		return
+	end
+	cooldown:ClearAllPoints()
+	cooldown:SetAllPoints(icon)
+	cooldown:SetFrameStrata(icon:GetFrameStrata())
+	cooldown:SetFrameLevel((icon:GetFrameLevel() or 0) + 3)
+	ApplyReverse(cooldown, config)
+	ApplyEdgeTexture(cooldown, config)
+	if cooldown.SetSwipeColor then
+		cooldown:SetSwipeColor(0, 0, 0, 0.6)
+	end
+	if cooldown.SetDrawBling then
+		cooldown:SetDrawBling(false)
+	end
+end
 
-    local width = icon:GetWidth() * iconScale / uiScale
-    local height = icon:GetHeight() * iconScale / uiScale
-    if width and height then
-        if holder.lastWidth ~= width or holder.lastHeight ~= height then
-            holder:SetSize(width, height)
-            if holder.cooldown then
-                holder.cooldown:UpdateSizes(width, height)
-            end
-            holder.lastWidth = width
-            holder.lastHeight = height
-        end
-    end
+local function StartCooldown(cooldown, start, duration)
+	if not cooldown then
+		return
+	end
+	if cooldown.SetCooldown then
+		cooldown:SetCooldown(start, duration)
+	elseif CooldownFrame_SetTimer then
+		CooldownFrame_SetTimer(cooldown, start, duration, duration > 0 and 1 or 0)
+	end
+end
 
-    local ikonLevel = (icon:GetFrameLevel() or 0) + 3
-    if holder.lastLevel ~= ikonLevel then
-        holder:SetFrameLevel(ikonLevel)
-        if holder.cooldown then
-            holder.cooldown:SetFrameLevel(ikonLevel)
-        end
-        holder.lastLevel = ikonLevel
-    end
-
-    local strata = icon:GetFrameStrata() or "MEDIUM"
-    if holder.lastStrata ~= strata then
-        holder:SetFrameStrata(strata)
-        if holder.cooldown then
-            holder.cooldown:SetFrameStrata(strata)
-        end
-        holder.lastStrata = strata
-    end
-
-    -- Custom edge update
-    if holder.start and holder.duration then
-        local progress = (GetTime() - holder.start) / holder.duration
-        if progress >= 1 then
-            Swirl:Reset(icon)
-            return
-        end
-        local angle = progress * 360
-        if not holder.reverse then
-            angle = -angle
-        end
-        angle = angle + START_DEGREES
-        holder.edgeTexture:SetRotation(math.rad(angle))
-    end
-
-    holder:Show()
+local function ClearCooldown(cooldown)
+	if not cooldown then
+		return
+	end
+	if cooldown.Clear then
+		cooldown:Clear()
+	elseif cooldown.SetCooldown then
+		cooldown:SetCooldown(0, 0)
+	elseif CooldownFrame_SetTimer then
+		CooldownFrame_SetTimer(cooldown, 0, 0, 0)
+	end
 end
 
 function Swirl:Attach(icon, module, config)
-	if icon.swirlCooldownHolder then
-		ApplyEdgeTexture(icon.swirlCooldownHolder, config)
-		return icon.swirlCooldownHolder
+	if icon.swirlCooldown then
+		ApplyCooldownConfig(icon, config)
+		return icon.swirlCooldown
 	end
-
-	local holder = CreateFrame("Frame", nil, UIParent)
-	holder:SetFrameStrata(icon:GetFrameStrata())
-	holder:SetFrameLevel(icon:GetFrameLevel() + 3)
-	holder:Hide()
-
-    local cooldown = CreateFrame("Frame", nil, holder)
-    cooldown:SetAllPoints()
-    cooldown:SetFrameLevel(holder:GetFrameLevel() + 1)
-    cooldown:Hide()
-
-    -- Left half using ScrollFrame for clipping
-    cooldown.left_half = CreateFrame("ScrollFrame", nil, cooldown)
-    cooldown.left_half:SetPoint("TOPLEFT")
-    cooldown.left_half:SetPoint("BOTTOMLEFT")
-    cooldown.left_content = CreateFrame("Frame", nil, cooldown.left_half)
-    cooldown.left_half:SetScrollChild(cooldown.left_content)
-    cooldown.left_half:SetHorizontalScroll(0)
-    cooldown.left_half:SetVerticalScroll(0)
-    cooldown.left_rotator = cooldown.left_content:CreateTexture(nil, "BACKGROUND")
-    cooldown.left_rotator:SetBlendMode("BLEND")
-    cooldown.left_ag = cooldown.left_rotator:CreateAnimationGroup()
-    cooldown.left_rot = cooldown.left_ag:CreateAnimation("Rotation")
-    cooldown.left_rot:SetOrigin("RIGHT", 0, 0)
-
-    -- Right half using ScrollFrame for clipping
-    cooldown.right_half = CreateFrame("ScrollFrame", nil, cooldown)
-    cooldown.right_half:SetPoint("TOPRIGHT")
-    cooldown.right_half:SetPoint("BOTTOMRIGHT")
-    cooldown.right_content = CreateFrame("Frame", nil, cooldown.right_half)
-    cooldown.right_half:SetScrollChild(cooldown.right_content)
-    cooldown.right_half:SetHorizontalScroll(0)
-    cooldown.right_half:SetVerticalScroll(0)
-    cooldown.right_rotator = cooldown.right_content:CreateTexture(nil, "BACKGROUND")
-    cooldown.right_rotator:SetBlendMode("BLEND")
-    cooldown.right_ag = cooldown.right_rotator:CreateAnimationGroup()
-    cooldown.right_rot = cooldown.right_ag:CreateAnimation("Rotation")
-    cooldown.right_rot:SetOrigin("LEFT", 0, 0)
-
-    -- Edge texture
-	holder.edgeTexture = holder:CreateTexture(nil, "OVERLAY")
-	holder.edgeTexture:SetBlendMode("ADD")
-	holder.edgeTexture:SetPoint("TOPLEFT", holder, "TOPLEFT", -3, 3)
-	holder.edgeTexture:SetPoint("BOTTOMRIGHT", holder, "BOTTOMRIGHT", 3, -3)
-	ApplyEdgeTexture(holder, config)
-
-    -- Update sizes function
-    function cooldown:UpdateSizes(w, h)
-        local half_w = w / 2
-        local rot_w = w
-        local rot_h = h * 2
-        self.left_half:SetWidth(half_w)
-        self.left_half:SetHeight(h)
-        self.left_content:SetSize(rot_w, rot_h)
-        self.left_rotator:SetSize(rot_w, rot_h)
-        self.left_rotator:ClearAllPoints()
-        self.left_rotator:SetPoint("RIGHT", self.left_content, "TOPLEFT", half_w, -h/2)
-        self.right_half:SetWidth(half_w)
-        self.right_half:SetHeight(h)
-        self.right_content:SetSize(rot_w, rot_h)
-        self.right_rotator:SetSize(rot_w, rot_h)
-        self.right_rotator:ClearAllPoints()
-        self.right_rotator:SetPoint("LEFT", self.right_content, "TOPLEFT", 0, -h/2)
-    end
-
-	holder.cooldown = cooldown
-	icon.swirlCooldownHolder = holder
-	return holder
+	local cooldown = CreateFrame("Cooldown", nil, icon, "CooldownFrameTemplate")
+	cooldown:SetAllPoints(icon)
+	cooldown:Hide()
+	icon.swirlCooldown = cooldown
+	ApplyCooldownConfig(icon, config)
+	return cooldown
 end
 
 function Swirl:Setup(icon, aura, config, module)
-    if not aura or not aura.duration or aura.duration <= 0 then
-        self:Reset(icon)
-        return
-    end
+	if not aura or not aura.duration or aura.duration <= 0 then
+		self:Reset(icon)
+		return
+	end
+	local cooldown = self:Attach(icon, module, config)
+	if not cooldown then
+		return
+	end
 
-	local holder = self:Attach(icon, module, config)
-    if not holder then
-        return
-    end
-    local cooldown = holder.cooldown
-    if not cooldown then
-        return
-    end
+	local duration = aura.duration or 0
+	if duration <= 0 then
+		self:Reset(icon)
+		return
+	end
 
-    holder.icon = icon
-    holder:SetFrameStrata(icon:GetFrameStrata())
-    holder:SetFrameLevel(icon:GetFrameLevel() + 3)
-    holder.lastLeft = nil
-    holder.lastBottom = nil
-    holder.lastWidth = nil
-    holder.lastHeight = nil
-    holder.active = true
-    holder:SetScript("OnUpdate", HolderOnUpdate)
+	local hideExternal = module and module.auraTimer and module.auraTimer.general and module.auraTimer.general.hideExternalTimer
+	icon.noCooldownCount = hideExternal or nil
 
-    local reverse = config and config.invertSwipe or true
-    holder.reverse = reverse
-
-    local hideExternal = module and module.auraTimer and module.auraTimer.general and module.auraTimer.general.hideExternalTimer
-    -- noCooldownCount for external timers like OmniCC
-    icon.noCooldownCount = hideExternal or nil
-
-    cooldown.left_rotator:SetTexture("Interface\\Buttons\\WHITE8x8")
-    cooldown.right_rotator:SetTexture("Interface\\Buttons\\WHITE8x8")
-    cooldown.left_rotator:SetVertexColor(0, 0, 0, 0.6)
-    cooldown.right_rotator:SetVertexColor(0, 0, 0, 0.6)
-
-    local duration = aura.duration or 0
-    local start = (aura.expirationTime or 0) - duration
-    holder.start = start
-    holder.duration = duration
-
-    -- Setup animations
-    local initial_angle = (reverse and 180 or 0) + START_DEGREES
-    local degrees = reverse and 180 or -180
-    local first_rot, second_rot, first_ag, second_ag
-    if not reverse then
-        first_rot = cooldown.right_rot
-        second_rot = cooldown.left_rot
-        first_ag = cooldown.right_ag
-        second_ag = cooldown.left_ag
-    else
-        first_rot = cooldown.left_rot
-        second_rot = cooldown.right_rot
-        first_ag = cooldown.left_ag
-        second_ag = cooldown.right_ag
-    end
-
-    first_rot:SetDegrees(degrees)
-    first_rot:SetDuration(duration / 2)
-    first_rot:SetStartDelay(0)
-    first_rot:SetSmoothing("NONE")
-    second_rot:SetDegrees(degrees)
-    second_rot:SetDuration(duration / 2)
-    second_rot:SetStartDelay(duration / 2)
-    second_rot:SetSmoothing("NONE")
-
-    -- Set OnFinished dynamically
-    first_ag:SetScript("OnFinished", function(self)
-        self:GetParent():SetRotation(0)
-    end)
-    second_ag:SetScript("OnFinished", function(self)
-        self:GetParent():SetRotation(0)
-        cooldown:SetAlpha(0)
-    end)
-
-    -- Reset rotations
-    cooldown.left_rotator:SetRotation(math.rad(initial_angle))
-    cooldown.right_rotator:SetRotation(math.rad(initial_angle))
-    cooldown:SetAlpha(1)
-    holder.edgeTexture:Show()
-
-    -- Play animations
-    first_ag:Play()
-    second_ag:Play()
-    holder:Show()
-    cooldown:Show()
-    icon.swirlCooldownActive = true
+	ApplyCooldownConfig(icon, config)
+	local start = (aura.expirationTime or 0) - duration
+	StartCooldown(cooldown, start, duration)
+	cooldown:Show()
+	icon.swirlCooldownActive = true
 end
 
-function Swirl:Update()
-    -- Custom animation is handled in OnUpdate
+function Swirl:Update(icon, config)
+	ApplyCooldownConfig(icon, config)
 end
 
 function Swirl:Reset(icon)
-    if icon.swirlCooldownHolder then
-        local holder = icon.swirlCooldownHolder
-        holder.active = nil
-        holder:SetScript("OnUpdate", nil)
-        holder:Hide()
-        holder.start = nil
-        holder.duration = nil
-        holder.reverse = nil
-        if holder.cooldown then
-            holder.cooldown:SetAlpha(0)
-            holder.cooldown.left_ag:Stop()
-            holder.cooldown.right_ag:Stop()
-            holder.cooldown.left_rotator:SetRotation(0)
-            holder.cooldown.right_rotator:SetRotation(0)
-            holder.cooldown:Hide()
-        end
-        if holder.edgeTexture then
-            holder.edgeTexture:Hide()
-        end
-    end
-    icon.swirlCooldownActive = nil
+	if not icon then
+		return
+	end
+	local cooldown = icon.swirlCooldown
+	if cooldown then
+		ClearCooldown(cooldown)
+		cooldown:Hide()
+	end
+	icon.swirlCooldownActive = nil
 end
 
 function Swirl:Detach(icon)
-    if icon.swirlCooldownHolder then
-        icon.swirlCooldownHolder.active = nil
-        icon.swirlCooldownHolder:SetScript("OnUpdate", nil)
-        if icon.swirlCooldownHolder.cooldown then
-            icon.swirlCooldownHolder.cooldown:Hide()
-            icon.swirlCooldownHolder.cooldown:SetParent(nil)
-            icon.swirlCooldownHolder.cooldown = nil
-        end
-        if icon.swirlCooldownHolder.edgeTexture then
-            icon.swirlCooldownHolder.edgeTexture:SetParent(nil)
-            icon.swirlCooldownHolder.edgeTexture = nil
-        end
-        icon.swirlCooldownHolder.icon = nil
-        icon.swirlCooldownHolder:Hide()
-        icon.swirlCooldownHolder:SetParent(nil)
-        icon.swirlCooldownHolder = nil
-    end
-    icon.swirlCooldownActive = nil
+	if not icon or not icon.swirlCooldown then
+		icon.swirlCooldownActive = nil
+		return
+	end
+	self:Reset(icon)
+	icon.swirlCooldown:SetParent(nil)
+	icon.swirlCooldown = nil
 end

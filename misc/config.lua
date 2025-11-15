@@ -348,8 +348,10 @@ local swipeStyleValues = {
 
 local function IsSwipeTextureDisabled(info)
 	local db = TraverseBuffDB(info)
-	db.swipeAnimation = db.swipeAnimation or {}
-	return (db.swipeAnimation.style or "vertical") ~= "swirl"
+	if not db then
+		return true
+	end
+	return (db.style or "vertical") ~= "swirl"
 end
 
 local function NotifyAuraOptions()
@@ -414,6 +416,13 @@ end
 local function SetTrackedUnitOption(info, value)
 	local unit = info[#info]
 	BuffsSetValue(value, "tracking", "units", unit)
+end
+
+local function SetSwipeStyle(info, value)
+	BuffsSet(info, value)
+	if value == "swirl" then
+		StaticPopup_Show("NOTPLATER_SWIRL_WARNING")
+	end
 end
 
 local trackedUnitArgs = {
@@ -603,6 +612,19 @@ StaticPopupDialogs["NOTPLATER_AURA_PROMPT"] = {
 		parent.button1:Click()
 	end,
 	text = "",
+}
+
+StaticPopupDialogs["NOTPLATER_SWIRL_WARNING"] = {
+	button1 = OKAY,
+	timeout = 0,
+	whileDead = true,
+	hideOnEscape = true,
+	preferredIndex = 3,
+	OnShow = function(self)
+		self:SetFrameStrata("FULLSCREEN_DIALOG")
+		self:Raise()
+	end,
+	text = L["Swirl animation warning message"],
 }
 
 local function GetAnchors(frame)
@@ -1049,7 +1071,7 @@ local function LoadOptions()
 				type = "group",
 				name = L["Swipe Animation"],
 				args = {
-					style = { order = 0, type = "select", name = L["Cooldown Style"], values = swipeStyleValues },
+					style = { order = 0, type = "select", name = L["Cooldown Style"], values = swipeStyleValues, set = SetSwipeStyle },
 					texture = { order = 1, type = "select", name = L["Texture"], values = GetSwipeTextureValues, disabled = IsSwipeTextureDisabled },
 					showSwipe = { order = 2, type = "toggle", name = L["Show Swipe"] },
 					invertSwipe = { order = 3, type = "toggle", name = L["Invert Swipe"] },
