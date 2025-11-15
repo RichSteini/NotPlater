@@ -461,7 +461,7 @@ function NotPlater:LoadDefaultConfig()
                     growDirection = "CENTER",
                     anchor = "TOP",
                     xOffset = 0,
-                    yOffset = 5,
+                    yOffset = 10,
                     rowCount = 10,
                     width = 26,
                     height = 16,
@@ -571,8 +571,8 @@ function NotPlater:LoadDefaultConfig()
                     showOnConfig = true
                 },
                 size = {
-                    width = 200,
-                    height = 100
+                    width = 240,
+                    height = 140
                 },
             },
         },
