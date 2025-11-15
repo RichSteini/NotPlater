@@ -254,14 +254,19 @@ function SimulatorAuras:GetDesiredCounts()
 	end
 	local frame1 = clampCount(config.auraFrame1 and config.auraFrame1.rowCount)
 	local hasSecondFrame = config.auraFrame2 and config.auraFrame2.enable
-	local frame2
+	local frame2 = frame1
 	if hasSecondFrame then
 		frame2 = clampCount(config.auraFrame2.rowCount)
-	else
-		frame2 = frame1
 	end
-	local desiredBuffs = frame1
-	local desiredDebuffs = frame2
+	local desiredBuffs
+	local desiredDebuffs
+	if hasSecondFrame then
+		desiredDebuffs = frame1
+		desiredBuffs = frame2
+	else
+		desiredBuffs = frame1
+		desiredDebuffs = frame1
+	end
 	desiredBuffs, desiredDebuffs = applyTotalLimit(desiredBuffs, desiredDebuffs)
 	return desiredBuffs, desiredDebuffs, MAX_TOTAL
 end

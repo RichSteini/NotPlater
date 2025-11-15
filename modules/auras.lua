@@ -966,9 +966,9 @@ function Auras:DisplayAuras(frame, auras)
 	if self.db.auraFrame2 and self.db.auraFrame2.enable then
 		for _, aura in ipairs(auras) do
 			if aura.isDebuff then
-				tinsert(assignments[2], aura)
-			else
 				tinsert(assignments[1], aura)
+			else
+				tinsert(assignments[2], aura)
 			end
 		end
 	else
