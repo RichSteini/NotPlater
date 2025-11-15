@@ -603,6 +603,14 @@ function Auras:ConfigureFrame(frame)
 		local anchor = cfg.anchor or "TOP"
 		local relativeAnchor = NotPlater.oppositeAnchors[anchor] or anchor
 		local relativeFrame = frame.healthBar or frame
+		if index > 1 then
+			local previous = frame.npAuras.frames[index - 1]
+			if previous then
+				relativeFrame = previous
+				-- align to the opposite edge of the previous container so offsets are relative to its top
+				relativeAnchor = NotPlater.oppositeAnchors[anchor] or anchor
+			end
+		end
 		container:SetPoint(relativeAnchor, relativeFrame, anchor, cfg.xOffset or 0, cfg.yOffset or 0)
 		container:SetAlpha(self.general.alpha or 1)
 		self:ConfigureIcons(container, index)
@@ -623,14 +631,18 @@ function Auras:ConfigureIconFonts(icon)
 		self:ApplyFont(icon.stackText, stackConfig)
 		if stackConfig.position then
 			icon.stackText:ClearAllPoints()
-			icon.stackText:SetPoint(stackConfig.position.anchor or "BOTTOMRIGHT", icon, stackConfig.position.anchor or "BOTTOMRIGHT", stackConfig.position.xOffset or -1, stackConfig.position.yOffset or 1)
+			local anchor = stackConfig.position.anchor
+			local relativeAnchor = NotPlater.oppositeAnchors[anchor] or anchor
+			icon.stackText:SetPoint(relativeAnchor, icon, anchor, stackConfig.position.xOffset or -1, stackConfig.position.yOffset or 1)
 		end
 	end
 	if icon.timerText then
 		self:ApplyFont(icon.timerText, timerConfig)
 		if timerConfig.position then
 			icon.timerText:ClearAllPoints()
-			icon.timerText:SetPoint(timerConfig.position.anchor or "TOP", icon, timerConfig.position.anchor or "TOP", timerConfig.position.xOffset or 0, timerConfig.position.yOffset or 0)
+			local anchor = timerConfig.position.anchor
+			local relativeAnchor = NotPlater.oppositeAnchors[anchor] or anchor
+			icon.timerText:SetPoint(relativeAnchor, icon, anchor, timerConfig.position.xOffset or 0, timerConfig.position.yOffset or 0)
 		end
 	end
 end
@@ -716,7 +728,12 @@ function Auras:UpdateFrameAuras(frame, forcedUnit)
 		self:HideContainers(frame)
 		return
 	end
-	local filtered = self:FilterAuras(auras, targetIsPlayer)
+	local filtered
+	if frame.npSimulatedAuras then
+		filtered = auras
+	else
+		filtered = self:FilterAuras(auras, targetIsPlayer)
+	end
 	if #filtered == 0 then
 		self:HideContainers(frame)
 		return

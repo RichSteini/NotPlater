@@ -16,6 +16,7 @@ NotPlater-3.3.5.lua
 
 # Config and utility functions
 misc\simulatorFrame-3.3.5.lua
+misc\simulatorAuras.lua
 misc\configPrototypes.lua
 misc\config.lua
 misc\configDefaults.lua

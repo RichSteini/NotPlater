@@ -14,7 +14,6 @@ local unpack = unpack
 local UIParent = UIParent
 local GameTooltip = GameTooltip
 local GetTime = GetTime
-local UnitGUID = UnitGUID
 
 local L = NotPlaterLocals
 local simulatorFrameConstructed = false
@@ -255,6 +254,9 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
         threatUpdateElapsed = 0
     end
     threatUpdateElapsed = threatUpdateElapsed + elapsed
+    if NotPlater.SimulatorAuras and NotPlater.SimulatorAuras.OnUpdate then
+        NotPlater.SimulatorAuras:OnUpdate(elapsed)
+    end
 end
 
 function NotPlater:ToggleSimulatorFrame()
@@ -285,6 +287,9 @@ function NotPlater:SimulatorReload()
     self:SetSimulatorSize()
     self:PrepareFrame(self.simulatorFrame.defaultFrame)
     --self.simulatorFrame.defaultFrame.castBar.casting = false
+    if self.SimulatorAuras and self.SimulatorAuras.AttachFrame then
+        self.SimulatorAuras:AttachFrame(self.simulatorFrame.defaultFrame)
+    end
 end
 
 function NotPlater:SimulatorFrameOnShow()
@@ -317,6 +322,9 @@ function NotPlater:SimulatorFrameOnShow()
         NotPlater.oldReload(...)
     end
     NotPlater.simulatorFrame.defaultFrame:SetFrameStrata(NotPlater.simulatorFrame:GetFrameStrata())
+    if NotPlater.SimulatorAuras and NotPlater.SimulatorAuras.OnShow then
+        NotPlater.SimulatorAuras:OnShow()
+    end
 end
 
 function NotPlater:SimulatorFrameOnHide()
@@ -325,6 +333,9 @@ function NotPlater:SimulatorFrameOnHide()
     if NotPlater.oldSetNormalFrameStrata then NotPlater.SetNormalFrameStrata = NotPlater.oldSetNormalFrameStrata end
     if NotPlater.oldSetTargetFrameStrata then NotPlater.SetTargetFrameStrata = NotPlater.oldSetTargetFrameStrata end
     if NotPlater.oldReload then NotPlater.Reload = NotPlater.oldReload end
+    if NotPlater.SimulatorAuras and NotPlater.SimulatorAuras.OnHide then
+        NotPlater.SimulatorAuras:OnHide()
+    end
 end
 
 function NotPlater:ConstructSimulatorFrame()
@@ -405,6 +416,9 @@ function NotPlater:ConstructSimulatorFrame()
 
     -- Prepare
     self:PrepareFrame(simulatorFrame.defaultFrame)
+    if self.SimulatorAuras and self.SimulatorAuras.AttachFrame then
+        self.SimulatorAuras:AttachFrame(simulatorFrame.defaultFrame)
+    end
 
     ThreatSimulator:ConstructThreatScenario(6, 2, 2)
 

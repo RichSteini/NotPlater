@@ -79,6 +79,28 @@ function Tracker:EnsureInit()
 	end)
 end
 
+function Tracker:RegisterSimulatorGUID(guid)
+	if not guid then
+		return
+	end
+	self.simulatorGuids = self.simulatorGuids or {}
+	self.simulatorGuids[guid] = true
+end
+
+function Tracker:UnregisterSimulatorGUID(guid)
+	if not guid or not self.simulatorGuids then
+		return
+	end
+	self.simulatorGuids[guid] = nil
+end
+
+function Tracker:IsSimulatedGUID(guid)
+	if not guid or not self.simulatorGuids then
+		return false
+	end
+	return self.simulatorGuids[guid] and true or false
+end
+
 function Tracker:RegisterListener(listener)
 	if not listener then
 		return
@@ -467,7 +489,8 @@ function Tracker:CollectFromGuid(guid, results, lookup)
 end
 
 function Tracker:CollectAuras(unit, guid)
-	if not self.enableCombatLogTracking and not unit then
+	local allowSimulated = guid and self:IsSimulatedGUID(guid)
+	if not self.enableCombatLogTracking and not unit and not allowSimulated then
 		if guid then
 			self.guidAuras[guid] = nil
 			self.pendingDurations[guid] = nil
