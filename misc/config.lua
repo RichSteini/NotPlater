@@ -59,6 +59,33 @@ NotPlater.oppositeAnchors = {
 local TEXTURE_BASE_PATH = BuildAssetPath("images", "statusbarTextures") .. "\\"
 local textures = {"NotPlater Default", "NotPlater Background", "NotPlater HealthBar", "Flat", "BarFill", "Banto", "Smooth", "Perl", "Glaze", "Charcoal", "Otravi", "Striped", "LiteStep"}
 
+local CATEGORY_ICON_SIZE = 18
+local CATEGORY_ICONS = {
+	threat = "Interface\\Icons\\Ability_Warrior_DefensiveStance",
+	healthBar = "Interface\\Icons\\Spell_Holy_FlashHeal",
+	castBar = "Interface\\Icons\\Spell_Frost_Frostbolt02",
+	nameText = "Interface\\Icons\\INV_Scroll_03",
+	levelText = "Interface\\Icons\\INV_Misc_Note_01",
+	raidIcon = "Interface\\Icons\\Ability_Hunter_MarkedForDeath",
+	bossIcon = "Interface\\Icons\\Achievement_Boss_Ragnaros",
+	target = "Interface\\Icons\\Ability_Hunter_SniperShot",
+	buffs = "Interface\\Icons\\Spell_Holy_WordFortitude",
+	stacking = "Interface\\Icons\\Ability_Warrior_SavageBlow",
+	simulator = "Interface\\Icons\\INV_Gizmo_01",
+	profile = "Interface\\Icons\\INV_Misc_Note_06",
+}
+
+local function WithCategoryIcon(key, label)
+	if not label then
+		return label
+	end
+	local texture = CATEGORY_ICONS[key]
+	if texture then
+		return sformat("|T%s:%d:%d:0:0|t %s", texture, CATEGORY_ICON_SIZE, CATEGORY_ICON_SIZE, label)
+	end
+	return label
+end
+
 NotPlater.defaultHighlightTexture = BuildAssetPath("images", "targetBorders", "selection_indicator3")
 NotPlater.targetIndicators = {
 	["NONE"] = {
@@ -689,12 +716,12 @@ end
 local function LoadOptions()
 	options = {}
 	options.type = "group"
-	options.name = "NotPlater"
+		options.name = "NotPlater"
 	options.args = {}
 	options.args.threat = {
 		order = 0,
 		type = "group",
-		name = L["Threat"],
+		name = WithCategoryIcon("threat", L["Threat"]),
 		get = GetValue,
 		set = SetValue,
 		childGroups = "tab",
@@ -748,7 +775,7 @@ local function LoadOptions()
 	options.args.healthBar = {
 		type = "group",
 		order = 1,
-		name = L["Health Bar"],
+		name = WithCategoryIcon("healthBar", L["Health Bar"]),
 		get = GetValue,
 		set = SetValue,
 		childGroups = "tab",
@@ -770,7 +797,7 @@ local function LoadOptions()
 	options.args.castBar = {
 		type = "group",
 		order = 2,
-		name = L["Cast Bar"],
+		name = WithCategoryIcon("castBar", L["Cast Bar"]),
 		get = GetValue,
 		set = SetValue,
 		childGroups = "tab",
@@ -804,7 +831,7 @@ local function LoadOptions()
 	options.args.nameText = {
 		order = 3,
 		type = "group",
-		name = L["Name Text"],
+		name = WithCategoryIcon("nameText", L["Name Text"]),
 		get = GetValue,
 		set = SetValue,
 		args = NotPlater.ConfigPrototypes.NameText
@@ -812,7 +839,7 @@ local function LoadOptions()
 	options.args.levelText = {
 		order = 4,
 		type = "group",
-		name = L["Level Text"],
+		name = WithCategoryIcon("levelText", L["Level Text"]),
 		get = GetValue,
 		set = SetValue,
 		args = NotPlater.ConfigPrototypes.LevelText
@@ -820,7 +847,7 @@ local function LoadOptions()
 	options.args.raidIcon = {
 		order = 5,
 		type = "group",
-		name = L["Raid Icon"],
+		name = WithCategoryIcon("raidIcon", L["Raid Icon"]),
 		get = GetValue,
 		set = SetValue,
 		args = NotPlater.ConfigPrototypes.Icon
@@ -828,7 +855,7 @@ local function LoadOptions()
 	options.args.bossIcon = {
 		order = 6,
 		type = "group",
-		name = L["Boss Icon"],
+		name = WithCategoryIcon("bossIcon", L["Boss Icon"]),
 		get = GetValue,
 		set = SetValue,
 		args = NotPlater.ConfigPrototypes.Icon
@@ -836,7 +863,7 @@ local function LoadOptions()
 	options.args.target = {
 		order = 7,
 		type = "group",
-		name = L["Target"],
+		name = WithCategoryIcon("target", L["Target"]),
 		get = GetValue,
 		set = SetValue,
 		childGroups = "tab",
@@ -858,7 +885,7 @@ local function LoadOptions()
 	options.args.buffs = {
 		order = 8,
 		type = "group",
-		name = L["Buffs"],
+		name = WithCategoryIcon("buffs", L["Buffs"]),
 		childGroups = "tab",
 		get = BuffsGetWithDefaults,
 		set = BuffsSet,
@@ -1126,13 +1153,13 @@ local function LoadOptions()
 		type = "group",
 		get = GetValue,
 		set = SetValue,
-		name = L["Stacking"],
+		name = WithCategoryIcon("stacking", L["Stacking"]),
 		args = NotPlater.ConfigPrototypes.NameplateStacking,
 	}
 	options.args.simulator = {
 		order = 10,
 		type = "group",
-		name = L["Simulator"],
+		name = WithCategoryIcon("simulator", L["Simulator"]),
 		get = GetValue,
 		set = SetValue,
 		args = NotPlater.ConfigPrototypes.Simulator
@@ -1140,6 +1167,8 @@ local function LoadOptions()
 
 	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(NotPlater.db)
 	options.args.profile.order = 11
+	local profileLabel = options.args.profile.name or L["Profiles"] or "Profiles"
+	options.args.profile.name = WithCategoryIcon("profile", profileLabel)
 end
 
 function Config:ToggleConfig()
@@ -1168,6 +1197,26 @@ function Config:OpenConfig()
 		NotPlater:ShowSimulatorFrame()
 	end
 	dialog:Open("NotPlater")
+
+	local frame = dialog.OpenFrames["NotPlater"]
+	if frame and frame.SetStatusText then
+		local revision = NotPlater.revision or ""
+		
+		local cTitle   = "|cffffcc00"  -- gold
+		local cVersion = "|cffaaaaaa"  -- light gray
+		local cAuthor  = "|cff00ff96"  -- green-ish
+		local cHint    = "|cff808080"  -- dark gray
+		
+		local icon = "|T" .. BuildAssetPath("images", "logo") .. ":24:24:0:0|t "
+		
+		local text = icon ..
+			cTitle .. "NotPlater|r " ..
+			(revision ~= "" and (cVersion .. revision .. "|r  ") or "") ..
+			cAuthor .. "by RichSteini|r  " ..
+			cHint .. "(/np help)|r"
+
+		frame:SetStatusText(text)
+	end
 end
 
 -- Slash commands
