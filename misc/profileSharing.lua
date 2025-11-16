@@ -315,10 +315,20 @@ function ProfileSharing:GetExportString()
 end
 
 function ProfileSharing:InsertShareLink()
-  local editbox = GetCurrentKeyBoardFocus()
-  if not editbox then return false end
+  local raidMembers = GetNumRaidMembers()
+  local partyMembers = GetNumPartyMembers()
+  local channel
+  if raidMembers and raidMembers > 0 then
+    channel = "RAID"
+  elseif partyMembers and partyMembers > 0 then
+    channel = "PARTY"
+  else
+    NotPlater:Print(L["Profile sharing requires being in a party or raid."])
+    return false
+  end
   local profileName = NotPlater.db:GetCurrentProfile()
-  editbox:Insert("[NotPlater: " .. UnitName("player") .. " - " .. profileName .. "]")
+  local link = "[NotPlater: " .. UnitName("player") .. " - " .. profileName .. "]"
+  SendChatMessage(link, channel)
   RecordLinkedProfile(profileName)
   return true
 end
