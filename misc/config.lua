@@ -282,14 +282,6 @@ NotPlater.targetHighlights = {
 }
 
 
-local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLINE"] = L["Thick Outline"], ["MONOCHROME"] = L["Monochrome"]}
-local anchorPoints = {
-	["CENTER"] = L["Center"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"],
-	["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["BOTTOMLEFT"] = L["Bottom Left"],
-	["TOPRIGHT"] = L["Top Right"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["TOPLEFT"] = L["Top Left"]
-}
-local auraGrowthDirections = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["CENTER"] = L["Center"]}
-
 NotPlater.auraSwipeTextures = NotPlater.auraSwipeTextures or {
 	["Texture 1"] = BuildAssetPath("images", "cooldownTextures", "cooldown_edge_1"),
 	["Texture 2"] = BuildAssetPath("images", "cooldownTextures", "cooldown_edge_2"),
@@ -340,12 +332,6 @@ local function GetSwipeTextureValues()
 	end
 	return values
 end
-
-local swipeStyleValues = {
-	vertical = L["Top to Bottom"],
-	swirl = L["Swirl"],
-	richsteini = L["RichSteini CD"],
-}
 
 local function IsSwipeTextureDisabled(info)
 	local db = TraverseBuffDB(info)
@@ -627,6 +613,24 @@ StaticPopupDialogs["NOTPLATER_SWIRL_WARNING"] = {
 	end,
 	text = L["Swirl animation warning message"],
 }
+
+NotPlater.ConfigPrototypes.Buffs = NotPlater.ConfigPrototypes:BuildBuffsArgs({
+	trackedUnitArgs = trackedUnitArgs,
+	GetFontValues = GetFontValues,
+	BuffsGetValue = BuffsGetValue,
+	BuffsSetValue = BuffsSetValue,
+	BuffsGetColor = BuffsGetColor,
+	BuffsSetColor = BuffsSetColor,
+	GetSwipeTextureValues = GetSwipeTextureValues,
+	SetSwipeStyle = SetSwipeStyle,
+	IsSwipeTextureDisabled = IsSwipeTextureDisabled,
+	IsAuraFrame2Disabled = IsAuraFrame2Disabled,
+	IsAuraTimerDisabled = IsAuraTimerDisabled,
+	IsAutomaticTracking = IsAutomaticTracking,
+	BuildAuraListValues = BuildAuraListValues,
+	RemoveAuraFromList = RemoveAuraFromList,
+	ShowAuraPrompt = ShowAuraPrompt,
+})
 
 local function GetAnchors(frame)
 	local x, y = frame:GetCenter()
@@ -912,264 +916,7 @@ local function LoadOptions()
 		childGroups = "tab",
 		get = BuffsGetWithDefaults,
 		set = BuffsSet,
-		args = {
-			general = {
-				order = 0,
-				type = "group",
-				name = L["General Settings"],
-				args = {
-					enable = { order = 0, type = "toggle", name = L["Enable"] },
-					showTooltip = { order = 1, type = "toggle", name = L["Show Tooltip"] },
-					alpha = { order = 2, type = "range", name = L["Opacity"], min = 0.1, max = 1, step = 0.05 },
-					iconSpacing = { order = 3, type = "range", name = L["Icon Spacing"], min = 0, max = 20, step = 1 },
-					rowSpacing = { order = 4, type = "range", name = L["Row Spacing"], min = 0, max = 20, step = 1 },
-					stackSimilarAuras = { order = 5, type = "toggle", name = L["Stack Similar Auras"] },
-					showShortestStackTime = { order = 6, type = "toggle", name = L["Show Shortest Remaining Time"] },
-					sortAuras = { order = 7, type = "toggle", name = L["Sort Auras"] },
-					showAnimations = { order = 8, type = "toggle", name = L["Show Animations"] },
-					trackedUnits = {
-						order = 9,
-						type = "group",
-						inline = true,
-						name = L["Tracked Units"],
-						args = trackedUnitArgs,
-					},
-					enableCombatLogTracking = { order = 10, type = "toggle", name = L["Combat Log Tracking"], desc = L["Learns aura durations from the combat log so timers persist after you stop targeting a unit. Timers may be inaccurate until the addon has seen an aura at least twice."] },
-				},
-			},
-			frames = {
-				order = 1,
-				type = "group",
-				name = L["Frames"],
-				args = {
-					auraFrame1 = {
-						order = 0,
-						type = "group",
-						inline = true,
-						name = L["Aura Frame 1"],
-						args = {
-							growDirection = { order = 0, type = "select", name = L["Grow Direction"], values = auraGrowthDirections },
-							anchor = { order = 1, type = "select", name = L["Anchor"], values = anchorPoints },
-							xOffset = { order = 2, type = "range", name = L["X Offset"], min = -100, max = 100, step = 1 },
-							yOffset = { order = 3, type = "range", name = L["Y Offset"], min = -100, max = 100, step = 1 },
-							rowCount = { order = 4, type = "range", name = L["Auras per Row"], min = 1, max = 12, step = 1, get = function() return BuffsGetValue("auraFrame1", "rowCount") or 10 end, set = function(_, value) BuffsSetValue(value, "auraFrame1", "rowCount") end },
-							width = { order = 10, type = "range", name = L["Width"], min = 10, max = 80, step = 1, get = function() return BuffsGetValue("auraFrame1", "width") or 26 end, set = function(_, value) BuffsSetValue(value, "auraFrame1", "width") end },
-							height = { order = 11, type = "range", name = L["Height"], min = 10, max = 80, step = 1, get = function() return BuffsGetValue("auraFrame1", "height") or 16 end, set = function(_, value) BuffsSetValue(value, "auraFrame1", "height") end },
-							borderThickness = { order = 12, type = "range", name = L["Border Thickness"], min = 0, max = 5, step = 0.1, get = function() return BuffsGetValue("auraFrame1", "borderThickness") or 1 end, set = function(_, value) BuffsSetValue(value, "auraFrame1", "borderThickness") end },
-						},
-					},
-					auraFrame2 = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Aura Frame 2 (Buffs)"],
-						args = {
-							enable = { order = 0, type = "toggle", name = L["Enable"], desc = L["When enabled, debuffs are shown in Aura Frame 1 and buffs in Aura Frame 2."] },
-							growDirection = { order = 1, type = "select", name = L["Grow Direction"], values = auraGrowthDirections, disabled = IsAuraFrame2Disabled },
-							anchor = { order = 2, type = "select", name = L["Anchor"], values = anchorPoints, disabled = IsAuraFrame2Disabled },
-							xOffset = { order = 3, type = "range", name = L["X Offset"], min = -100, max = 100, step = 1, disabled = IsAuraFrame2Disabled },
-							yOffset = { order = 4, type = "range", name = L["Y Offset"], min = -100, max = 100, step = 1, disabled = IsAuraFrame2Disabled },
-							rowCount = { order = 5, type = "range", name = L["Auras per Row"], min = 1, max = 12, step = 1, disabled = IsAuraFrame2Disabled, get = function() return BuffsGetValue("auraFrame2", "rowCount") or 10 end, set = function(_, value) BuffsSetValue(value, "auraFrame2", "rowCount") end },
-							width = { order = 10, type = "range", name = L["Width"], min = 10, max = 80, step = 1, disabled = IsAuraFrame2Disabled, get = function() return BuffsGetValue("auraFrame2", "width") or 26 end, set = function(_, value) BuffsSetValue(value, "auraFrame2", "width") end },
-							height = { order = 11, type = "range", name = L["Height"], min = 10, max = 80, step = 1, disabled = IsAuraFrame2Disabled, get = function() return BuffsGetValue("auraFrame2", "height") or 16 end, set = function(_, value) BuffsSetValue(value, "auraFrame2", "height") end },
-							borderThickness = { order = 12, type = "range", name = L["Border Thickness"], min = 0, max = 5, step = 0.1, disabled = IsAuraFrame2Disabled, get = function() return BuffsGetValue("auraFrame2", "borderThickness") or 1 end, set = function(_, value) BuffsSetValue(value, "auraFrame2", "borderThickness") end },
-						},
-					},
-				},
-			},
-			stackCounter = {
-				order = 2,
-				type = "group",
-				name = L["Stack Counter"],
-				args = {
-					general = {
-						order = 0,
-						type = "group",
-						inline = true,
-						name = L["General"],
-						args = {
-							enable = { order = 0, type = "toggle", name = L["Enable"] },
-							name = { order = 1, type = "select", name = L["Font"], values = GetFontValues },
-							size = { order = 2, type = "range", name = L["Size"], min = 6, max = 36, step = 1 },
-							border = { order = 3, type = "select", name = L["Outline"], values = fontBorders },
-							color = { order = 4, type = "color", name = L["Color"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-						},
-					},
-					position = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Position"],
-						args = {
-							anchor = { order = 0, type = "select", name = L["Anchor"], values = anchorPoints },
-							xOffset = { order = 1, type = "range", name = L["X Offset"], min = -50, max = 50, step = 1 },
-							yOffset = { order = 2, type = "range", name = L["Y Offset"], min = -50, max = 50, step = 1 },
-						},
-					},
-					shadow = {
-						order = 2,
-						type = "group",
-						inline = true,
-						name = L["Shadow"],
-						args = {
-							enable = { order = 0, type = "toggle", name = L["Enable"] },
-							color = { order = 1, type = "color", name = L["Color"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-							xOffset = { order = 2, type = "range", name = L["X Offset"], min = -5, max = 5, step = 0.1 },
-							yOffset = { order = 3, type = "range", name = L["Y Offset"], min = -5, max = 5, step = 0.1 },
-						},
-					},
-				},
-			},
-			auraTimer = {
-				order = 3,
-				type = "group",
-				name = L["Aura Timer"],
-				args = {
-					general = {
-						order = 0,
-						type = "group",
-						inline = true,
-						name = L["General"],
-						args = {
-							enable = { order = 0, type = "toggle", name = L["Enable"] },
-							showDecimals = { order = 1, type = "toggle", name = L["Show Decimals"] },
-							hideExternalTimer = { order = 2, type = "toggle", name = L["Hide External Cooldown Text"], desc = L["Hide OmniCC/TullaCC text while the built-in timer is visible."] },
-							name = { order = 3, type = "select", name = L["Font"], values = GetFontValues },
-							size = { order = 4, type = "range", name = L["Size"], min = 6, max = 36, step = 1 },
-							border = { order = 5, type = "select", name = L["Outline"], values = fontBorders },
-							color = { order = 6, type = "color", name = L["Color"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-						},
-					},
-					position = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Position"],
-						disabled = IsAuraTimerDisabled,
-						args = {
-							anchor = { order = 0, type = "select", name = L["Anchor"], values = anchorPoints },
-							xOffset = { order = 1, type = "range", name = L["X Offset"], min = -50, max = 50, step = 1 },
-							yOffset = { order = 2, type = "range", name = L["Y Offset"], min = -50, max = 50, step = 1 },
-						},
-					},
-					shadow = {
-						order = 2,
-						type = "group",
-						inline = true,
-						name = L["Shadow"],
-						disabled = IsAuraTimerDisabled,
-						args = {
-							enable = { order = 0, type = "toggle", name = L["Enable"] },
-							color = { order = 1, type = "color", name = L["Color"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-							xOffset = { order = 2, type = "range", name = L["X Offset"], min = -5, max = 5, step = 0.1 },
-							yOffset = { order = 3, type = "range", name = L["Y Offset"], min = -5, max = 5, step = 0.1 },
-						},
-					},
-				},
-			},
-			swipeAnimation = {
-				order = 4,
-				type = "group",
-				name = L["Swipe Animation"],
-				args = {
-					style = { order = 0, type = "select", name = L["Cooldown Style"], values = swipeStyleValues, set = SetSwipeStyle },
-					texture = { order = 1, type = "select", name = L["Texture"], values = GetSwipeTextureValues, disabled = IsSwipeTextureDisabled },
-					showSwipe = { order = 2, type = "toggle", name = L["Show Swipe"] },
-					invertSwipe = { order = 3, type = "toggle", name = L["Invert Swipe"] },
-				},
-			},
-			borderColors = {
-				order = 5,
-				type = "group",
-				name = L["Aura Border Colors"],
-				args = {
-					useTypeColors = { order = 0, type = "toggle", name = L["Use Type Colors"] },
-					dispellable = { order = 2, type = "color", name = L["Dispellable"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-					enrage = { order = 3, type = "color", name = L["Enrage"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-					buff = { order = 4, type = "color", name = L["Buff"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-					crowdControl = { order = 5, type = "color", name = L["Crowd Control"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-					offensiveCD = { order = 6, type = "color", name = L["Offensive Cooldown"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-					defensiveCD = { order = 7, type = "color", name = L["Defensive Cooldown"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-					default = { order = 8, type = "color", name = L["Default"], hasAlpha = true, get = BuffsGetColor, set = BuffsSetColor },
-				},
-			},
-			tracking = {
-				order = 6,
-				type = "group",
-				name = L["Tracking"],
-				childGroups = "tab",
-				args = {
-					mode = {
-						order = 0,
-						type = "group",
-						inline = true,
-						name = L["Aura Tracking Method"],
-						args = {
-							mode = { order = 0, type = "select", name = L["Mode"], values = {AUTOMATIC = L["Automatic"], MANUAL = L["Manual"]} },
-						},
-					},
-					automatic = {
-						order = 1,
-						type = "group",
-						inline = true,
-						name = L["Automatic Aura Tracking"],
-						disabled = function() return not IsAutomaticTracking() end,
-						args = {
-							showPlayerAuras = { order = 0, type = "toggle", name = L["Show Player Auras"] },
-							showOtherPlayerAuras = { order = 1, type = "toggle", name = L["Show Other Player Auras"] },
-							showDispellableBuffs = { order = 3, type = "toggle", name = L["Show Dispellable Buffs"] },
-							showEnrageBuffs = { order = 4, type = "toggle", name = L["Show Enrage Buffs"] },
-							showMagicBuffs = { order = 5, type = "toggle", name = L["Show Magic Buffs"] },
-							showCrowdControl = { order = 6, type = "toggle", name = L["Show Crowd Control"] },
-							showNpcBuffs = { order = 7, type = "toggle", name = L["Show NPC Buffs"] },
-							showNpcDebuffs = { order = 8, type = "toggle", name = L["Show NPC Debuffs"] },
-							onlyShortDispellableOnPlayers = { order = 9, type = "toggle", name = L["Only Short Dispellable Buffs on Players"] },
-							showOtherNPCAuras = { order = 10, type = "toggle", name = L["Show Other NPC Auras"] },
-						},
-					},
-					blacklistDebuffs = {
-						order = 2,
-						type = "group",
-						name = L["Debuff Blacklist"],
-						args = {
-							entries = { order = 0, type = "multiselect", name = L["Click an entry to remove it."], values = function() return BuildAuraListValues("blacklistDebuffs") end, get = function() return false end, set = function(_, key) RemoveAuraFromList("blacklistDebuffs", key) end, width = "full" },
-							addByName = { order = 1, type = "execute", name = L["Add Debuff by Name"], func = function() ShowAuraPrompt("blacklistDebuffs", "NAME") end },
-							addByID = { order = 2, type = "execute", name = L["Add Debuff by ID"], func = function() ShowAuraPrompt("blacklistDebuffs", "ID") end },
-						},
-					},
-					blacklistBuffs = {
-						order = 3,
-						type = "group",
-						name = L["Buff Blacklist"],
-						args = {
-							entries = { order = 0, type = "multiselect", name = L["Click an entry to remove it."], values = function() return BuildAuraListValues("blacklistBuffs") end, get = function() return false end, set = function(_, key) RemoveAuraFromList("blacklistBuffs", key) end, width = "full" },
-							addByName = { order = 1, type = "execute", name = L["Add Buff by Name"], func = function() ShowAuraPrompt("blacklistBuffs", "NAME") end },
-							addByID = { order = 2, type = "execute", name = L["Add Buff by ID"], func = function() ShowAuraPrompt("blacklistBuffs", "ID") end },
-						},
-					},
-					extraDebuffs = {
-						order = 4,
-						type = "group",
-						name = L["Extra Debuffs"],
-						args = {
-							entries = { order = 0, type = "multiselect", name = L["Click an entry to remove it."], values = function() return BuildAuraListValues("extraDebuffs") end, get = function() return false end, set = function(_, key) RemoveAuraFromList("extraDebuffs", key) end, width = "full" },
-							addByName = { order = 1, type = "execute", name = L["Add Debuff by Name"], func = function() ShowAuraPrompt("extraDebuffs", "NAME") end },
-							addByID = { order = 2, type = "execute", name = L["Add Debuff by ID"], func = function() ShowAuraPrompt("extraDebuffs", "ID") end },
-						},
-					},
-					extraBuffs = {
-						order = 5,
-						type = "group",
-						name = L["Extra Buffs"],
-						args = {
-							entries = { order = 0, type = "multiselect", name = L["Click an entry to remove it."], values = function() return BuildAuraListValues("extraBuffs") end, get = function() return false end, set = function(_, key) RemoveAuraFromList("extraBuffs", key) end, width = "full" },
-							addByName = { order = 1, type = "execute", name = L["Add Buff by Name"], func = function() ShowAuraPrompt("extraBuffs", "NAME") end },
-							addByID = { order = 2, type = "execute", name = L["Add Buff by ID"], func = function() ShowAuraPrompt("extraBuffs", "ID") end },
-						},
-					},
-				},
-			},
-		},
+		args = NotPlater.ConfigPrototypes.Buffs,
 	}
 	options.args.stacking = {
 		order = 9,
