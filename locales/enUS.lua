@@ -164,6 +164,7 @@ NotPlaterLocals = {
 	["Status Bar"] = "Status Bar",
 	["Swipe Animation"] = "Swipe Animation",
 	["Swirl"] = "Swirl",
+	["RichSteini CD"] = "RichSteini CD",
 	["Swirl animation warning message"] = "Warning: the swirl cooldown uses Blizzard's legacy client templates and may flicker or disappear unless units are standing still.",
 	["Tracked Units"] = "Tracked Units",
 	["Combat Log Tracking"] = "Combat Log Tracking",

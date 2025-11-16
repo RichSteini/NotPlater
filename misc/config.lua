@@ -344,6 +344,7 @@ end
 local swipeStyleValues = {
 	vertical = L["Top to Bottom"],
 	swirl = L["Swirl"],
+	richsteini = L["RichSteini CD"],
 }
 
 local function IsSwipeTextureDisabled(info)

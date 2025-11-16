@@ -106,6 +106,9 @@ function Auras:Init()
 end
 
 local function ResolveCooldownProvider(style)
+	if style == "richsteini" and NotPlater.AuraCooldownRichSteini then
+		return NotPlater.AuraCooldownRichSteini
+	end
 	if style == "swirl" and NotPlater.AuraCooldownSwirl then
 		return NotPlater.AuraCooldownSwirl
 	end
