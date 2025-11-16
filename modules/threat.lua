@@ -1,8 +1,8 @@
 if( not NotPlater ) then return end
 
-local Threat = LibStub("Threat-2.0")
+local addonName = ...
+local USE_NATIVE_THREAT = addonName ~= nil
 
-local tgetn = table.getn
 local tostring = tostring
 local UnitGUID = UnitGUID
 local UnitAffectingCombat = UnitAffectingCombat
@@ -12,11 +12,46 @@ local UnitInParty = UnitInParty
 local GetPartyMember = GetPartyMember
 local UnitCanAttack = UnitCanAttack
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local UnitDetailedThreatSituation = UnitDetailedThreatSituation
 local MAX_PARTY_MEMBERS = MAX_PARTY_MEMBERS
 local MAX_RAID_MEMBERS = MAX_RAID_MEMBERS
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 
+local NativeThreat = {}
+if USE_NATIVE_THREAT then
+	function NativeThreat:GetThreat(unit, mobUnit)
+		local isTanking, status, scaledPercent, rawPercent, threatValue = UnitDetailedThreatSituation(unit, mobUnit)
+		return threatValue
+	end
+
+	function NativeThreat:GetMaxThreatOnTarget(unit, group)
+		if not group then
+			return 0
+		end
+		local maxThreat = 0
+		for _,unitId in pairs(group) do
+			local isTanking, status, scaledPercent, rawPercent, threatValue = UnitDetailedThreatSituation(unitId, unit)
+			if threatValue and threatValue > maxThreat then
+				maxThreat = threatValue
+			end
+		end
+		return maxThreat
+	end
+end
+
+local LegacyThreatLib = not USE_NATIVE_THREAT and LibStub("Threat-2.0") or nil
+
 local lastThreat = {}
+
+local function GetGroupSize(group)
+	local count = 0
+	if group then
+		for _ in pairs(group) do
+			count = count + 1
+		end
+	end
+	return count
+end
 
 function NotPlater:RAID_ROSTER_UPDATE()
 	self.raid = nil
@@ -66,154 +101,196 @@ function NotPlater:PARTY_MEMBERS_CHANGED()
 end
 
 function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
-	if not ThreatLib then ThreatLib = Threat end
 	local threatConfig = self.db.profile.threat
-	local unit = healthFrame.lastUnitMatch
-	local player = UnitGUID("player")
-	local playerThreat = ThreatLib:GetThreat(player, unit)
+	local playerThreat = 0
 	local playerThreatNumber = 1
-	local highestThreat, highestThreatMember = ThreatLib:GetMaxThreatOnTarget(unit)
+	local highestThreat = 0
 	local secondHighestThreat = 0
-	if highestThreat and highestThreat > 0 then
-		for gMember,_ in pairs(group) do
-			local gMemberThreat = ThreatLib:GetThreat(gMember, unit)
-			if gMemberThreat then
-				if gMemberThreat ~= highestThreat and gMemberThreat > secondHighestThreat then
-					secondHighestThreat = gMemberThreat
-				end
+	local threatKey
 
-				if gMemberThreat > playerThreat then
-					playerThreatNumber = playerThreatNumber + 1
+	if USE_NATIVE_THREAT then
+		local threatProvider = ThreatLib or NativeThreat
+		local unit = healthFrame.lastUnitMatch
+		if not unit or not group then return end
+		threatKey = unit
+		playerThreat = threatProvider:GetThreat("player", unit) or 0
+		highestThreat = threatProvider:GetMaxThreatOnTarget(unit, group)
+		if highestThreat and highestThreat > 0 then
+			for _, unitId in pairs(group) do
+				local gMemberThreat = threatProvider:GetThreat(unitId, unit)
+				if gMemberThreat then
+					if gMemberThreat ~= highestThreat and gMemberThreat > secondHighestThreat then
+						secondHighestThreat = gMemberThreat
+					end
+					if gMemberThreat > playerThreat then
+						playerThreatNumber = playerThreatNumber + 1
+					end
 				end
 			end
 		end
+	else
+		local threatProvider = ThreatLib or LegacyThreatLib
+		if not threatProvider or not group then return end
+		local guid = healthFrame.lastGuidMatch
+		if not guid then return end
+		threatKey = guid
+		local playerGuid = UnitGUID("player")
+		playerThreat = threatProvider:GetThreat(playerGuid, guid) or 0
+		local maxThreat, highestThreatMember = threatProvider:GetMaxThreatOnTarget(guid)
+		highestThreat = maxThreat
+		if highestThreat and highestThreat > 0 then
+			for gMemberGuid in pairs(group) do
+				local gMemberThreat = threatProvider:GetThreat(gMemberGuid, guid)
+				if gMemberThreat then
+					if gMemberGuid ~= highestThreatMember and gMemberThreat > secondHighestThreat then
+						secondHighestThreat = gMemberThreat
+					end
+					if gMemberThreat > playerThreat then
+						playerThreatNumber = playerThreatNumber + 1
+					end
+				end
+			end
+		end
+	end
 
-		local mode = threatConfig.general.mode
-		if threatConfig.nameplateColors.general.enable or threatConfig.differentialText.general.enable then
-			local barColorConfig, textColorConfig = threatConfig.nameplateColors.colors, threatConfig.differentialText.colors
-			local barColor, textColor
-			if mode == "hdps" then
-				if highestThreat == playerThreat then
-					barColor = barColorConfig[mode].c1
-					textColor = textColorConfig[mode].c1
-				elseif lastThreat[unit] and highestThreat - (playerThreat + 3*(playerThreat - lastThreat[unit])) < 0 then
+	if not highestThreat or highestThreat <= 0 then
+		return
+	end
+
+	local mode = threatConfig.general.mode
+	if threatConfig.nameplateColors.general.enable or threatConfig.differentialText.general.enable then
+		local barColorConfig, textColorConfig = threatConfig.nameplateColors.colors, threatConfig.differentialText.colors
+		local barColor, textColor
+		local previousThreat = threatKey and lastThreat[threatKey]
+		if mode == "hdps" then
+			if highestThreat == playerThreat then
+				barColor = barColorConfig[mode].c1
+				textColor = textColorConfig[mode].c1
+			elseif previousThreat and highestThreat - (playerThreat + 3*(playerThreat - previousThreat)) < 0 then
+				barColor = barColorConfig[mode].c2
+				textColor = textColorConfig[mode].c2
+			else
+				barColor = barColorConfig[mode].c3
+				textColor = textColorConfig[mode].c3
+			end
+		else -- "tank"
+			if highestThreat == playerThreat then
+				if previousThreat and (playerThreat - 3*(playerThreat - previousThreat) - secondHighestThreat) < 0 then
 					barColor = barColorConfig[mode].c2
 					textColor = textColorConfig[mode].c2
 				else
-					barColor = barColorConfig[mode].c3
-					textColor = textColorConfig[mode].c3
+					barColor = barColorConfig[mode].c1
+					textColor = textColorConfig[mode].c1
 				end
-			else -- "tank"
-				if highestThreat == playerThreat then
-					if lastThreat[unit] and (playerThreat - 3*(playerThreat - lastThreat[unit]) - secondHighestThreat) < 0 then
-						barColor = barColorConfig[mode].c2
-						textColor = textColorConfig[mode].c2
-					else
-						barColor = barColorConfig[mode].c1
-						textColor = textColorConfig[mode].c1
-					end
-				else
-					barColor = barColorConfig[mode].c3
-					textColor = textColorConfig[mode].c3
-				end
-			end
-
-			local frame = healthFrame:GetParent()
-			if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
-				healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
-			elseif threatConfig.nameplateColors.general.enable then
-				healthFrame:SetStatusBarColor(self:GetColor(barColor))
-			end
-
-			if threatConfig.differentialText.general.enable then
-				local threatDiff = 0
-				if highestThreat == playerThreat then
-					threatDiff = playerThreat - secondHighestThreat
-				else
-					threatDiff = highestThreat - playerThreat
-				end
-
-				healthFrame.threatDifferentialText:SetTextColor(self:GetColor(textColor))
-				if threatDiff < 1000 then
-					healthFrame.threatDifferentialText:SetFormattedText("%.0f", threatDiff)
-				else
-					threatDiff = threatDiff / 1000
-					healthFrame.threatDifferentialText:SetFormattedText("%.1fk", threatDiff)
-				end
-				healthFrame.threatDifferentialText:Show()
 			else
-				healthFrame.threatDifferentialText:Hide()
+				barColor = barColorConfig[mode].c3
+				textColor = textColorConfig[mode].c3
 			end
 		end
 
-		-- Number text
-		local numberTextConfig = threatConfig.numberText
-		if numberTextConfig.general.enable then
-			local numberColor = nil
-			if playerThreatNumber == 1 then
-				numberColor = numberTextConfig.colors[mode].c1
-			elseif playerThreatNumber / (tgetn(group) - 1) < 0.2 then
-				numberColor = numberTextConfig.colors[mode].c2
+		local frame = healthFrame:GetParent()
+		if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
+			healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
+		elseif threatConfig.nameplateColors.general.enable then
+			healthFrame:SetStatusBarColor(self:GetColor(barColor))
+		end
+
+		if threatConfig.differentialText.general.enable then
+			local threatDiff = 0
+			if highestThreat == playerThreat then
+				threatDiff = playerThreat - secondHighestThreat
 			else
-				numberColor = numberTextConfig.colors[mode].c3
+				threatDiff = highestThreat - playerThreat
 			end
-			healthFrame.threatNumberText:SetTextColor(self:GetColor(numberColor))
-			healthFrame.threatNumberText:SetText(tostring(playerThreatNumber))
-			healthFrame.threatNumberText:Show()
+
+			healthFrame.threatDifferentialText:SetTextColor(self:GetColor(textColor))
+			if threatDiff < 1000 then
+				healthFrame.threatDifferentialText:SetFormattedText("%.0f", threatDiff)
+			else
+				threatDiff = threatDiff / 1000
+				healthFrame.threatDifferentialText:SetFormattedText("%.1fk", threatDiff)
+			end
+			healthFrame.threatDifferentialText:Show()
 		else
-			healthFrame.threatNumberText:Hide()
+			healthFrame.threatDifferentialText:Hide()
 		end
+	end
 
-		-- Percent bar
-		local percentConfig = threatConfig.percent
-		if percentConfig.statusBar.general.enable then
-			local threatPercent, barColor = playerThreat/highestThreat * 100, nil
-			if threatPercent >= 100 then
-				barColor = percentConfig.statusBar.colors[mode].c1
-			elseif threatPercent >= 90 then
-				barColor = percentConfig.statusBar.colors[mode].c2
-			else
-				barColor = percentConfig.statusBar.colors[mode].c3
-			end
-			healthFrame.threatPercentBar:SetValue(threatPercent)
-			barColor = percentConfig.statusBar.general.useThreatColors and barColor or percentConfig.statusBar.general.color
-			healthFrame.threatPercentBar:SetStatusBarColor(self:GetColor(barColor))
-			healthFrame.threatPercentBar:Show()
+	-- Number text
+	local numberTextConfig = threatConfig.numberText
+	if numberTextConfig.general.enable then
+		local numberColor = nil
+		local memberCount = GetGroupSize(group)
+		if playerThreatNumber == 1 then
+			numberColor = numberTextConfig.colors[mode].c1
+		elseif memberCount > 1 and (playerThreatNumber / (memberCount - 1)) < 0.2 then
+			numberColor = numberTextConfig.colors[mode].c2
 		else
-			healthFrame.threatPercentBar:Hide()
+			numberColor = numberTextConfig.colors[mode].c3
 		end
+		healthFrame.threatNumberText:SetTextColor(self:GetColor(numberColor))
+		healthFrame.threatNumberText:SetText(tostring(playerThreatNumber))
+		healthFrame.threatNumberText:Show()
+	else
+		healthFrame.threatNumberText:Hide()
+	end
 
-		-- Percent text
-		if percentConfig.text.general.enable then
-			local threatPercent, textColor = playerThreat/highestThreat * 100, nil
-			if threatPercent >= 100 then
-				textColor = percentConfig.text.colors[mode].c1
-			elseif threatPercent >= 90 then
-				textColor = percentConfig.text.colors[mode].c2
-			else
-				textColor = percentConfig.text.colors[mode].c3
-			end
-			healthFrame.threatPercentText:SetFormattedText("%d%%", threatPercent)
-			textColor = percentConfig.text.general.useThreatColors and textColor or percentConfig.text.general.color
-			healthFrame.threatPercentText:SetTextColor(self:GetColor(textColor))
-			healthFrame.threatPercentText:Show()
+	-- Percent bar
+	local percentConfig = threatConfig.percent
+	if percentConfig.statusBar.general.enable then
+		local threatPercent, barColor = playerThreat/highestThreat * 100, nil
+		if threatPercent >= 100 then
+			barColor = percentConfig.statusBar.colors[mode].c1
+		elseif threatPercent >= 90 then
+			barColor = percentConfig.statusBar.colors[mode].c2
 		else
-			healthFrame.threatPercentText:Hide()
+			barColor = percentConfig.statusBar.colors[mode].c3
 		end
+		healthFrame.threatPercentBar:SetValue(threatPercent)
+		barColor = percentConfig.statusBar.general.useThreatColors and barColor or percentConfig.statusBar.general.color
+		healthFrame.threatPercentBar:SetStatusBarColor(self:GetColor(barColor))
+		healthFrame.threatPercentBar:Show()
+	else
+		healthFrame.threatPercentBar:Hide()
+	end
 
-		lastThreat[unit] = playerThreat
+	-- Percent text
+	if percentConfig.text.general.enable then
+		local threatPercent, textColor = playerThreat/highestThreat * 100, nil
+		if threatPercent >= 100 then
+			textColor = percentConfig.text.colors[mode].c1
+		elseif threatPercent >= 90 then
+			textColor = percentConfig.text.colors[mode].c2
+		else
+			textColor = percentConfig.text.colors[mode].c3
+		end
+		healthFrame.threatPercentText:SetFormattedText("%d%%", threatPercent)
+		textColor = percentConfig.text.general.useThreatColors and textColor or percentConfig.text.general.color
+		healthFrame.threatPercentText:SetTextColor(self:GetColor(textColor))
+		healthFrame.threatPercentText:Show()
+	else
+		healthFrame.threatPercentText:Hide()
+	end
+
+	if threatKey then
+		lastThreat[threatKey] = playerThreat
 	end
 end
 
 function NotPlater:MouseoverThreatCheck(healthFrame, guid)
+	local plateFrame = healthFrame and healthFrame:GetParent()
+	if plateFrame then
+		self:SetFrameMatch(plateFrame, "mouseover")
+	end
 	if UnitInParty("party1") or UnitInRaid("player") then
-		healthFrame.lastUnitMatch = guid
 		local group = self.raid or self.party
-		self:OnNameplateMatch(healthFrame, group)
+		if group then
+			self:OnNameplateMatch(healthFrame, group)
+		end
 	else
-		local frame = healthFrame:GetParent().unitClass
-		if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
-			healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
+		local unitClass = plateFrame and plateFrame.unitClass
+		if self.db.profile.threat.nameplateColors.general.useClassColors and unitClass then
+			healthFrame:SetStatusBarColor(unitClass.r, unitClass.g, unitClass.b, 1)
 		else
 			if self.db.profile.healthBar.statusBar.general.enable then
 				healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
@@ -223,49 +300,23 @@ function NotPlater:MouseoverThreatCheck(healthFrame, guid)
 end
 
 function NotPlater:ThreatCheck(frame)
-	local _, _, _, _, nameText, levelText = frame:GetRegions()
-	if not nameText or not levelText then return end
 	local healthFrame = frame.healthBar
-	local name = nameText:GetText()
-	local level = levelText:GetText()
+	if not healthFrame then return end
 	local _, healthMaxValue = healthFrame:GetMinMaxValues()
     local healthValue = healthFrame:GetValue()
+	self:UpdateFrameMatch(frame)
 	if UnitInParty("party1") or UnitInRaid("player") then
 		local group = self.raid or self.party
-		if healthValue ~= healthMaxValue then
-			for gMember,unitID in pairs(group) do
-				local targetString = unitID .. "-target"
-				local unit = UnitGUID(targetString)
-				if UnitCanAttack("player", targetString) and not UnitIsDeadOrGhost(targetString) and UnitAffectingCombat(targetString) then
-					if name == UnitName(targetString) and level == tostring(UnitLevel(targetString)) and healthValue == UnitHealth(targetString) then
-						healthFrame.lastUnitMatch = unit
-						break
-					end
-				end
-			end
-			if UnitCanAttack("player", "mouseover") and not UnitIsDeadOrGhost("mouseover") and UnitAffectingCombat("mouseover") then
-				if name == UnitName("mouseover") and level == tostring(UnitLevel("mouseover")) and healthValue == UnitHealth("mouseover") then
-					healthFrame.lastUnitMatch = UnitGUID("mouseover")
-				end
-			end
-			if UnitCanAttack("player", "focus") and not UnitIsDeadOrGhost("focus") and UnitAffectingCombat("focus") then
-				if name == UnitName("focus") and level == tostring(UnitLevel("focus")) and healthValue == UnitHealth("focus") then
-					healthFrame.lastUnitMatch = UnitGUID("focus")
-				end
-			end
-		end
-		if healthFrame.lastUnitMatch then
+		if group and healthFrame.lastUnitMatch then
 			self:OnNameplateMatch(healthFrame, group)
 		end
 	else -- Not in party
-		if UnitCanAttack("player", "target") and not UnitIsDeadOrGhost("target") and UnitAffectingCombat("target") then
-			if name == UnitName("target") and level == tostring(UnitLevel("target")) and healthValue == UnitHealth("target") and healthValue ~= healthMaxValue then
-				if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
-					healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
-				else
-					if self.db.profile.healthBar.statusBar.general.enable then
-						healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
-					end
+		if healthFrame.lastUnitMatch == "target" and UnitCanAttack("player", "target") and not UnitIsDeadOrGhost("target") and UnitAffectingCombat("target") and healthValue ~= healthMaxValue then
+			if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
+				healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
+			else
+				if self.db.profile.healthBar.statusBar.general.enable then
+					healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
 				end
 			end
 		end
@@ -291,6 +342,9 @@ function NotPlater:ThreatComponentsOnShow(frame)
 	healthFrame.threatPercentText:SetText("")
 	healthFrame.threatPercentBar:Hide()
 	healthFrame.lastUnitMatch = nil
+	healthFrame.lastGuidMatch = nil
+	frame.lastUnitMatch = nil
+	frame.lastGuidMatch = nil
 	self:ThreatCheck(frame)
 end
 

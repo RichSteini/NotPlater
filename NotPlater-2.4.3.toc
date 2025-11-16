@@ -6,7 +6,7 @@
 ## OptionalDeps: LibStub, CallbackHandler, LibSharedMedia, Ace3, Threat
 
 # Libs
-embeds.xml
+embeds-2.4.3.xml
 
 # Localisation
 locales.xml
@@ -15,10 +15,11 @@ locales.xml
 NotPlater.lua
 
 # Config and utility functions
-misc\simulatorFrame.lua
+misc\simulator\frame.lua
 misc\configPrototypes.lua
 misc\config.lua
 misc\configDefaults.lua
+misc\diminishingReturnsData-2.4.3.lua
 misc\utils.lua
 
 # Modules
@@ -30,3 +31,9 @@ modules\nameText.lua
 modules\stacking.lua
 modules\target.lua
 modules\threat.lua
+modules\aura\auraTrackerBase.lua
+modules\aura\auraTracker-2.4.3.lua
+modules\aura\auraCooldownVertical.lua
+modules\aura\auraCooldownSwirl.lua
+modules\aura\auraCooldownRichSteini.lua
+modules\aura\auras.lua

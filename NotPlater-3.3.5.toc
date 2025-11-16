@@ -12,11 +12,11 @@ embeds-3.3.5.xml
 locales.xml
 
 # Core
-NotPlater-3.3.5.lua
+NotPlater.lua
 
 # Config and utility functions
-misc\simulatorFrame-3.3.5.lua
-misc\simulatorAuras.lua
+misc\simulator\frame.lua
+misc\simulator\auras.lua
 misc\configPrototypes.lua
 misc\config.lua
 misc\configDefaults.lua
@@ -31,9 +31,10 @@ modules\levelText.lua
 modules\nameText.lua
 modules\stacking.lua
 modules\target.lua
-modules\threat-3.3.5.lua
-modules\auraTracker-3.3.5.lua
-modules\auraCooldownVertical.lua
-modules\auraCooldownSwirl.lua
-modules\auraCooldownRichSteini.lua
-modules\auras.lua
+modules\threat.lua
+modules\aura\auraTrackerBase.lua
+modules\aura\auraTracker-3.3.5.lua
+modules\aura\auraCooldownVertical.lua
+modules\aura\auraCooldownSwirl.lua
+modules\aura\auraCooldownRichSteini.lua
+modules\aura\auras.lua

@@ -2,35 +2,27 @@ if not NotPlater then
 	return
 end
 
-local Tracker = {}
+local Tracker = NotPlater:CreateAuraTrackerBase()
+Tracker.nonDiminishingCategories = {snare = true}
 NotPlater.AuraTracker = Tracker
 
-local DEFAULT_TRACKED_UNITS = {"target", "focus", "mouseover"}
-local DEFAULT_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
+local DEFAULT_ICON = Tracker.defaultIcon or "Interface\\Icons\\INV_Misc_QuestionMark"
 local HUGE = math.huge
 
-local wipe = wipe
-local tinsert = table.insert
-local bit_band = bit and bit.band
 local GetTime = GetTime
 local GetSpellInfo = GetSpellInfo
 local CombatLogGetCurrentEventInfo = CombatLogGetCurrentEventInfo
-local UnitAura = UnitAura
+local UnitBuff = UnitBuff
+local UnitDebuff = UnitDebuff
 local UnitGUID = UnitGUID
 local select = select
 
-local COMBATLOG_OBJECT_TYPE_PLAYER = _G.COMBATLOG_OBJECT_TYPE_PLAYER or 0x00000400
-local COMBATLOG_OBJECT_TYPE_PET = _G.COMBATLOG_OBJECT_TYPE_PET or 0x00001000
-local COMBATLOG_OBJECT_TYPE_GUARDIAN = _G.COMBATLOG_OBJECT_TYPE_GUARDIAN or 0x00002000
-
-local auraApplyEvents = {
-	SPELL_AURA_APPLIED = "APPLIED",
+local auraApplyEvents = {	SPELL_AURA_APPLIED = "APPLIED",
 	SPELL_AURA_REFRESH = "REFRESH",
 	SPELL_AURA_APPLIED_DOSE = "APPLIED_DOSE",
 }
 
-local auraRemoveEvents = {
-	SPELL_AURA_REMOVED = "REMOVED",
+local auraRemoveEvents = {	SPELL_AURA_REMOVED = "REMOVED",
 	SPELL_AURA_REMOVED_DOSE = "REMOVED_DOSE",
 	SPELL_AURA_DISPELLED = "DISPELLED",
 	SPELL_AURA_STOLEN = "STOLEN",
@@ -40,11 +32,10 @@ local auraRemoveEvents = {
 
 local diminishingReturnsData = NotPlater.DiminishingReturnsSpells or {}
 
-local DR_RESET_TIME = 18 -- matches LibAuraInfo reset timer
-
 local function BuildAuraKey(spellID, casterGUID, isDebuff)
 	return (spellID or 0) .. ":" .. (casterGUID or "0") .. ":" .. (isDebuff and "D" or "B")
 end
+
 local function CopyTable(source)
 	if not source then
 		return nil
@@ -60,335 +51,84 @@ local function CopyTable(source)
 	return target
 end
 
-function Tracker:EnsureInit()
-	if self.initialized then
-		return
-	end
-	self.initialized = true
-	self.guidAuras = {}
-	self.pendingDurations = {}
-	self.drStates = {}
-	self.listeners = {}
-	self.trackedUnitList = {}
-	self.trackedUnitLookup = {}
-	self.eventFrame = CreateFrame("Frame")
-	self.eventFrame:SetScript("OnEvent", function(_, event, ...)
-		if self[event] then
-			self[event](self, ...)
-		end
-	end)
+function Tracker:GetNameKey(name, isDebuff)
+	local label = (name and name:lower()) or "unknown"
+	return label .. ":" .. (isDebuff and "D" or "B")
 end
 
-function Tracker:RegisterSimulatorGUID(guid)
-	if not guid then
-		return
-	end
-	self.simulatorGuids = self.simulatorGuids or {}
-	self.simulatorGuids[guid] = true
-end
-
-function Tracker:UnregisterSimulatorGUID(guid)
-	if not guid or not self.simulatorGuids then
-		return
-	end
-	self.simulatorGuids[guid] = nil
-end
-
-function Tracker:IsSimulatedGUID(guid)
-	if not guid or not self.simulatorGuids then
-		return false
-	end
-	return self.simulatorGuids[guid] and true or false
-end
-
-function Tracker:RegisterListener(listener)
-	if not listener then
-		return
-	end
-	self.listeners[listener] = true
-end
-
-function Tracker:UnregisterListener(listener)
-	if not listener then
-		return
-	end
-	self.listeners[listener] = nil
-end
-
-function Tracker:NotifyListeners(guid)
-	for listener in pairs(self.listeners) do
-		if listener.OnAuraTrackerUpdate then
-			listener:OnAuraTrackerUpdate(guid)
-		end
-	end
-end
-
-function Tracker:IsPlayerGUID(guid)
-	if not guid then
-		return false
-	end
-	return guid:find("^Player%-") ~= nil
-end
-
-function Tracker:GetUnitTypeFromGUID(guid)
-	if not guid then
-		return "unknown"
-	end
-	if guid:find("^Player%-") then
-		return "player"
-	end
-	if guid:find("^Pet%-") or guid:find("^Vehicle%-") then
-		return "pet"
-	end
-	return "npc"
-end
-
-function Tracker:GetUnitTypeFromFlags(flags)
-	if not flags or not bit_band then
-		return "unknown"
-	end
-	if bit_band(flags, COMBATLOG_OBJECT_TYPE_PLAYER) ~= 0 then
-		return "player"
-	end
-	if bit_band(flags, COMBATLOG_OBJECT_TYPE_PET + COMBATLOG_OBJECT_TYPE_GUARDIAN) ~= 0 then
-		return "pet"
-	end
-	return "npc"
-end
-
-function Tracker:SetTrackedUnits(stateTable)
-	wipe(self.trackedUnitList)
-	wipe(self.trackedUnitLookup)
-	local hasSelection = false
-	local arenaAdded = false
-	local legacyArena = false
-	local function addUnit(unit)
-		if not unit or unit == "" then
-			return
-		end
-		if not self.trackedUnitLookup[unit] then
-			self.trackedUnitLookup[unit] = true
-			tinsert(self.trackedUnitList, unit)
-		end
-		hasSelection = true
-	end
-	local function addArenaUnits()
-		if arenaAdded then
-			return
-		end
-		arenaAdded = true
-		for i = 1, 5 do
-			addUnit("arena" .. i)
-		end
-	end
-	if type(stateTable) == "table" then
-		for unit, enabled in pairs(stateTable) do
-			if enabled then
-				if unit == "arena" then
-					addArenaUnits()
-				elseif unit and unit:match("^arena%d$") then
-					addArenaUnits()
-					legacyArena = true
-				else
-					addUnit(unit)
-				end
-			end
-		end
-	end
-	if legacyArena and stateTable then
-		stateTable.arena = true
-		for i = 1, 5 do
-			stateTable["arena" .. i] = nil
-		end
-	end
-	if not hasSelection then
-		for _, unit in ipairs(DEFAULT_TRACKED_UNITS) do
-			addUnit(unit)
-			if stateTable then
-				stateTable[unit] = true
-			end
-		end
-	end
-	if NotPlater and NotPlater.SetTrackedMatchUnits then
-		NotPlater:SetTrackedMatchUnits(CopyTable(self.trackedUnitList))
-	end
-end
-
-function Tracker:IsTrackedUnit(unit)
-	return self.trackedUnitLookup[unit] == true
-end
-
-function Tracker:Enable()
-	self:EnsureInit()
-	if self.enabled then
-		self:ApplySettings()
-		return
-	end
-	self.enabled = true
-	self:ApplySettings()
-end
-
-function Tracker:Disable()
-	if not self.enabled then
-		return
-	end
-	self.enabled = false
-	self:UnregisterCombatLog()
-end
-
-function Tracker:RegisterCombatLog()
-	if self.combatLogRegistered then
-		return
-	end
-	if not self.eventFrame then
-		return
-	end
-	self.eventFrame:RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	self.combatLogRegistered = true
-end
-
-function Tracker:UnregisterCombatLog()
-	if not self.combatLogRegistered or not self.eventFrame then
-		return
-	end
-	self.eventFrame:UnregisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
-	self.combatLogRegistered = false
-end
-
-function Tracker:ApplySettings()
-	if not NotPlater or not NotPlater.db or not NotPlater.db.profile then
-		return
-	end
-	local profile = NotPlater.db.profile
-	local buffs = profile.buffs or {}
-	self.buffsConfig = buffs
-	self.generalConfig = buffs.general or {}
-	self.trackingConfig = buffs.tracking or {}
-	self.trackingConfig.units = self.trackingConfig.units or {}
-	self.trackingConfig.learnedDurations = self.trackingConfig.learnedDurations or {}
-	self.learnedDurations = self.trackingConfig.learnedDurations
-	self.enableCombatLogTracking = self.generalConfig.enableCombatLogTracking ~= false
-	self:SetTrackedUnits(self.trackingConfig.units)
-	if self.enableCombatLogTracking then
-		self:RegisterCombatLog()
-	else
-		self:UnregisterCombatLog()
-		self:ClearLogOnlyAuras()
-	end
-end
-
-function Tracker:ClearLogOnlyAuras()
-	for guid, spells in pairs(self.guidAuras) do
-		for key, aura in pairs(spells) do
-			if aura.source == "LOG" then
-				spells[key] = nil
-			end
-		end
-		if not next(spells) then
-			self.guidAuras[guid] = nil
-		end
-	end
-	self.pendingDurations = {}
-end
-
-function Tracker:GetDurationKey(spellID, sourceType, targetType)
-	return string.format("%d:%s:%s", spellID or 0, sourceType or "unknown", targetType or "unknown")
-end
-
-function Tracker:GetLearnedDuration(spellID, sourceType, targetType)
-	if not self.learnedDurations then
+function Tracker:GetKnownSpellID(name)
+	if not name then
 		return nil
 	end
-	local key = self:GetDurationKey(spellID, sourceType, targetType)
-	local entry = self.learnedDurations[key]
-	if entry and entry.duration and entry.samples and entry.samples > 0 then
-		return entry.duration, entry.samples
-	end
-	return nil
+	self.spellNameToId = self.spellNameToId or {}
+	return self.spellNameToId[name:lower()]
 end
 
-function Tracker:LearnDuration(spellID, sourceType, targetType, observed)
-	if not spellID or not observed or observed <= 0 then
-		return false
+function Tracker:GetTemporarySpellID(name)
+	if not name or name == "" then
+		return 0
 	end
-	if not self.learnedDurations then
-		self.learnedDurations = {}
+	self.temporarySpellIds = self.temporarySpellIds or {}
+	self.nextTemporarySpellId = self.nextTemporarySpellId or -1
+	local key = name:lower()
+	if not self.temporarySpellIds[key] then
+		self.temporarySpellIds[key] = self.nextTemporarySpellId
+		self.nextTemporarySpellId = self.nextTemporarySpellId - 1
 	end
-	local key = self:GetDurationKey(spellID, sourceType, targetType)
-	local entry = self.learnedDurations[key]
-	if not entry then
-		self.learnedDurations[key] = {
-			duration = observed,
-			samples = 1,
-		}
-		return true
-	end
-	local previous = entry.duration or observed
-	local delta = math.abs(previous - observed)
-	entry.duration = previous + (observed - previous) * 0.35
-	entry.samples = math.min((entry.samples or 1) + 1, 50)
-	return delta > 0.15
+	return self.temporarySpellIds[key]
 end
 
-function Tracker:GetDiminishingReturnState(guid, drType)
-	if not drType or not guid then
+function Tracker:StoreAuraLogInfo(destGUID, spellID, spellName, isDebuff, casterGUID)
+	if not destGUID or not spellID or not spellName then
+		return
+	end
+	self.auraLogCache = self.auraLogCache or {}
+	self.activeLogSpells = self.activeLogSpells or {}
+	self.spellNameToId = self.spellNameToId or {}
+	local key = self:GetNameKey(spellName, isDebuff)
+	self.auraLogCache[destGUID] = self.auraLogCache[destGUID] or {}
+	self.auraLogCache[destGUID][key] = {
+		spellID = spellID,
+		casterGUID = casterGUID,
+	}
+	self.activeLogSpells[destGUID] = self.activeLogSpells[destGUID] or {}
+	self.activeLogSpells[destGUID][spellID] = key
+	self.spellNameToId[spellName:lower()] = spellID
+end
+
+function Tracker:GetAuraLogInfo(destGUID, name, isDebuff)
+	if not destGUID or not name or not self.auraLogCache then
 		return nil
 	end
-	local guidState = self.drStates[guid]
-	if not guidState then
-		guidState = {}
-		self.drStates[guid] = guidState
+	local cache = self.auraLogCache[destGUID]
+	if not cache then
+		return nil
 	end
-	local now = GetTime()
-	local state = guidState[drType]
-	if not state or (state.resetAt and state.resetAt <= now) then
-		state = {count = 0}
-		guidState[drType] = state
-	end
-	return state
+	return cache[self:GetNameKey(name, isDebuff)]
 end
 
-function Tracker:GetDiminishingReturnFactor(guid, drType)
-	if not drType then
-		return 1
-	end
-	local state = self:GetDiminishingReturnState(guid, drType)
-	if not state then
-		return 1
-	end
-	state.count = (state.count or 0) + 1
-	if state.count == 1 then
-		state.diminished = 1
-	elseif state.count == 2 then
-		state.diminished = 0.5
-	elseif state.count == 3 then
-		state.diminished = 0.25
-	else
-		state.diminished = 0
-	end
-	return state.diminished
-end
-
-function Tracker:OnDiminishingReturnRemoved(guid, drType)
-	if not guid or not drType then
+function Tracker:ClearAuraLogInfo(destGUID, spellID)
+	if not destGUID or not spellID or not self.activeLogSpells then
 		return
 	end
-	local guidState = self.drStates[guid]
-	if not guidState then
+	local active = self.activeLogSpells[destGUID]
+	if not active then
 		return
 	end
-	local state = guidState[drType]
-	if state then
-		state.resetAt = GetTime() + DR_RESET_TIME
+	local nameKey = active[spellID]
+	if nameKey then
+		active[spellID] = nil
+		local cache = self.auraLogCache and self.auraLogCache[destGUID]
+		if cache then
+			cache[nameKey] = nil
+			if not next(cache) then
+				self.auraLogCache[destGUID] = nil
+			end
+		end
 	end
-end
-
-function Tracker:SnapshotAura(targetTable, aura)
-	targetTable = targetTable or {}
-	for key, value in pairs(aura) do
-		targetTable[key] = value
+	if not next(active) then
+		self.activeLogSpells[destGUID] = nil
 	end
-	return targetTable
 end
 
 function Tracker:UpdateGuidAurasFromUnit(unit, guid, results, lookup)
@@ -401,20 +141,28 @@ function Tracker:UpdateGuidAurasFromUnit(unit, guid, results, lookup)
 		self.guidAuras[guid] = entries
 	end
 	local seen = {}
-	for _, filter in ipairs({"HELPFUL", "HARMFUL"}) do
+	local auraSources = {
+		{func = UnitBuff, isDebuff = false},
+		{func = UnitDebuff, isDebuff = true},
+	}
+	for _, source in ipairs(auraSources) do
 		local index = 1
 		while true do
-			local name, _, icon, count, dispelType, duration, expirationTime, unitCaster, _, _, spellID = UnitAura(unit, index, filter)
-			if not name or not spellID then
+			local name, rank, icon, count, dispelType, duration, timeLeft = source.func(unit, index)
+			if not name then
 				break
 			end
-			local isDebuff = filter == "HARMFUL"
-			local casterGUID = unitCaster and UnitGUID(unitCaster) or nil
+			local isDebuff = source.isDebuff
+			dispelType = isDebuff and dispelType or nil
+			local logInfo = self:GetAuraLogInfo(guid, name, isDebuff)
+			local spellID = logInfo and logInfo.spellID or self:GetKnownSpellID(name) or self:GetTemporarySpellID(name)
+			local casterGUID = logInfo and logInfo.casterGUID or nil
 			local key = BuildAuraKey(spellID, casterGUID, isDebuff)
 			seen[key] = true
 			local aura = entries[key] or {}
 			aura.spellID = spellID
 			aura.name = name
+			aura.rank = rank
 			aura.icon = icon or select(3, GetSpellInfo(spellID)) or DEFAULT_ICON
 			aura.count = count or 0
 			aura.dispelType = dispelType
@@ -428,10 +176,12 @@ function Tracker:UpdateGuidAurasFromUnit(unit, guid, results, lookup)
 			aura.targetType = self:GetUnitTypeFromGUID(guid)
 			aura.source = "UNIT"
 			aura.sourceIsPlayer = self:IsPlayerGUID(casterGUID)
+			local expirationTime
 			if duration and duration > 0 then
+				expirationTime = (timeLeft and timeLeft > 0) and (GetTime() + timeLeft) or (GetTime() + duration)
 				aura.duration = duration
-				aura.expirationTime = expirationTime and expirationTime > 0 and expirationTime or (GetTime() + duration)
-				aura.appliedAt = aura.expirationTime - duration
+				aura.expirationTime = expirationTime
+				aura.appliedAt = expirationTime - duration
 				local learnedUpdated = self:LearnDuration(spellID, aura.sourceType, aura.targetType, duration)
 				if learnedUpdated then
 					self:ApplyLearnedDurationToActive(spellID, aura.sourceType, aura.targetType)
@@ -604,6 +354,7 @@ function Tracker:HandleAuraApplied(eventType, srcGUID, srcFlags, destGUID, destF
 		targetType = targetType,
 		drFactor = drFactor,
 	}
+	self:StoreAuraLogInfo(destGUID, spellID, spellName or name, isDebuff, srcGUID)
 	self:NotifyListeners(destGUID)
 	return aura
 end
@@ -664,6 +415,7 @@ function Tracker:HandleAuraRemoved(eventType, destGUID, key, spellID, drType, st
 			self.guidAuras[destGUID] = nil
 		end
 	end
+	self:ClearAuraLogInfo(destGUID, spellID)
 	if drType then
 		self:OnDiminishingReturnRemoved(destGUID, drType)
 	end

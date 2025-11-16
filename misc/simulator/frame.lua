@@ -1,6 +1,9 @@
 if not NotPlater then return end
 
-local addonName, addonShared = ...
+local addonName = ...
+if type(addonName) ~= "string" or addonName == "" then
+	addonName = NotPlater.addonName or "NotPlater"
+end
 
 --local configDialog = LibStub("AceConfigDialog-3.0")
 local L = NotPlaterLocals
