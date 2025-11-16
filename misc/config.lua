@@ -31,6 +31,13 @@ local UIParent = UIParent
 
 local SML, registered, options, config, dialog
 
+local function GetProfileSharingModule()
+	if not NotPlater or type(NotPlater.GetModule) ~= "function" then
+		return nil
+	end
+	return NotPlater:GetModule("ProfileSharing", true)
+end
+
 local function BuildAssetPath(...)
 	local segments = {...}
 	for index = 1, #segments do
@@ -935,10 +942,188 @@ local function LoadOptions()
 		args = NotPlater.ConfigPrototypes.Simulator
 	}
 
-	options.args.profile = LibStub("AceDBOptions-3.0"):GetOptionsTable(NotPlater.db)
-	options.args.profile.order = 11
-	local profileLabel = options.args.profile.name or L["Profiles"] or "Profiles"
-	options.args.profile.name = WithCategoryIcon("profile", profileLabel)
+	local aceProfileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(NotPlater.db)
+	aceProfileOptions.order = 1
+	aceProfileOptions.name = L["Profile Management"]
+
+	local profileLabel = L["Profiles"] or "Profiles"
+	options.args.profile = {
+		order = 11,
+		type = "group",
+		childGroups = "tab",
+		name = WithCategoryIcon("profile", profileLabel),
+		args = {
+			management = aceProfileOptions,
+			export = {
+				order = 2,
+				type = "group",
+				name = L["Export"],
+				args = {
+					description = {
+						order = 0,
+						type = "description",
+						fontSize = "medium",
+						name = L["Generate an export string and copy it to share your current profile."],
+					},
+					generate = {
+						order = 1,
+						type = "execute",
+						name = L["Generate Export String"],
+						func = function()
+							local module = GetProfileSharingModule()
+							if not module then
+								NotPlater:Print(L["Profile sharing is currently disabled."])
+								return
+							end
+							local encoded, err = module:GenerateExportString()
+							if not encoded then
+								NotPlater:Print(err or L["Unable to export the selected profile."])
+							else
+								NotPlater:Print(L["Profile export string updated."])
+							end
+						end,
+					},
+					insertLink = {
+						order = 2,
+						type = "execute",
+						name = L["Insert Share Link"],
+						desc = L["Insert a clickable profile link into the active chat edit box."],
+						func = function()
+							local module = GetProfileSharingModule()
+							if not module then
+								NotPlater:Print(L["Profile sharing is currently disabled."])
+								return
+							end
+							if not module:InsertShareLink() then
+								NotPlater:Print(L["Unable to place the profile link in chat."])
+							end
+						end,
+					},
+					exportString = {
+						order = 3,
+						type = "input",
+						multiline = 8,
+						width = "full",
+						name = L["Profile Export String"],
+						get = function()
+							local module = GetProfileSharingModule()
+							return (module and module:GetExportString()) or ""
+						end,
+						set = function() end,
+					},
+					exportSummary = {
+						order = 4,
+						type = "description",
+						fontSize = "medium",
+						name = function()
+							local module = GetProfileSharingModule()
+							if not module then
+								return ""
+							end
+							local summary = module:GetLastExportSummary()
+							if not summary or summary == "" then
+								return L["Generate an export string to populate this field."]
+							end
+							return summary
+						end,
+					},
+				},
+			},
+			import = {
+				order = 3,
+				type = "group",
+				name = L["Import"],
+				args = {
+					description = {
+						order = 0,
+						type = "description",
+						fontSize = "medium",
+						name = L["Paste a profile string received from another player."],
+					},
+					importString = {
+						order = 1,
+						type = "input",
+						name = L["Profile Import String"],
+						multiline = 8,
+						width = "full",
+						get = function()
+							local module = GetProfileSharingModule()
+							return (module and module:GetImportString()) or ""
+						end,
+						set = function(_, value)
+							local module = GetProfileSharingModule()
+							if module then
+								module:SetImportString(value)
+							end
+						end,
+					},
+					importProfileName = {
+						order = 2,
+						type = "input",
+						width = "full",
+						name = L["Import Target Name"],
+						desc = L["New profile name created from the import string."],
+						get = function()
+							local module = GetProfileSharingModule()
+							return (module and module:GetImportProfileName()) or ""
+						end,
+						set = function(_, value)
+							local module = GetProfileSharingModule()
+							if module then
+								module:SetImportProfileName(value)
+							end
+						end,
+					},
+					switchProfile = {
+						order = 3,
+						type = "toggle",
+						width = "full",
+						name = L["Activate After Import"],
+						desc = L["Switch to the imported profile as soon as it is created."],
+						get = function()
+							local module = GetProfileSharingModule()
+							return module and module:GetSwitchToImportedProfile()
+						end,
+						set = function(_, value)
+							local module = GetProfileSharingModule()
+							if module then
+								module:SetSwitchToImportedProfile(value)
+							end
+						end,
+					},
+					importButton = {
+						order = 4,
+						type = "execute",
+						name = L["Import Profile"],
+						func = function()
+							local module = GetProfileSharingModule()
+							if not module then
+								NotPlater:Print(L["Profile sharing is currently disabled."])
+								return
+							end
+							module:ImportFromOptions()
+						end,
+					},
+					importSummary = {
+						order = 5,
+						type = "description",
+						fontSize = "medium",
+						name = function()
+							local module = GetProfileSharingModule()
+							if not module then
+								return ""
+							end
+							local summary = module:GetLastImportSummary()
+							if not summary or summary == "" then
+								return L["No import has been processed yet."]
+							end
+							return summary
+						end,
+					},
+				},
+			},
+		},
+	}
 end
 
 function Config:ToggleConfig()

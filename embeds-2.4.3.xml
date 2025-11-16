@@ -19,4 +19,6 @@
     <Script file="libs-2.4.3\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
     <Script file="libs-2.4.3\LibDBIcon-1.0\LibDBIcon-1.0.lua"/>
     <Script file="libs-2.4.3\LibAnim\LibAnim.lua"/>
+    <Script file="libs-2.4.3\LibDeflate\LibDeflate.lua"/>
+    <Script file="libs-2.4.3\LibSerialize\LibSerialize.lua"/>
 </Ui>

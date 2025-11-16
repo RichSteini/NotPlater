@@ -18,4 +18,6 @@
     <Script file="libs-3.3.5\LibDataBroker-1.1\LibDataBroker-1.1.lua"/>
     <Script file="libs-3.3.5\LibDBIcon-1.0\LibDBIcon-1.0.lua"/>
     <Script file="libs-3.3.5\LibAnim\LibAnim.lua"/>
+    <Script file="libs-3.3.5\LibDeflate\LibDeflate.lua"/>
+    <Script file="libs-3.3.5\LibSerialize\LibSerialize.lua"/>
 </Ui>
