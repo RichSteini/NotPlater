@@ -138,6 +138,11 @@ function NotPlater:OnInitialize()
 	self:LoadDefaultConfig()
 
 	self.db = LibStub:GetLibrary("AceDB-3.0"):New("NotPlaterDB", self.defaults)
+	if self.db and self.db.RegisterCallback then
+		self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileUpdated")
+		self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileUpdated")
+		self.db.RegisterCallback(self, "OnProfileReset", "OnProfileUpdated")
+	end
 	self:SetTrackedMatchUnits(DEFAULT_TRACKED_UNITS)
 	self.SML = LibStub:GetLibrary("LibSharedMedia-3.0")
 	
@@ -396,6 +401,13 @@ function NotPlater:Reload()
 	local auraModule = self:GetAuraModule()
 	if auraModule and auraModule.ApplyProfile then
 		auraModule:ApplyProfile()
+	end
+end
+
+function NotPlater:OnProfileUpdated()
+	self:Reload()
+	if self.simulatorFrame and self.simulatorFrame:IsShown() then
+		self:SimulatorReload()
 	end
 end
 
