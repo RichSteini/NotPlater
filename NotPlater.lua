@@ -2,13 +2,14 @@ local addonName = ...
 local IS_WRATH_CLIENT = addonName ~= nil
 
 NotPlater = LibStub("AceAddon-3.0"):NewAddon("NotPlater", "AceEvent-3.0", "AceHook-3.0")
-NotPlater.revision = "v2.0.6"
+NotPlater.revision = "v3.0.0"
 NotPlater.addonName = addonName or NotPlater.addonName or "NotPlater"
 
 local UnitName = UnitName
 local UnitLevel = UnitLevel
 local UnitHealth = UnitHealth
 local UnitGUID = UnitGUID
+local UnitClass = UnitClass
 local UnitExists = UnitExists
 local UnitCanAttack = UnitCanAttack
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
@@ -22,6 +23,32 @@ local LEGACY_NAMEPLATE_TEXTURE = "Interface\\Tooltips\\Nameplate-Border"
 
 local frames = {}
 local DEFAULT_TRACKED_UNITS = {"target", "focus", "mouseover"}
+local MAX_ARENA_UNIT_IDS = type(MAX_ARENA_ENEMIES) == "number" and MAX_ARENA_ENEMIES or 5
+
+local function SetFrameClassColorFromUnit(frame, unit)
+	if not frame or not unit or not UnitExists(unit) then
+		return false
+	end
+	local classToken = select(2, UnitClass(unit))
+	if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+		frame.unitClass = RAID_CLASS_COLORS[classToken]
+		return true
+	end
+	return false
+end
+
+local function ShouldUseArenaUnits()
+	if type(IsActiveBattlefieldArena) == "function" and IsActiveBattlefieldArena() then
+		return true
+	end
+	if type(GetNumArenaOpponents) == "function" then
+		local opponentCount = GetNumArenaOpponents()
+		if opponentCount and opponentCount > 0 then
+			return true
+		end
+	end
+	return false
+end
 
 local function GetFrameTexts(frame)
 	local nameText = frame.nameText
@@ -192,6 +219,21 @@ function NotPlater:SetFrameMatch(frame, unit)
 	healthFrame.lastUnitMatch = unit
 	frame.lastGuidMatch = guid
 	healthFrame.lastGuidMatch = guid
+end
+
+function NotPlater:MatchGroupTargetUnit(frame)
+	local group = self.raid or self.party
+	if not group then
+		return false
+	end
+	for _, unitID in pairs(group) do
+		local targetString = unitID .. "-target"
+		if self:PlateMatchesUnit(frame, targetString) then
+			SetFrameClassColorFromUnit(frame, targetString)
+			return true
+		end
+	end
+	return false
 end
 
 function NotPlater:UpdateFrameMatch(frame)
@@ -371,8 +413,21 @@ function NotPlater:ClassCheck(frame)
 	if frame.unitClass then return end
 
 	if self:IsTarget(frame) then
-		frame.unitClass = select(2, UnitClass("target"))
-		if frame.unitClass then frame.unitClass = RAID_CLASS_COLORS[frame.unitClass] end
+		SetFrameClassColorFromUnit(frame, "target")
+		return
+	end
+
+	if ShouldUseArenaUnits() then
+		for index = 1, MAX_ARENA_UNIT_IDS do
+			local arenaUnit = "arena" .. index
+			if self:PlateMatchesUnit(frame, arenaUnit) then
+				SetFrameClassColorFromUnit(frame, arenaUnit)
+				return
+			end
+		end
+	end
+
+	if self:MatchGroupTargetUnit(frame) then
 		return
 	end
 
@@ -383,26 +438,17 @@ function NotPlater:ClassCheck(frame)
 	local name = nameText:GetText()
 	local level = levelText:GetText()
 	--local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
-	local healthValue = frame.healthBar:GetValue()
-	local group = self.raid or self.party
-	if group then
-		for gMember,unitID in pairs(group) do
-			local targetString = unitID .. "-target"
-			if name == UnitName(targetString) and level == tostring(UnitLevel(targetString)) and healthValue == UnitHealth(targetString) then
-				frame.unitClass = select(2, UnitClass("target"))
-				if frame.unitClass then frame.unitClass = RAID_CLASS_COLORS[frame.unitClass] end
-				return
-			end
-		end
+	local healthBar = frame.healthBar
+	if not healthBar then
+		return
 	end
+	local healthValue = healthBar:GetValue()
 	if name == UnitName("mouseover") and level == tostring(UnitLevel("mouseover")) and healthValue == UnitHealth("mouseover") then
-		frame.unitClass = select(2, UnitClass("mouseover"))
-		if frame.unitClass then frame.unitClass = RAID_CLASS_COLORS[frame.unitClass] end
+		SetFrameClassColorFromUnit(frame, "mouseover")
 		return
 	end
 	if name == UnitName("focus") and level == tostring(UnitLevel("focus")) and healthValue == UnitHealth("focus") then
-		frame.unitClass = select(2, UnitClass("focus"))
-		if frame.unitClass then frame.unitClass = RAID_CLASS_COLORS[frame.unitClass] end
+		SetFrameClassColorFromUnit(frame, "focus")
 	end
 end
 
