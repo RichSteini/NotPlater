@@ -10,6 +10,7 @@ local LibDeflate = LibStub("LibDeflate")
 local LibSerialize = LibStub("LibSerialize")
 local AceComm = LibStub("AceComm-3.0")
 local dialog = LibStub("AceConfigDialog-3.0", true)
+local registry = LibStub("AceConfigRegistry-3.0", true)
 local configForDeflate = {level = 9}
 local configForLS = {errorOnUnserializableType = false}
 local addonName = ...
@@ -381,7 +382,9 @@ function ProfileSharing:ImportFromOptions()
     NotPlater.db:SetProfile(name)
     NotPlater:Reload()
   end
-  registry:NotifyChange("NotPlater")
+  if registry then
+    registry:NotifyChange("NotPlater")
+  end
 end
 
 function ProfileSharing:RequestProfile(characterName, profileName)
