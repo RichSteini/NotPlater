@@ -283,8 +283,12 @@ function NotPlater:PrepareFrame(frame)
 		frame.levelText = resolvedLevelText or levelText
 		frame.bossIcon = bossIcon or frame.bossIcon
 		frame.raidIcon = raidIcon or frame.raidIcon
-		if not frame.highlightTexture or frame.highlightTexture == highlightTexture then
-			frame.highlightTexture = frame:CreateTexture(nil, "ARTWORK")
+		if NotPlater.isWrathClient then
+			if not frame.highlightTexture or frame.highlightTexture == highlightTexture then
+				frame.highlightTexture = frame:CreateTexture(nil, "ARTWORK")
+			end
+		else
+			frame.highlightTexture = highlightTexture or frame.highlightTexture or frame:CreateTexture(nil, "ARTWORK")
 		end
 
 		-- Hide default border
@@ -292,7 +296,9 @@ function NotPlater:PrepareFrame(frame)
 		if threatGlow then threatGlow:SetTexCoord(0, 0, 0, 0) end
 		if castNoStop then castNoStop:SetTexCoord(0, 0, 0, 0) end
 		if dangerSkull then dangerSkull:SetTexCoord(0, 0, 0, 0) end
-		if highlightTexture then highlightTexture:SetTexCoord(0, 0, 0, 0) end
+		if highlightTexture and NotPlater.isWrathClient then
+			highlightTexture:SetTexCoord(0, 0, 0, 0)
+		end
 
 
 		-- Construct everything
