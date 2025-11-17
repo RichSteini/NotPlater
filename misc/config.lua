@@ -1,9 +1,5 @@
 if not NotPlater then return end
 
-local GetBuildInfo = GetBuildInfo
-local CLIENT_INTERFACE = GetBuildInfo and select(4, GetBuildInfo()) or 0
-local SUPPORTS_FONT_SIZE_OPTION = CLIENT_INTERFACE >= 30000
-
 local Config = NotPlater:NewModule("Config")
 local LDB = LibStub("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
@@ -428,7 +424,7 @@ local trackedUnitArgs = {
 		order = 0,
 		type = "description",
 		name = L["Choose which unit IDs NotPlater polls with UnitAura. Only these units provide exact aura timers when combat log tracking is disabled."],
-		fontSize = SUPPORTS_FONT_SIZE_OPTION and "medium" or nil,
+		fontSize = NotPlater.isWrathClient and "medium" or nil,
 	},
 }
 
@@ -583,47 +579,109 @@ local function ShowAuraPrompt(listKey, inputType)
 	end
 end
 
-StaticPopupDialogs["NOTPLATER_AURA_PROMPT"] = {
-	button1 = ACCEPT,
-	button2 = CANCEL,
-	hasEditBox = true,
-	timeout = 0,
-	whileDead = true,
-	hideOnEscape = true,
-	OnShow = function(self)
-		self:SetFrameStrata("FULLSCREEN_DIALOG")
-		self:Raise()
-	end,
-	OnAccept = function(self)
-		local text = self.editBox:GetText()
-		if auraPopupContext then
-			AddAuraToList(auraPopupContext.listKey, text)
-		end
-		self.editBox:SetText("")
-	end,
-	OnHide = function(self)
-		self.editBox:SetText("")
-		auraPopupContext = nil
-	end,
-	EditBoxOnEnterPressed = function(self)
-		local parent = self:GetParent()
-		parent.button1:Click()
-	end,
-	text = "",
-}
+if NotPlater.isWrathClient then
+	StaticPopupDialogs["NOTPLATER_AURA_PROMPT"] = {
+		button1 = ACCEPT,
+		button2 = CANCEL,
+		hasEditBox = true,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		OnShow = function(self)
+			self:SetFrameStrata("FULLSCREEN_DIALOG")
+			self:Raise()
+		end,
+		OnAccept = function(self)
+			local text = self.editBox:GetText()
+			if auraPopupContext then
+				AddAuraToList(auraPopupContext.listKey, text)
+			end
+			self.editBox:SetText("")
+		end,
+		OnHide = function(self)
+			self.editBox:SetText("")
+			auraPopupContext = nil
+		end,
+		EditBoxOnEnterPressed = function(editBox)
+			local parent = editBox:GetParent()
+			if parent and parent.button1 and parent.button1.Click then
+				parent.button1:Click()
+			end
+		end,
+		EditBoxOnEscapePressed = function(editBox)
+			local parent = editBox:GetParent()
+			if parent then
+				parent:Hide()
+			end
+		end,
+		text = "",
+	}
+else
+	StaticPopupDialogs["NOTPLATER_AURA_PROMPT"] = {
+		button1 = ACCEPT,
+		button2 = CANCEL,
+		hasEditBox = true,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		OnShow = function()
+			this:SetFrameStrata("FULLSCREEN_DIALOG")
+			this:Raise()
+		end,
+		OnAccept = function()
+			local text = this.editBox:GetText()
+			if auraPopupContext then
+				AddAuraToList(auraPopupContext.listKey, text)
+			end
+			this.editBox:SetText("")
+		end,
+		OnHide = function()
+			this.editBox:SetText("")
+			auraPopupContext = nil
+		end,
+		EditBoxOnEnterPressed = function()
+			local parent = this:GetParent()
+			if parent and parent.button1 and parent.button1.Click then
+				parent.button1:Click()
+			end
+		end,
+		EditBoxOnEscapePressed = function()
+			local parent = this:GetParent()
+			if parent then
+				parent:Hide()
+			end
+		end,
+		text = "",
+	}
+end
 
-StaticPopupDialogs["NOTPLATER_SWIRL_WARNING"] = {
-	button1 = OKAY,
-	timeout = 0,
-	whileDead = true,
-	hideOnEscape = true,
-	preferredIndex = 3,
-	OnShow = function(self)
-		self:SetFrameStrata("FULLSCREEN_DIALOG")
-		self:Raise()
-	end,
-	text = L["Swirl animation warning message"],
-}
+if NotPlater.isWrathClient then
+	StaticPopupDialogs["NOTPLATER_SWIRL_WARNING"] = {
+		button1 = OKAY,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		preferredIndex = 3,
+		OnShow = function(self)
+			self:SetFrameStrata("FULLSCREEN_DIALOG")
+			self:Raise()
+		end,
+		text = L["Swirl animation warning message"],
+	}
+else
+	StaticPopupDialogs["NOTPLATER_SWIRL_WARNING"] = {
+		button1 = OKAY,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		preferredIndex = 3,
+		OnShow = function()
+			this:SetFrameStrata("FULLSCREEN_DIALOG")
+			this:Raise()
+		end,
+		text = L["Swirl animation warning message"],
+	}
+end
 
 NotPlater.ConfigPrototypes.Buffs = NotPlater.ConfigPrototypes:BuildBuffsArgs({
 	trackedUnitArgs = trackedUnitArgs,
@@ -966,7 +1024,7 @@ local function LoadOptions()
 					description = {
 						order = 0,
 						type = "description",
-						fontSize = SUPPORTS_FONT_SIZE_OPTION and "medium" or nil,
+						fontSize = NotPlater.isWrathClient and "medium" or nil,
 						name = L["Generate an export string and copy it to share your current profile."],
 					},
 					generate = {
@@ -1018,7 +1076,7 @@ local function LoadOptions()
 					exportSummary = {
 						order = 4,
 						type = "description",
-						fontSize = SUPPORTS_FONT_SIZE_OPTION and "medium" or nil,
+						fontSize = NotPlater.isWrathClient and "medium" or nil,
 						name = function()
 							local module = GetProfileSharingModule()
 							if not module then
@@ -1041,7 +1099,7 @@ local function LoadOptions()
 					description = {
 						order = 0,
 						type = "description",
-						fontSize = SUPPORTS_FONT_SIZE_OPTION and "medium" or nil,
+						fontSize = NotPlater.isWrathClient and "medium" or nil,
 						name = L["Paste a profile string received from another player."],
 					},
 					importString = {
@@ -1111,7 +1169,7 @@ local function LoadOptions()
 					importSummary = {
 						order = 5,
 						type = "description",
-						fontSize = SUPPORTS_FONT_SIZE_OPTION and "medium" or nil,
+						fontSize = NotPlater.isWrathClient and "medium" or nil,
 						name = function()
 							local module = GetProfileSharingModule()
 							if not module then
