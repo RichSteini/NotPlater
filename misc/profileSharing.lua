@@ -151,7 +151,7 @@ local function ShowTooltip(lines)
   ItemRefTooltip:Show()
 end
 
-local function filterFunc(_, event, msg, player, l, cs, t, flag, channelId, ...)
+local function HandleProfileChatFilter(msg, event, player, l, cs, t, flag, channelId, ...)
   local selfName = ShortName(UnitName("player"))
   if flag == "GM" or flag == "DEV" or (event == "CHAT_MSG_CHANNEL" and type(channelId) == "number" and channelId > 0) then
     return
@@ -182,19 +182,29 @@ local function filterFunc(_, event, msg, player, l, cs, t, flag, channelId, ...)
   end
 end
 
-ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_OFFICER", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID_LEADER", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER_INFORM", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_BATTLEGROUND", filterFunc)
-ChatFrame_AddMessageEventFilter("CHAT_MSG_BATTLEGROUND_LEADER", filterFunc)
+local function LegacyChatFilter(msg, event, _, player, l, cs, t, flag, channelId, ...)
+  return HandleProfileChatFilter(msg, event, player, l, cs, t, flag, channelId, ...)
+end
+
+local function ModernChatFilter(_, event, msg, player, l, cs, t, flag, channelId, ...)
+  return HandleProfileChatFilter(msg, event, player, l, cs, t, flag, channelId, ...)
+end
+
+local chatFilterFunc = NotPlater.isWrathClient and ModernChatFilter or LegacyChatFilter
+
+ChatFrame_AddMessageEventFilter("CHAT_MSG_CHANNEL", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_YELL", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_GUILD", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_OFFICER", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_PARTY_LEADER", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_RAID_LEADER", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_SAY", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_WHISPER_INFORM", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_BATTLEGROUND", chatFilterFunc)
+ChatFrame_AddMessageEventFilter("CHAT_MSG_BATTLEGROUND_LEADER", chatFilterFunc)
 
 local origSetItemRef = SetItemRef
 SetItemRef = function(link, text, button, chatFrame)
