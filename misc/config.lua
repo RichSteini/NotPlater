@@ -1194,6 +1194,13 @@ SlashCmdList["NOTPLATER"] = function(input)
 		NotPlater:ToggleSimulatorFrame()
 	elseif msg == "help" then
         NotPlater:PrintHelp()
+	elseif msg == "share" then
+		local module = GetProfileSharingModule()
+		if not module then
+			NotPlater:Print(L["Profile sharing is currently disabled."])
+			return
+		end
+		module:InsertShareLink()
 	else
 		Config:ToggleConfig()
     end

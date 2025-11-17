@@ -197,6 +197,7 @@ function NotPlater:PrintHelp()
     self:Print(L["/np config - Toggle the config window"])
     self:Print(L["/np simulator - Toggle the simulator frame"])
     self:Print(L["/np minimap - Toggle the minimap icon"])
+    self:Print(L["/np share - Send a profile link to your party or raid chat"])
 end
 
 function NotPlater:Print(msg)
