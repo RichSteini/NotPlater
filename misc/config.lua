@@ -1,5 +1,9 @@
 if not NotPlater then return end
 
+local GetBuildInfo = GetBuildInfo
+local CLIENT_INTERFACE = GetBuildInfo and select(4, GetBuildInfo()) or 0
+local SUPPORTS_FONT_SIZE_OPTION = CLIENT_INTERFACE >= 30000
+
 local Config = NotPlater:NewModule("Config")
 local LDB = LibStub("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
@@ -8,7 +12,7 @@ local L = NotPlaterLocals
 
 local addonName = ...
 if type(addonName) ~= "string" or addonName == "" then
-	addonName = (NotPlater and NotPlater.addonName) or "NotPlater"
+	addonName = (NotPlater and NotPlater.addonName) or "NotPlater-2.4.3"
 else
 	NotPlater.addonName = addonName
 end
@@ -73,8 +77,8 @@ local CATEGORY_ICONS = {
 	castBar = "Interface\\Icons\\Spell_Frost_Frostbolt02",
 	nameText = "Interface\\Icons\\INV_Scroll_03",
 	levelText = "Interface\\Icons\\INV_Misc_Note_01",
-	raidIcon = "Interface\\Icons\\Ability_Hunter_MarkedForDeath",
-	bossIcon = "Interface\\Icons\\Achievement_Boss_Ragnaros",
+	raidIcon = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_1",
+	bossIcon = "Interface\\TargetingFrame\\UI-TargetingFrame-Skull",
 	target = "Interface\\Icons\\Ability_Hunter_SniperShot",
 	buffs = "Interface\\Icons\\Spell_Holy_WordFortitude",
 	stacking = "Interface\\Icons\\Ability_Warrior_SavageBlow",
@@ -424,7 +428,7 @@ local trackedUnitArgs = {
 		order = 0,
 		type = "description",
 		name = L["Choose which unit IDs NotPlater polls with UnitAura. Only these units provide exact aura timers when combat log tracking is disabled."],
-		fontSize = "medium",
+		fontSize = SUPPORTS_FONT_SIZE_OPTION and "medium" or nil,
 	},
 }
 
@@ -962,7 +966,7 @@ local function LoadOptions()
 					description = {
 						order = 0,
 						type = "description",
-						fontSize = "medium",
+						fontSize = SUPPORTS_FONT_SIZE_OPTION and "medium" or nil,
 						name = L["Generate an export string and copy it to share your current profile."],
 					},
 					generate = {
@@ -1014,7 +1018,7 @@ local function LoadOptions()
 					exportSummary = {
 						order = 4,
 						type = "description",
-						fontSize = "medium",
+						fontSize = SUPPORTS_FONT_SIZE_OPTION and "medium" or nil,
 						name = function()
 							local module = GetProfileSharingModule()
 							if not module then
@@ -1037,7 +1041,7 @@ local function LoadOptions()
 					description = {
 						order = 0,
 						type = "description",
-						fontSize = "medium",
+						fontSize = SUPPORTS_FONT_SIZE_OPTION and "medium" or nil,
 						name = L["Paste a profile string received from another player."],
 					},
 					importString = {
@@ -1107,7 +1111,7 @@ local function LoadOptions()
 					importSummary = {
 						order = 5,
 						type = "description",
-						fontSize = "medium",
+						fontSize = SUPPORTS_FONT_SIZE_OPTION and "medium" or nil,
 						name = function()
 							local module = GetProfileSharingModule()
 							if not module then

@@ -18,8 +18,8 @@ NotPlater.lua
 misc\simulator\frame.lua
 misc\simulator\auras.lua
 misc\configPrototypes.lua
-misc\config.lua
 misc\profileSharing.lua
+misc\config.lua
 misc\configDefaults.lua
 misc\diminishingReturnsData-2.4.3.lua
 misc\utils.lua

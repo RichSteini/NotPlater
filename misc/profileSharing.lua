@@ -13,7 +13,6 @@ local dialog = LibStub("AceConfigDialog-3.0", true)
 local registry = LibStub("AceConfigRegistry-3.0", true)
 local configForDeflate = {level = 9}
 local configForLS = {errorOnUnserializableType = false}
-local addonName = ...
 local addonPrefix = "NotPlater"
 local tooltipLoading = false
 local receivedData = false

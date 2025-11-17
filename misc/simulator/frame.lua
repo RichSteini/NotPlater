@@ -2,8 +2,12 @@ if not NotPlater then return end
 
 local addonName = ...
 if type(addonName) ~= "string" or addonName == "" then
-	addonName = NotPlater.addonName or "NotPlater"
+	addonName = NotPlater.addonName or "NotPlater-2.4.3"
 end
+
+local GetBuildInfo = GetBuildInfo
+local CLIENT_INTERFACE = GetBuildInfo and select(4, GetBuildInfo()) or 0
+local IS_WRATH_CLIENT = CLIENT_INTERFACE >= 30000
 
 --local configDialog = LibStub("AceConfigDialog-3.0")
 local L = NotPlaterLocals
@@ -406,17 +410,36 @@ function NotPlater:ConstructSimulatorFrame()
     --simulatorFrame.defaultFrame.defaultCastFrame = CreateFrame("StatusBar", "NotPlaterSimulatorCastFrame", simulatorFrame.defaultFrame)
 
     -- Regions
-    simulatorFrame.defaultFrame.defaultThreatGlow = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-    simulatorFrame.defaultFrame.defaultCastBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-    simulatorFrame.defaultFrame.defaultHealthBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-    simulatorFrame.defaultFrame.defaultCastNoStop = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-    simulatorFrame.defaultFrame.defaultSpellIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-    simulatorFrame.defaultFrame.defaultHighlightTexture = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-    simulatorFrame.defaultFrame.defaultNameText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
-    simulatorFrame.defaultFrame.defaultLevelText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
-	simulatorFrame.defaultFrame.dangerSkull = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
-	simulatorFrame.defaultFrame.defaultBossIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
-	simulatorFrame.defaultFrame.defaultRaidIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+    if IS_WRATH_CLIENT then
+        simulatorFrame.defaultFrame.defaultThreatGlow = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultHealthBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultCastBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultCastNoStop = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultSpellIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultHighlightTexture = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultNameText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultLevelText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.dangerSkull = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+        simulatorFrame.defaultFrame.defaultBossIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+        simulatorFrame.defaultFrame.defaultRaidIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+    else
+        simulatorFrame.defaultFrame.defaultHealthBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultCastBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultSpellIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultHighlightTexture = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultNameText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultLevelText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultBossIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+        simulatorFrame.defaultFrame.defaultRaidIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+        simulatorFrame.defaultFrame.defaultThreatGlow = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.defaultCastNoStop = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
+        simulatorFrame.defaultFrame.dangerSkull = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+    end
+
+    simulatorFrame.defaultFrame.nameText = simulatorFrame.defaultFrame.defaultNameText
+    simulatorFrame.defaultFrame.levelText = simulatorFrame.defaultFrame.defaultLevelText
+    simulatorFrame.defaultFrame.bossIcon = simulatorFrame.defaultFrame.defaultBossIcon
+    simulatorFrame.defaultFrame.raidIcon = simulatorFrame.defaultFrame.defaultRaidIcon
 
     -- Prepare
     self:PrepareFrame(simulatorFrame.defaultFrame)

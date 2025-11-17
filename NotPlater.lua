@@ -1,9 +1,12 @@
 local addonName = ...
-local IS_WRATH_CLIENT = addonName ~= nil
-
+local GetBuildInfo = GetBuildInfo
+local CLIENT_INTERFACE = GetBuildInfo and select(4, GetBuildInfo()) or 0
+local IS_WRATH_CLIENT = CLIENT_INTERFACE >= 30000
 NotPlater = LibStub("AceAddon-3.0"):NewAddon("NotPlater", "AceEvent-3.0", "AceHook-3.0")
+NotPlater.clientInterface = CLIENT_INTERFACE
+NotPlater.isWrathClient = IS_WRATH_CLIENT
 NotPlater.revision = "v3.0.0"
-NotPlater.addonName = addonName or NotPlater.addonName or "NotPlater"
+NotPlater.addonName = addonName or NotPlater.addonName or "NotPlater-2.4.3"
 
 local UnitName = UnitName
 local UnitLevel = UnitLevel
@@ -50,24 +53,24 @@ local function ShouldUseArenaUnits()
 	return false
 end
 
+local function GetOrderedFrameRegions(frame)
+	if IS_WRATH_CLIENT then
+		return frame:GetRegions()
+	end
+	local healthBorder, castBorder, spellIcon, highlightTexture, nameText, levelText, bossIcon, raidIcon = frame:GetRegions()
+	return nil, healthBorder, castBorder, nil, spellIcon, highlightTexture, nameText, levelText, nil, bossIcon, raidIcon
+end
+
 local function GetFrameTexts(frame)
 	local nameText = frame.nameText
 	local levelText = frame.levelText
 	if not nameText or not levelText then
-		local r1, r2, r3, r4, r5, r6, r7, r8 = frame:GetRegions()
+		local regions = {GetOrderedFrameRegions(frame)}
 		if not nameText then
-			if IS_WRATH_CLIENT then
-				nameText = r7
-			else
-				nameText = r5
-			end
+			nameText = regions[7]
 		end
 		if not levelText then
-			if IS_WRATH_CLIENT then
-				levelText = r8
-			else
-				levelText = r6
-			end
+			levelText = regions[8]
 		end
 	end
 	return nameText, levelText
@@ -268,7 +271,7 @@ function NotPlater:UpdateFrameMatch(frame)
 end
 
 function NotPlater:PrepareFrame(frame)
-	local threatGlow, healthBorder, castBorder, castNoStop, spellIcon, highlightTexture, nameText, levelText, dangerSkull, bossIcon, raidIcon = frame:GetRegions()
+	local threatGlow, healthBorder, castBorder, castNoStop, spellIcon, highlightTexture, nameText, levelText, dangerSkull, bossIcon, raidIcon = GetOrderedFrameRegions(frame)
 	local health, cast = frame:GetChildren()
 
 	-- Hooks and creation (only once that way settings can be applied while frame is visible)

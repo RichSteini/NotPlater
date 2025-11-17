@@ -9,7 +9,6 @@ end
 local DEFAULT_FALLBACK_UNITS = {"target", "focus", "mouseover"}
 local DEFAULT_ICON = "Interface\\Icons\\INV_Misc_QuestionMark"
 local HUGE = math.huge
-local wipe = wipe
 local tinsert = table.insert
 local bit_band = bit and bit.band
 local GetTime = GetTime
@@ -20,6 +19,12 @@ local COMBATLOG_OBJECT_TYPE_PET = _G.COMBATLOG_OBJECT_TYPE_PET or 0x00001000
 local COMBATLOG_OBJECT_TYPE_GUARDIAN = _G.COMBATLOG_OBJECT_TYPE_GUARDIAN or 0x00002000
 
 local Base = {}
+
+local function wipe(t)
+    for k in pairs(t) do
+        t[k] = nil
+    end
+end
 
 function Base:EnsureInit()
 	if self.initialized then

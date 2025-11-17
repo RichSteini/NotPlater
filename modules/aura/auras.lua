@@ -679,7 +679,7 @@ function Auras:ApplyIconSize(icon, index)
 	local size = self:GetSizeConfig(index)
 	local width = size.width or 22
 	local height = size.height or 22
-	icon:SetSize(width, height)
+	NotPlater:SetSize(icon, width, height)
 	if icon.border then
 		local thickness = size.borderThickness or 1
 		icon.border:SetPoint("TOPLEFT", -thickness, thickness)
@@ -1005,7 +1005,7 @@ function Auras:DisplayContainer(frame, container, auras)
 	local effectiveRowSpacing = rowSpacing + border * 2
 	local containerWidth = perRow * iconWidth + effectiveSpacing * math_max(0, perRow - 1)
 	local containerHeight = rows * iconHeight + effectiveRowSpacing * math_max(0, rows - 1)
-	container:SetSize(containerWidth, containerHeight)
+	NotPlater:SetSize(container, containerWidth, containerHeight)
 	for i, aura in ipairs(auras) do
 		local icon = self:AcquireIcon(container, i)
 		self:SetupIcon(icon, aura, size, container.index)
@@ -1029,7 +1029,7 @@ end
 
 function Auras:CreateIcon(container)
 	local icon = CreateFrame("Frame", nil, container)
-	icon:SetSize(24, 24)
+	NotPlater:SetSize(icon, 24, 24)
 	icon:SetScale(1)
 	icon.icon = icon:CreateTexture(nil, "OVERLAY")
 	icon.icon:SetAllPoints()
