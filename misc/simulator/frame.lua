@@ -414,6 +414,7 @@ function NotPlater:ConstructSimulatorFrame()
     simulatorFrame.dragMeTexture:SetPoint("TOPLEFT", simulatorFrame, 7, -7)
     simulatorFrame.dragMeTexture:SetAlpha(0.3)
     simulatorFrame.defaultFrame = CreateFrame("Button", "NotPlaterSimulatorDefaultFrame", simulatorFrame)
+    simulatorFrame.defaultFrame.isSimulatorFrame = true
     simulatorFrame.defaultFrame:EnableMouse(true)
     simulatorFrame.defaultFrame:RegisterForClicks("AnyDown")
     simulatorFrame.defaultFrame:SetScript("OnClick", function (self, mouseButton)

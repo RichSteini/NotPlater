@@ -297,7 +297,10 @@ function NotPlater:PrepareFrame(frame)
 		if castNoStop then castNoStop:SetTexCoord(0, 0, 0, 0) end
 		if dangerSkull then dangerSkull:SetTexCoord(0, 0, 0, 0) end
 		if highlightTexture and NotPlater.isWrathClient then
+			frame.defaultHighlightTexture = highlightTexture
 			highlightTexture:SetTexCoord(0, 0, 0, 0)
+			frame.useHighlightProxy = not frame.isSimulatorFrame
+			frame.highlightTexture:Hide()
 		end
 
 
@@ -344,6 +347,17 @@ function NotPlater:PrepareFrame(frame)
 				NotPlater:SetTargetTargetText(self)
 				NotPlater:UpdateFrameMatch(self)
 				self.targetCheckElapsed = 0
+			end
+			if NotPlater.isWrathClient and self.useHighlightProxy and self.defaultHighlightTexture and self.highlightTexture then
+				if self.defaultHighlightTexture:IsShown() then
+					if not self.highlightTexture:IsShown() then
+						self.highlightTexture:Show()
+					end
+				else
+					if self.highlightTexture:IsShown() then
+						self.highlightTexture:Hide()
+					end
+				end
 			end
 			if NotPlater:IsTarget(self) then
 				self:SetAlpha(1)
