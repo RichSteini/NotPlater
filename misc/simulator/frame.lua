@@ -21,6 +21,7 @@ local unpack = unpack
 local UIParent = UIParent
 local GameTooltip = GameTooltip
 local GetTime = GetTime
+local UnitGUID = UnitGUID
 
 local L = NotPlaterLocals
 local simulatorFrameConstructed = false
@@ -58,18 +59,39 @@ local roleColors = {
     [ThreatTypes.DPS] = {0, 0, 1, 1},
 }
 local tooltipUpdateFrame = CreateFrame("Frame")
-local ThreatSimulator = {}
+local SIMULATED_TARGET_GUID = addonName .. "_ThreatSimulatorTarget"
+local ThreatSimulator = {simulatedTargetGuid = SIMULATED_TARGET_GUID, playerUnit = nil}
+
+local function GetPlayerThreatValue(self)
+	if self.playerUnit then
+		return self.playerUnit.currentThreat or 0
+	end
+	for _, unit in ipairs(self.group) do
+		if unit.isPlayer then
+			self.playerUnit = unit
+			return unit.currentThreat or 0
+		end
+	end
+	return 0
+end
 
 function ThreatSimulator:GetThreat(sourceUnit, targetGUID)
-    if sourceUnit == "player" then
-        for k, unit in ipairs(self.group) do
-            if unit.isPlayer then
-                return unit.currentThreat
-            end
-        end
-    else
-        return sourceUnit.currentThreat
-    end
+	if IS_WRATH_CLIENT then
+		if sourceUnit == "player" then
+			return GetPlayerThreatValue(self)
+		elseif type(sourceUnit) == "table" then
+			return sourceUnit.currentThreat or 0
+		end
+	else
+		local playerGuid = UnitGUID and UnitGUID("player")
+		if sourceUnit == playerGuid then
+			return GetPlayerThreatValue(self)
+		elseif type(sourceUnit) == "number" then
+			local unit = self.group[sourceUnit]
+			return unit and unit.currentThreat or 0
+		end
+	end
+	return 0
 end
 
 function ThreatSimulator:GetMaxThreatOnTarget(targetGUID)
@@ -88,15 +110,18 @@ function ThreatSimulator:Reset(healthFrame)
     local threatProfile = NotPlater.db.profile.threat
     healthFrame:SetValue(healthMax)
     local playerSet = false
+    self.playerUnit = nil
     for k, unit in ipairs(self.group) do
         unit.currentThreat = 0
         unit.round = 0
         if not playerSet then
             if threatProfile.general.mode == "tank" and unit.type == ThreatTypes.TANK then
                 unit.isPlayer = true
+                self.playerUnit = unit
                 playerSet = true
             elseif threatProfile.general.mode == "hdps" and (unit.type == ThreatTypes.DPS or unit.type == ThreatTypes.HEALER) then
                 unit.isPlayer = true
+                self.playerUnit = unit
                 playerSet = true
             end
         else
@@ -257,6 +282,7 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
     if threatUpdateElapsed > 1 then
         ThreatSimulator:Step(self.defaultFrame.defaultHealthFrame)
         self.defaultFrame.healthBar.lastUnitMatch = "target"
+        self.defaultFrame.healthBar.lastGuidMatch = ThreatSimulator.simulatedTargetGuid
         NotPlater:OnNameplateMatch(self.defaultFrame.healthBar, ThreatSimulator.group, ThreatSimulator)
         threatUpdateElapsed = 0
     end
