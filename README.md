@@ -14,6 +14,7 @@ NotPlater brings Plater-inspired, threat-aware nameplates to TBC (2.4.3) and Wra
 - Component display order controls so you can raise/lower plate elements when stacking nameplates.
 - Profile import/export with shareable strings or links plus group version checks to keep parties aligned.
 - Simulator frame and polished defaults to preview layouts without needing live targets.
+- Supports all shipped localizations so you can configure in your preferred language.
 
 ## Installation
 - 2.4.3: Rename the downloaded folder to `NotPlater-2.4.3` and place it in `..\Interface\AddOns\NotPlater-2.4.3`.

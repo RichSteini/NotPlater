@@ -25,6 +25,7 @@ NotPlaterReleaseData = {
 - Added color options for level text and name text  
 - Default CVar applied to hide the Blizzard castbar  
 - General polish: better defaults, clearer warnings, and a new “What’s New” dialog
+- Support for all localizations
 
 	]],
 }
