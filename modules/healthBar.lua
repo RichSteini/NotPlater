@@ -4,34 +4,51 @@ function NotPlater:HealthOnValueChanged(oldHealthBar, value)
 	local _, maxValue = oldHealthBar:GetMinMaxValues()
 	local healthBarConfig = self.db.profile.healthBar
 
+	-- Validate input values to prevent display issues
+	if not value or not maxValue or maxValue <= 0 then
+		return
+	end
+	
+	-- Clamp value to valid range to prevent health bar showing incorrect values
+	value = math.max(0, math.min(value, maxValue))
+
 	local healthFrame = oldHealthBar.healthBar
-	healthFrame:GetParent().healthBar:SetMinMaxValues(0, maxValue)
+	-- Ensure we have a valid health frame reference
+	if not healthFrame then
+		return
+	end
+	
+	-- Set min/max values before setting the current value to avoid race conditions
+	healthFrame:SetMinMaxValues(0, maxValue)
 	healthFrame:SetValue(value)
 
-	if healthBarConfig.healthText.general.displayType == "minmax" then
-		if( maxValue == 100 ) then
-			healthFrame.healthText:SetFormattedText("%d%% / %d%%", value, maxValue)
-		else
-			if(maxValue > 1000) then
-				if(value > 1000) then
-					healthFrame.healthText:SetFormattedText("%.1fk / %.1fk", value / 1000, maxValue / 1000)
-				else
-					healthFrame.healthText:SetFormattedText("%d / %.1fk", value, maxValue / 1000)
-				end
+	-- Update health text if it exists
+	if healthFrame.healthText then
+		if healthBarConfig.healthText.general.displayType == "minmax" then
+			if( maxValue == 100 ) then
+				healthFrame.healthText:SetFormattedText("%d%% / %d%%", value, maxValue)
 			else
-				healthFrame.healthText:SetFormattedText("%d / %d", value, maxValue)
+				if(maxValue > 1000) then
+					if(value > 1000) then
+						healthFrame.healthText:SetFormattedText("%.1fk / %.1fk", value / 1000, maxValue / 1000)
+					else
+						healthFrame.healthText:SetFormattedText("%d / %.1fk", value, maxValue / 1000)
+					end
+				else
+					healthFrame.healthText:SetFormattedText("%d / %d", value, maxValue)
+				end
 			end
-		end
-	elseif healthBarConfig.healthText.general.displayType == "both" then
-		if(value > 1000) then
-			healthFrame.healthText:SetFormattedText("%.1fk (%d%%)", value/1000, value/maxValue * 100)
+		elseif healthBarConfig.healthText.general.displayType == "both" then
+			if(value > 1000) then
+				healthFrame.healthText:SetFormattedText("%.1fk (%d%%)", value/1000, math.floor(value/maxValue * 100))
+			else
+				healthFrame.healthText:SetFormattedText("%d (%d%%)", value, math.floor(value/maxValue * 100))
+			end
+		elseif healthBarConfig.healthText.general.displayType == "percent" then
+			healthFrame.healthText:SetFormattedText("%d%%", math.floor(value / maxValue * 100))
 		else
-			healthFrame.healthText:SetFormattedText("%d (%d%%)", value, value/maxValue * 100)
+			healthFrame.healthText:SetText("")
 		end
-	elseif healthBarConfig.healthText.general.displayType == "percent" then
-		healthFrame.healthText:SetFormattedText("%d%%", value / maxValue * 100)
-	else
-		healthFrame.healthText:SetText("")
 	end
 
 	self:ThreatCheck(oldHealthBar:GetParent())
