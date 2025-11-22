@@ -14,8 +14,6 @@ NotPlaterReleaseData = {
 	markdown = [[
 # v3.0.0 — Overview
 
-# NotPlater v3.0.0 — Overview
-
 - New aura engine with configurable tracking buff/debuff slots and cooldown visuals  
 - Component display order controls for adjusting frame stacking  
 - Profile import/export with shareable strings and links  
