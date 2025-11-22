@@ -367,6 +367,7 @@ function NotPlater:PrepareFrame(frame)
 				end
 			end
 			if NotPlater.db.profile.levelText.general.enable then
+				NotPlater:LevelTextOnShow(levelText, self.healthBar)
 				levelText:Show()
 				levelText:SetAlpha(NotPlater.db.profile.levelText.general.opacity)
 			else
@@ -380,11 +381,12 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureHealthBar(frame, health)
 	self:ConfigureCastBar(frame)
 	self:ConfigureStacking(frame)
-	self:ConfigureGeneralisedIcon(bossIcon, frame.healthBar, self.db.profile.bossIcon)
-	self:ConfigureGeneralisedIcon(raidIcon, frame.healthBar, self.db.profile.raidIcon)
-	self:ConfigureLevelText(levelText, frame.healthBar)
-	self:ConfigureNameText(nameText, frame.healthBar)
+		self:ConfigureGeneralisedIcon(frame.bossIcon, frame.healthBar, self.db.profile.bossIcon)
+		self:ConfigureGeneralisedIcon(frame.raidIcon, frame.healthBar, self.db.profile.raidIcon)
+		self:ConfigureLevelText(frame.levelText, frame.healthBar)
+		self:ConfigureNameText(frame.nameText, frame.healthBar)
 	self:ConfigureTarget(frame)
+		self:ApplyStackingOrder(frame)
 	self:UpdateFrameMatch(frame)
 	self:TargetCheck(frame)
 end

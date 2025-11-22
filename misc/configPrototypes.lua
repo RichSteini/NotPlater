@@ -360,67 +360,150 @@ end
 
 function ConfigPrototypes:LoadConfigPrototypes()
     ConfigPrototypes.NameplateStacking = {
-        header = {
-            order = 0,
-            name = L["Note: All settings here only work out of combat."],
-            type = "header",
-        },
-        general = {
+        componentOrdering = {
             order = 1,
             type = "group",
-            inline = true,
-            name = L["General"],
+            name = L["Component Display Order"],
             args = {
-                enable = {
+                description = {
                     order = 0,
-                    type = "toggle",
-                    name = L["Enable"],
-                    desc = L["Only works if the nameplate is visible before you are in combat"],
+                    type = "description",
+                    name = L["Component Display Order Info Text"],
+                    fontSize = NotPlater.isWrathClient and "medium" or nil,
                 },
-                overlappingCastbars = {
-                    order = 0,
-                    type = "toggle",
-                    name = L["Overlapping Castbars"],
+                componentList = {
+                    order = 1,
+                    type = "multiselect",
+                    name = L["Component"],
+                    values = function()
+                        return NotPlater:GetStackingSelectorValues()
+                    end,
+                    get = function(info, key)
+                        local index = tonumber(key)
+                        return NotPlater:GetStackingSelectedIndex() == index
+                    end,
+                    set = function(info, key, state)
+                        if state then
+                            NotPlater:SetStackingSelectedComponentByIndex(tonumber(key))
+                        else
+                            NotPlater:SetStackingSelectedComponentByIndex(nil)
+                        end
+                    end,
+                },
+                moveControls = {
+                    order = 2,
+                    type = "group",
+                    name = "",
+                    inline = true,
+                    args = {
+                        moveUp = {
+                            order = 0,
+                            type = "execute",
+                            name = L["Move Up"],
+                            image = "Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up",
+                            imageWidth = 32,
+                            imageHeight = 32,
+                            func = function()
+                                NotPlater:ShiftStackingComponent(-1)
+                            end,
+                            disabled = function()
+                                return not NotPlater:GetStackingSelectedComponent()
+                            end,
+                        },
+                        moveDown = {
+                            order = 1,
+                            type = "execute",
+                            name = L["Move Down"],
+                            image = "Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up",
+                            imageWidth = 32,
+                            imageHeight = 32,
+                            func = function()
+                                NotPlater:ShiftStackingComponent(1)
+                            end,
+                            disabled = function()
+                                return not NotPlater:GetStackingSelectedComponent()
+                            end,
+                        },
+                        reset = {
+                            order = 2,
+                            type = "execute",
+                            name = L["Reset Order"],
+                            func = function()
+                                NotPlater:ResetStackingOrder()
+                            end,
+                        },
+                    },
                 },
             },
         },
-        margin = {
+        stackingSettings = {
             order = 2,
             type = "group",
-            inline = true,
-            name = L["Margin"],
+            name = L["Nameplate Stacking"],
             args = {
-                xStacking = {
+                header = {
                     order = 0,
-                    type = "range",
-                    name = L["X Stacking"],
-                    min = 0, max = 10, step = 1,
+                    name = L["Note: All settings here only work out of combat."],
+                    type = "header",
                 },
-                yStacking = {
+                general = {
                     order = 1,
-                    type = "range",
-                    name = L["Y Stacking"],
-                    min = 0, max = 10, step = 1,
+                    type = "group",
+                    inline = true,
+                    name = L["General"],
+                    args = {
+                        enable = {
+                            order = 0,
+                            type = "toggle",
+                            name = L["Enable"],
+                            desc = L["Only works if the nameplate is visible before you are in combat"],
+                        },
+                        overlappingCastbars = {
+                            order = 1,
+                            type = "toggle",
+                            name = L["Overlapping Castbars"],
+                        },
+                    },
                 },
-            },
-        },
-        frameStrata = {
-            order = 3,
-            type = "group",
-            inline = true,
-            name = L["Frame Strata"],
-            args = {
-                normalFrame = {
-                    order = 0,
-                    type = "select",
-                    name = L["Normal Frame"],
-                    values = frameStratas,
+                margin = {
+                    order = 2,
+                    type = "group",
+                    inline = true,
+                    name = L["Margin"],
+                    args = {
+                        xStacking = {
+                            order = 0,
+                            type = "range",
+                            name = L["X Stacking"],
+                            min = 0, max = 10, step = 1,
+                        },
+                        yStacking = {
+                            order = 1,
+                            type = "range",
+                            name = L["Y Stacking"],
+                            min = 0, max = 10, step = 1,
+                        },
+                    },
                 },
-                targetFrame = {
-                    order = 1,
-                    type = "select",
-                    name = L["Target Frame"],
-                    values = frameStratas,
+                frameStrata = {
+                    order = 3,
+                    type = "group",
+                    inline = true,
+                    name = L["Frame Strata"],
+                    args = {
+                        normalFrame = {
+                            order = 0,
+                            type = "select",
+                            name = L["Normal Frame"],
+                            values = frameStratas,
+                        },
+                        targetFrame = {
+                            order = 1,
+                            type = "select",
+                            name = L["Target Frame"],
+                            values = frameStratas,
+                        },
+                    },
                 },
             },
         },

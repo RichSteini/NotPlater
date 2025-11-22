@@ -1,5 +1,28 @@
 if not NotPlater then return end
 
+local DEFAULT_STACKING_COMPONENTS = NotPlater.defaultStackingComponents or {
+	"healthBar",
+	"healthText",
+	"nameText",
+	"castBar",
+	"castSpellIcon",
+	"castSpellNameText",
+	"castSpellTimeText",
+	"levelText",
+	"targetOverlay",
+	"bossIcon",
+	"raidIcon",
+	"threatPercentBar",
+	"threatPercentText",
+	"threatDifferentialText",
+	"threatNumberText",
+	"targetTargetText",
+	"aurasDebuffs",
+	"aurasBuffs",
+}
+
+NotPlater.defaultStackingComponents = DEFAULT_STACKING_COMPONENTS
+
 function NotPlater:LoadDefaultConfig()
     self.defaults = {
         profile = {
@@ -556,6 +579,7 @@ function NotPlater:LoadDefaultConfig()
                 general = {
                     enable = false,
                     overlappingCastbars = true,
+                    components = CopyTable and CopyTable(DEFAULT_STACKING_COMPONENTS) or {unpack(DEFAULT_STACKING_COMPONENTS)},
                 },
                 margin = {
                     xStacking = 0,
