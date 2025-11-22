@@ -52,8 +52,14 @@ local function SyncContainerVisibility(container, anchorFrame)
 		SetContainerVisibility(container, anchorFrame:IsShown())
 	end
 
-	anchorFrame:HookScript("OnShow", UpdateVisibility)
-	anchorFrame:HookScript("OnHide", UpdateVisibility)
+	-- only works in 3.3.5
+	--anchorFrame:HookScript("OnShow", UpdateVisibility)
+	--anchorFrame:HookScript("OnHide", UpdateVisibility)
+
+	-- works in 2.4.3
+	hooksecurefunc(anchorFrame, "Show", UpdateVisibility)
+	hooksecurefunc(anchorFrame, "Hide", UpdateVisibility)
+
 	UpdateVisibility()
 end
 
