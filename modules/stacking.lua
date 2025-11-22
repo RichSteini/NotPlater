@@ -16,6 +16,47 @@ local function GetSafeStrata(frame, fallback)
 	return strata
 end
 
+local function SetContainerVisibility(container, shouldShow)
+	if shouldShow then
+		container:Show()
+	else
+		container:Hide()
+	end
+end
+
+local function SyncContainerVisibility(container, anchorFrame)
+	if not container then
+		return
+	end
+	if container.npVisibilityAnchor == anchorFrame then
+		if anchorFrame then
+			SetContainerVisibility(container, anchorFrame:IsShown())
+		else
+			SetContainerVisibility(container, true)
+		end
+		return
+	end
+
+	container.npVisibilityAnchor = anchorFrame
+
+	if not anchorFrame then
+		SetContainerVisibility(container, true)
+		return
+	end
+
+	local function UpdateVisibility()
+		if container.npVisibilityAnchor ~= anchorFrame then
+			return
+		end
+
+		SetContainerVisibility(container, anchorFrame:IsShown())
+	end
+
+	anchorFrame:HookScript("OnShow", UpdateVisibility)
+	anchorFrame:HookScript("OnHide", UpdateVisibility)
+	UpdateVisibility()
+end
+
 local function EnsureRegionContainer(frame, key, region, anchorFrame)
 	if not frame or not region then
 		return nil
@@ -32,6 +73,7 @@ local function EnsureRegionContainer(frame, key, region, anchorFrame)
 	container:SetFrameStrata(GetSafeStrata(anchorFrame or frame, "LOW"))
 	container:SetFrameLevel((anchorFrame and anchorFrame:GetFrameLevel()) or frame:GetFrameLevel())
 	region:SetParent(container)
+	SyncContainerVisibility(container, anchorFrame)
 	return container
 end
 
