@@ -19,7 +19,7 @@ NotPlater brings Plater-inspired, threat-aware nameplates to TBC (2.4.3) and Wra
 - 2.4.3: Rename the downloaded folder to `NotPlater-2.4.3` and place it in `..\Interface\AddOns\NotPlater-2.4.3`.
 - 3.3.5: Rename the downloaded folder to `NotPlater-3.3.5` and place it in `..\Interface\AddOns\NotPlater-3.3.5`.
 
-If you find any bugs feel free to message me (richsteini on discord) or report an issue.
+If you find any bugs feel free to message me (richsteini on Discord) or report an issue.
 
 ## Aura Engine (Buffs & Debuffs)
 
@@ -32,6 +32,10 @@ If you find any bugs feel free to message me (richsteini on discord) or report a
 - Timers and counters: Configurable stack counter font/outline/color/shadow and position; timer font/size/outline/color with decimals toggle and an option to hide OmniCC/TullaCC while the built-in timer is visible; per-frame timer anchors and shadow toggles.
 - Cooldowns and borders: Swipe animation styles (top-to-bottom, swirl, or RichSteini), selectable swipe textures, invert/visibility toggles, and border color rules (type colors or custom colors for dispellable, enrage, buff, crowd control, offensive/defensive cooldowns, and default).
 - Manual lists: Per-profile blacklists and extra lists for debuffs and buffs with add/remove prompts by spell name or ID.
+
+<p align="center">
+  <img src="/images/demo_buffs_config.png">
+</p>
 
 ## Threat Display
 
