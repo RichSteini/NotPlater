@@ -1234,11 +1234,15 @@ function Config:OpenConfig()
 		
 		local icon = "|T" .. BuildAssetPath("images", "logo") .. ":24:24:0:0|t "
 		
+		local linkColor = "|cff5daeff"
+		local link = "|Hurl:https://github.com/RichSteini/NotPlater|h" .. linkColor .. "https://github.com/RichSteini/NotPlater|r|h"
+
 		local text = icon ..
 			cTitle .. "NotPlater|r " ..
 			(revision ~= "" and (cVersion .. revision .. "|r  ") or "") ..
 			cAuthor .. "by RichSteini|r  " ..
-			cHint .. "(/np help)|r"
+			cHint .. "(/np help)|r.  " ..
+			cHint .. "For updates visit:|r " .. link
 
 		frame:SetStatusText(text)
 	end
