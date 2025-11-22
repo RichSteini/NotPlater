@@ -9,10 +9,13 @@ function NotPlater:ScaleLevelText(levelText, isTarget)
 end
 
 function NotPlater:LevelTextOnShow(levelText, anchorFrame)
-	local levelTextConfig = self.db.profile.levelText
+	local config = self.db.profile.levelText
 	levelText:ClearAllPoints()
-	levelText:SetPoint(levelTextConfig.position.anchor, anchorFrame, levelTextConfig.position.anchor, levelTextConfig.position.xOffset, levelTextConfig.position.yOffset)
-	levelText:SetAlpha(levelTextConfig.general.opacity)
+	levelText:SetPoint(config.position.anchor, anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
+	if config.general.useCustomColor and config.general.color then
+		levelText:SetTextColor(self:GetColor(config.general.color))
+	end
+	levelText:SetAlpha(config.general.opacity)
 end
 
 function NotPlater:ConfigureLevelText(levelText, anchorFrame)

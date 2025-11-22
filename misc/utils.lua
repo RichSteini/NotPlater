@@ -21,8 +21,20 @@ function NotPlater:SetupFontString(text, config)
 	text:SetFont(self.SML:Fetch(self.SML.MediaType.FONT, config.general.name), config.general.size, config.general.border)
 
 	-- Set color
-	if config.general.color then
-		text:SetTextColor(self:GetColor(config.general.color))
+	local colorConfig = config.general.color
+	local useConfiguredColor = colorConfig ~= nil
+	if config.general.useCustomColor ~= nil then
+		useConfiguredColor = config.general.useCustomColor and colorConfig ~= nil
+	end
+	if useConfiguredColor and colorConfig then
+		if not text.npOriginalColor then
+			local r, g, b, a = text:GetTextColor()
+			text.npOriginalColor = {r = r, g = g, b = b, a = a}
+		end
+		text:SetTextColor(self:GetColor(colorConfig))
+	elseif text.npOriginalColor then
+		text:SetTextColor(text.npOriginalColor.r, text.npOriginalColor.g, text.npOriginalColor.b, text.npOriginalColor.a)
+		text.npOriginalColor = nil
 	end
 
 	-- Set shadow

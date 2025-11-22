@@ -212,6 +212,7 @@ NotPlaterLocals = {
 	["Use /np minimap to show the minimap icon again"] = "Use /np minimap to show the minimap icon again",
 	["Use Class Colors when Possible"] = "Use Class Colors when Possible",
 	["Use Threat Colors"] = "Use Threat Colors",
+	["Use Custom Color"] = "Use Custom Color",
 	["Profiles"] = "Profiles",
 	["Profile Management"] = "Profile Management",
 	["Profile Sharing"] = "Profile Sharing",

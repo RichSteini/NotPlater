@@ -369,9 +369,11 @@ function NotPlater:PrepareFrame(frame)
 			if NotPlater.db.profile.levelText.general.enable then
 				NotPlater:LevelTextOnShow(levelText, self.healthBar)
 				levelText:Show()
-				levelText:SetAlpha(NotPlater.db.profile.levelText.general.opacity)
 			else
 				levelText:Hide()
+			end
+			if NotPlater.db.profile.nameText.general.enable then
+				NotPlater:NameTextOnShow(nameText)
 			end
 		end)
 	end

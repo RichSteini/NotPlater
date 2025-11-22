@@ -594,7 +594,35 @@ function ConfigPrototypes:LoadConfigPrototypes()
         values = {["none"] = L["None"], ["minmax"] = L["Min / Max"], ["both"] = L["Both"], ["percent"] = L["Percent"]},
     }
     ConfigPrototypes.NameText = ConfigPrototypes:GetGeneralisedFontConfig()
+    ConfigPrototypes.NameText.general.args.useCustomColor = {
+        order = 4,
+        type = "toggle",
+        name = L["Use Custom Color"],
+    }
+    ConfigPrototypes.NameText.general.args.color = {
+        order = 5,
+        type = "color",
+        name = L["Color"],
+        hasAlpha = true,
+        disabled = function()
+            return not (NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.nameText.general.useCustomColor)
+        end,
+    }
     ConfigPrototypes.LevelText = ConfigPrototypes:GetGeneralisedFontConfig()
+    ConfigPrototypes.LevelText.general.args.useCustomColor = {
+        order = 4,
+        type = "toggle",
+        name = L["Use Custom Color"],
+    }
+    ConfigPrototypes.LevelText.general.args.color = {
+        order = 5,
+        type = "color",
+        name = L["Color"],
+        hasAlpha = true,
+        disabled = function()
+            return not (NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.levelText.general.useCustomColor)
+        end,
+    }
     ConfigPrototypes.LevelText.general.args.opacity = {
         order = 1,
         type = "range",

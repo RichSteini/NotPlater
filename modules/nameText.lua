@@ -11,3 +11,10 @@ end
 function NotPlater:ConfigureNameText(nameText, anchorFrame)
 	self:ConfigureGeneralisedText(nameText, anchorFrame, self.db.profile.nameText)
 end
+
+function NotPlater:NameTextOnShow(nameText)
+	local config = self.db.profile.nameText
+	if config.general.useCustomColor and config.general.color then
+		nameText:SetTextColor(self:GetColor(config.general.color))
+	end
+end

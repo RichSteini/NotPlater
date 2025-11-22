@@ -324,13 +324,15 @@ function NotPlater:LoadDefaultConfig()
                     }
                 },
             },
-            nameText = {
-                general = {
-                    enable = true,
-                    name = "Arial Narrow",
-                    size = 11,
-                    border = ""
-                },
+			nameText = {
+				general = {
+					enable = true,
+					useCustomColor = false,
+					color = {1, 1, 1, 1},
+					name = "Arial Narrow",
+					size = 11,
+					border = ""
+				},
                 position = {
                     anchor = "BOTTOM",
                     xOffset = 0,
@@ -343,14 +345,16 @@ function NotPlater:LoadDefaultConfig()
                     yOffset = 0
                 }
             },
-            levelText = {
-                general = {
-                    enable = true,
-                    name = "Arial Narrow",
-                    opacity = 0.7,
-                    size = 8,
-                    border = ""
-                },
+			levelText = {
+				general = {
+					enable = true,
+					useCustomColor = false,
+					color = {1, 1, 1, 1},
+					name = "Arial Narrow",
+					opacity = 0.7,
+					size = 8,
+					border = ""
+				},
                 position = {
                     anchor = "TOPRIGHT",
                     xOffset = -2,
