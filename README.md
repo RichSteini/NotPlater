@@ -22,6 +22,14 @@ NotPlater brings Plater-inspired, threat-aware nameplates to TBC (2.4.3) and Wra
 
 If you find any bugs feel free to message me (richsteini on Discord) or report an issue.
 
+## Settings (/np or /notplater or click the minimap button)
+
+<p align="center">
+  <img src="/images/demo_settings.png">
+</p>
+
+Open the options via the minimap button or /np /notplater. All features above live here, including profile import/export, aura tracking, component ordering, and simulator toggles.
+
 ## Aura Engine (Buffs & Debuffs)
 
 <p align="center">
@@ -72,14 +80,6 @@ If you find any bugs feel free to message me (richsteini on Discord) or report a
 </p>
 
 The simulator mimics a live nameplate (including a 10-player threat scenario tooltip) so you can tune layouts without hunting for mobs. Drag it from the outer region and target/untarget it with a click.
-
-## Settings (/np or /notplater or click the minimap button)
-
-<p align="center">
-  <img src="/images/demo_settings.png">
-</p>
-
-Open the options via the minimap button or /np /notplater. All features above live here, including profile import/export, aura tracking, component ordering, and simulator toggles.
 
 ## Acknowledgements
 
