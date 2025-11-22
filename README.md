@@ -63,16 +63,6 @@ Open the options via the minimap button or /np /notplater. All features above li
 </p>
 - Component ordering UI lets you raise/lower health, cast, threat, aura, icon, and text elements so they stack cleanly; tune frame strata/levels alongside general stacking margins and overlap settings.
 
-## Profile Sharing
-
-<p align="center">
-  <img src="/images/demo_export.png" width="45%"> <img src="/images/demo_import.png" width="45%">
-</p>
-
-- Export: Generate a shareable profile string, review its summary, and optionally insert a clickable link directly into chat for fast sharing.
-- Import: Paste a received string, choose the target profile name, auto-activate it if desired, and review an import summary before switching.
-- Works alongside standard profile management (copy/reset) and group version checks so everyone runs a compatible setup.
-
 ## NotPlater Simulator Frame
 
 <p align="center">
@@ -80,6 +70,16 @@ Open the options via the minimap button or /np /notplater. All features above li
 </p>
 
 The simulator mimics a live nameplate (including a 10-player threat scenario tooltip) so you can tune layouts without hunting for mobs. Drag it from the outer region and target/untarget it with a click.
+
+## Profile Sharing
+
+<p align="center">
+  <img src="/images/demo_export.png" width="55%"> <img src="/images/demo_import.png" width="35%">
+</p>
+
+- Export: Generate a shareable profile string, review its summary, and optionally insert a clickable link directly into chat for fast sharing.
+- Import: Paste a received string, choose the target profile name, auto-activate it if desired, and review an import summary before switching.
+- Works alongside standard profile management (copy/reset) and group version checks so everyone runs a compatible setup.
 
 ## Acknowledgements
 
