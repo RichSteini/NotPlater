@@ -8,6 +8,11 @@ local AceConfigRegistry = LibStub("AceConfigRegistry-3.0", true)
 
 local DEFAULT_COMPONENT_ORDER = NotPlater.defaultStackingComponents or {}
 
+function NotPlater:GetStackingSettings()
+	local stacking = self.db.profile.stacking or {}
+	return stacking.stackingSettings or {}
+end
+
 local function GetSafeStrata(frame, fallback)
 	local strata = frame and frame:GetFrameStrata() or fallback or "LOW"
 	if not strata or strata == "" or strata == "UNKNOWN" then
@@ -200,9 +205,10 @@ local stackingComponentDefinitions = {
 
 function NotPlater:EnsureStackingComponentOrder()
 	local defaults = self.defaultStackingComponents or DEFAULT_COMPONENT_ORDER
-	local components = self.db.profile.stacking.general.components
+	local stacking = self.db.profile.stacking
+	local components = stacking.componentOrdering.components
 	if type(components) ~= "table" then
-		self.db.profile.stacking.general.components = CopyTable(defaults)
+		self.db.profile.stacking.componentOrdering.components = CopyTable(defaults)
 		return
 	end
 	local cleaned, seen = {}, {}
@@ -218,7 +224,7 @@ function NotPlater:EnsureStackingComponentOrder()
 			seen[key] = true
 		end
 	end
-	self.db.profile.stacking.general.components = cleaned
+	self.db.profile.stacking.componentOrdering.components = cleaned
 end
 
 function NotPlater:GetStackingComponentLabel(key)
@@ -232,7 +238,7 @@ end
 function NotPlater:GetStackingSelectorValues()
 	self:EnsureStackingComponentOrder()
 	local values = {}
-	local components = self.db.profile.stacking.general.components or {}
+	local components = self.db.profile.stacking.componentOrdering.components or {}
 	for index, key in ipairs(components) do
 		values[index] = format("%d. %s", index, self:GetStackingComponentLabel(key))
 	end
@@ -241,7 +247,7 @@ end
 
 function NotPlater:GetStackingComponentByIndex(index)
 	self:EnsureStackingComponentOrder()
-	local components = self.db.profile.stacking.general.components
+	local components = self.db.profile.stacking.componentOrdering.components
 	if components then
 		return components[index]
 	end
@@ -249,7 +255,7 @@ end
 
 function NotPlater:GetStackingSelectedComponent()
 	self:EnsureStackingComponentOrder()
-	local components = self.db.profile.stacking.general.components or {}
+	local components = self.db.profile.stacking.componentOrdering.components or {}
 	if not self.stackingSelectedComponent and components[1] then
 		self.stackingSelectedComponent = components[1]
 	end
@@ -267,7 +273,7 @@ function NotPlater:GetStackingSelectedIndex()
 	if not selected then
 		return nil
 	end
-	for index, key in ipairs(self.db.profile.stacking.general.components or {}) do
+	for index, key in ipairs(self.db.profile.stacking.componentOrdering.components or {}) do
 		if key == selected then
 			return index
 		end
@@ -299,7 +305,7 @@ function NotPlater:ShiftStackingComponent(direction)
 	if not selected then
 		return
 	end
-	local components = self.db.profile.stacking.general.components
+	local components = self.db.profile.stacking.componentOrdering.components
 	local currentIndex
 	for index, key in ipairs(components) do
 		if key == selected then
@@ -324,7 +330,7 @@ end
 
 function NotPlater:ResetStackingOrder()
 	local defaults = self.defaultStackingComponents or DEFAULT_COMPONENT_ORDER
-	self.db.profile.stacking.general.components = CopyTable(defaults)
+	self.db.profile.stacking.componentOrdering.components = CopyTable(defaults)
 	self.stackingSelectedComponent = nil
 	self:ApplyStackingOrderAll()
 	if AceConfigRegistry then
@@ -352,7 +358,7 @@ function NotPlater:ApplyStackingOrder(frame)
 	local baseLevel = frame:GetFrameLevel()
 	local step = 5
 	local currentStep = 0
-	for _, key in ipairs(self.db.profile.stacking.general.components or {}) do
+	for _, key in ipairs(self.db.profile.stacking.componentOrdering.components or {}) do
 		local componentFrame = self:GetStackingComponentFrame(frame, key)
 		if componentFrame and componentFrame.SetFrameLevel then
 			currentStep = currentStep + 1
@@ -377,7 +383,7 @@ function NotPlater:ApplyStackingOrderAll()
 end
 
 function NotPlater:SetTargetFrameStrata(frame)
-	local stackingConfig = self.db.profile.stacking
+	local stackingConfig = self:GetStackingSettings()
 	if UnitAffectingCombat("player") then
 		return
 	end
@@ -390,7 +396,7 @@ function NotPlater:SetTargetFrameStrata(frame)
 end
 
 function NotPlater:SetNormalFrameStrata(frame)
-	local stackingConfig = self.db.profile.stacking
+	local stackingConfig = self:GetStackingSettings()
 	if UnitAffectingCombat("player") then
 		return
 	end
@@ -407,7 +413,7 @@ function NotPlater:ConfigureStacking(frame)
 end
 
 function NotPlater:StackingCheck(frame)
-	local stackingConfig = self.db.profile.stacking
+	local stackingConfig = self:GetStackingSettings()
 	local healthBarConfig = self.db.profile.healthBar.statusBar
 	local castBarConfig = self.db.profile.castBar.statusBar
 	if stackingConfig.general.enable and not UnitAffectingCombat("player") then

@@ -586,21 +586,25 @@ function NotPlater:LoadDefaultConfig()
                 extraDebuffs = {},
                 extraBuffs = {},
             },
-            stacking = {
-                general = {
-                    enable = false,
-                    overlappingCastbars = true,
-                    components = CopyTable and CopyTable(DEFAULT_STACKING_COMPONENTS) or {unpack(DEFAULT_STACKING_COMPONENTS)},
-                },
-                margin = {
-                    xStacking = 0,
-                    yStacking = 0,
-                },
-                frameStrata = {
-                    normalFrame = "LOW",
-                    targetFrame = "MEDIUM"
-                },
-            },
+			stacking = {
+				componentOrdering = {
+					components = CopyTable and CopyTable(DEFAULT_STACKING_COMPONENTS) or {unpack(DEFAULT_STACKING_COMPONENTS)},
+				},
+				stackingSettings = {
+					general = {
+						enable = false,
+						overlappingCastbars = true,
+					},
+					margin = {
+						xStacking = 0,
+						yStacking = 0,
+					},
+					frameStrata = {
+						normalFrame = "LOW",
+						targetFrame = "MEDIUM"
+					},
+				},
+			},
             simulator = {
                 general = {
                     showOnConfig = true

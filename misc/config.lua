@@ -996,7 +996,9 @@ local function LoadOptions()
         type = "group",
         childGroups = "tab",
 		name = WithCategoryIcon("stacking", L["Stacking"]),
-		args = NotPlater.ConfigPrototypes.NameplateStacking,
+		get = GetValue,
+		set = SetValue,
+		args = NotPlater.ConfigPrototypes.Stacking,
 	}
 	options.args.simulator = {
 		order = 10,

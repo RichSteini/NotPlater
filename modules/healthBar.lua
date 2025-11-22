@@ -72,13 +72,14 @@ end
 function NotPlater:ConfigureHealthBar(frame, oldHealthBar)
 	local healthBarConfig = self.db.profile.healthBar
 	local healthFrame = frame.healthBar
+	local stackingSettings = self:GetStackingSettings()
 	-- Configure statusbar
 	self:ConfigureGeneralisedStatusBar(healthFrame, healthBarConfig.statusBar)
 
 	-- Set points
 	healthFrame:ClearAllPoints()
 	self:SetSize(healthFrame, healthBarConfig.statusBar.size.width, healthBarConfig.statusBar.size.height)
-	healthFrame:SetPoint("TOP", 0, self.db.profile.stacking.margin.yStacking)
+	healthFrame:SetPoint("TOP", 0, stackingSettings.margin.yStacking)
 
 	-- Set health text
 	self:ConfigureGeneralisedText(healthFrame.healthText, healthFrame, healthBarConfig.healthText)

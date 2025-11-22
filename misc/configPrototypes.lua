@@ -359,7 +359,7 @@ function ConfigPrototypes:GetGeneralisedIconConfig()
 end
 
 function ConfigPrototypes:LoadConfigPrototypes()
-    ConfigPrototypes.NameplateStacking = {
+    ConfigPrototypes.Stacking = {
         componentOrdering = {
             order = 1,
             type = "group",
