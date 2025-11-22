@@ -21,6 +21,7 @@ misc\release_data.lua
 misc\whatsNew.lua
 misc\configPrototypes.lua
 misc\profileSharing.lua
+misc\versionCheck.lua
 misc\config.lua
 misc\configDefaults.lua
 misc\diminishingReturnsData-3.3.5.lua

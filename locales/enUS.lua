@@ -5,6 +5,7 @@ NotPlaterLocals = {
 	["/np simulator - Toggle the simulator frame"] = "/np simulator - Toggle the simulator frame",
 	["/np whatsnew - Show the latest release notes"] = "/np whatsnew - Show the latest release notes",
 	["/np share - Send a profile link to your party or raid chat"] = "/np share - Send a profile link to your party or raid chat",
+	["NewVersionNotice"] = "A newer version of NotPlater (%s) is available. Get it from: %s",
 	["|cffeda55fLeft-Click and Drag|r on the outer area to move the simulator frame"] = "|cffeda55fLeft-Click and Drag|r on the outer area to move the simulator frame",
 	["|cffeda55fLeft-Click or Right-Click|r target/untarget the simulated frame"] = "|cffeda55fLeft-Click or Right-Click|r target/untarget the simulated frame",
 	["|cffeda55fLeft-Click|r to toggle the config window"] = "|cffeda55fLeft-Click|r to toggle the config window",
