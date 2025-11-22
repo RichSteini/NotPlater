@@ -814,6 +814,10 @@ local function LoadOptions()
 	options.type = "group"
 		options.name = "NotPlater"
 	options.args = {}
+	local whatsNewModule = NotPlater:GetModule("WhatsNew", true)
+	if whatsNewModule and whatsNewModule.GetConfigOptions then
+		options.args.whatsNew = whatsNewModule:GetConfigOptions()
+	end
 	options.args.threat = {
 		order = 0,
 		type = "group",
@@ -1209,6 +1213,11 @@ function Config:OpenConfig()
 		dialog:SetDefaultSize("NotPlater", 850, 650)
 		registered = true
 	end
+	local whatsNew = NotPlater:GetModule("WhatsNew", true)
+	if whatsNew and whatsNew.BeginConfigSession then
+		whatsNew:BeginConfigSession()
+	end
+
 	if NotPlater.db.profile.simulator.general.showOnConfig then
 		NotPlater:ShowSimulatorFrame()
 	end
@@ -1233,6 +1242,7 @@ function Config:OpenConfig()
 
 		frame:SetStatusText(text)
 	end
+
 end
 
 -- Slash commands
@@ -1251,8 +1261,18 @@ SlashCmdList["NOTPLATER"] = function(input)
 
     if msg == "minimap" then
         ToggleMinimap()
-    elseif msg == "simulator" then
+	elseif msg == "simulator" then
 		NotPlater:ToggleSimulatorFrame()
+	elseif msg == "whatsnew" then
+		local whatsNew = NotPlater:GetModule("WhatsNew", true)
+		if whatsNew then
+			if whatsNew.RequestManualView then
+				whatsNew:RequestManualView()
+			end
+			Config:OpenConfig()
+		else
+			NotPlater:Print(L["Release notes are not available."])
+		end
 	elseif msg == "help" then
         NotPlater:PrintHelp()
 	elseif msg == "share" then

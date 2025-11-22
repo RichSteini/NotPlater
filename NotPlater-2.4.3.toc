@@ -17,6 +17,8 @@ NotPlater.lua
 # Config and utility functions
 misc\simulator\frame.lua
 misc\simulator\auras.lua
+misc\release_data.lua
+misc\whatsNew.lua
 misc\configPrototypes.lua
 misc\profileSharing.lua
 misc\config.lua

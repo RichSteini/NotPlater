@@ -24,8 +24,15 @@ local DEFAULT_STACKING_COMPONENTS = NotPlater.defaultStackingComponents or {
 NotPlater.defaultStackingComponents = DEFAULT_STACKING_COMPONENTS
 
 function NotPlater:LoadDefaultConfig()
-    self.defaults = {
-        profile = {
+	self.defaults = {
+		global = {
+			whatsNew = {
+				lastSeenId = "",
+				lastSeenRevision = "",
+				suppressed = false,
+			},
+		},
+		profile = {
             threat = {
                 general = {
                     mode = "hdps",
