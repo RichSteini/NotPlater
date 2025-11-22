@@ -396,32 +396,32 @@ function ConfigPrototypes:LoadConfigPrototypes()
                     name = "",
                     inline = true,
                     args = {
-                        moveUp = {
-                            order = 0,
-                            type = "execute",
-                            name = L["Move Up"],
-                            image = "Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up",
-                            imageWidth = 32,
-                            imageHeight = 32,
-                            func = function()
-                                NotPlater:ShiftStackingComponent(-1)
-                            end,
-                            disabled = function()
-                                return not NotPlater:GetStackingSelectedComponent()
+						moveUp = {
+							order = 0,
+							type = "execute",
+							name = L["Move Up"],
+							image = NotPlater.isWrathClient and "Interface\\Buttons\\UI-ScrollBar-ScrollUpButton-Up" or nil,
+							imageWidth = NotPlater.isWrathClient and 32 or nil,
+							imageHeight = NotPlater.isWrathClient and 32 or nil,
+							func = function()
+								NotPlater:ShiftStackingComponent(-1)
+							end,
+							disabled = function()
+								return not NotPlater:GetStackingSelectedComponent()
                             end,
                         },
-                        moveDown = {
-                            order = 1,
-                            type = "execute",
-                            name = L["Move Down"],
-                            image = "Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up",
-                            imageWidth = 32,
-                            imageHeight = 32,
-                            func = function()
-                                NotPlater:ShiftStackingComponent(1)
-                            end,
-                            disabled = function()
-                                return not NotPlater:GetStackingSelectedComponent()
+						moveDown = {
+							order = 1,
+							type = "execute",
+							name = L["Move Down"],
+							image = NotPlater.isWrathClient and "Interface\\Buttons\\UI-ScrollBar-ScrollDownButton-Up" or nil,
+							imageWidth = NotPlater.isWrathClient and 32 or nil,
+							imageHeight = NotPlater.isWrathClient and 32 or nil,
+							func = function()
+								NotPlater:ShiftStackingComponent(1)
+							end,
+							disabled = function()
+								return not NotPlater:GetStackingSelectedComponent()
                             end,
                         },
                         reset = {

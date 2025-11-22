@@ -368,7 +368,7 @@ function WhatsNew:GetConfigOptions()
 			body = {
 				order = 1,
 				type = "description",
-				fontSize = "medium",
+				fontSize = NotPlater.isWrathClient and "medium" or nil,
 				name = function()
 					return module:GetDisplayText()
 				end,
