@@ -348,8 +348,9 @@ function NotPlater:PrepareFrame(frame)
 				NotPlater:UpdateFrameMatch(self)
 				self.targetCheckElapsed = 0
 			end
-			if NotPlater.isWrathClient and self.useHighlightProxy and self.defaultHighlightTexture and self.highlightTexture then
-				if self.defaultHighlightTexture:IsShown() then
+			if NotPlater.isWrathClient and self.useHighlightProxy and self.highlightTexture then
+				local isMouseOver = self:IsMouseOver()
+				if isMouseOver then
 					if not self.highlightTexture:IsShown() then
 						self.highlightTexture:Show()
 					end
@@ -374,6 +375,11 @@ function NotPlater:PrepareFrame(frame)
 			end
 			if NotPlater.db.profile.nameText.general.enable then
 				NotPlater:NameTextOnShow(nameText)
+			end
+		end)
+		self:HookScript(frame, "OnHide", function(self)
+			if self.highlightTexture then
+				self.highlightTexture:Hide()
 			end
 		end)
 	end
