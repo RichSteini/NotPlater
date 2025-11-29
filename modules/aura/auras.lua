@@ -771,7 +771,7 @@ function Auras:VerifyUnit(frame, unit)
 	if not SafeUnit(unit) then
 		return false
 	end
-	local nameText = frame.nameText
+	local nameText = frame.defaultNameText or frame.nameText
 	local levelText = frame.levelText
 	local plateName = nameText and nameText:GetText()
 	local plateLevel = levelText and levelText:GetText()

@@ -339,7 +339,8 @@ function NotPlater:LoadDefaultConfig()
 					color = {1, 1, 1, 1},
 					name = "Arial Narrow",
 					size = 11,
-					border = ""
+					border = "",
+					maxLetters = 40,
 				},
                 position = {
                     anchor = "BOTTOM",

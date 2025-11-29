@@ -17,4 +17,7 @@ function NotPlater:NameTextOnShow(nameText)
 	if config.general.useCustomColor and config.general.color then
 		nameText:SetTextColor(self:GetColor(config.general.color))
 	end
+	if config.general.maxLetters then
+		self:SetMaxLetterText(nameText, nameText:GetText(), config)
+	end
 end

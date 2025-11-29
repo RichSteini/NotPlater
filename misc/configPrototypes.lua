@@ -608,6 +608,12 @@ function ConfigPrototypes:LoadConfigPrototypes()
             return not (NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.nameText.general.useCustomColor)
         end,
     }
+    ConfigPrototypes.NameText.general.args.maxLetters = {
+        order = 6,
+        type = "range",
+        name = L["Max. Letters"],
+        min = 1, max = 40, step = 1,
+    }
     ConfigPrototypes.LevelText = ConfigPrototypes:GetGeneralisedFontConfig()
     ConfigPrototypes.LevelText.general.args.useCustomColor = {
         order = 4,

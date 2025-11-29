@@ -240,6 +240,7 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
         --NotPlater:HideSimulatorFrame()
         --return
     --end
+    self.defaultFrame.defaultNameText:SetText(L["Playername"])
     if not self.defaultFrame.castBar.casting and NotPlater.db.profile.castBar.statusBar.general.enable then
         local startTime = GetTime()
         local endTime = startTime + castTime
@@ -461,7 +462,6 @@ function NotPlater:ConstructSimulatorFrame()
     simulatorFrame.defaultFrame.defaultLevelText:SetText(L["70"])
     simulatorFrame.defaultFrame.defaultLevelText:SetTextColor(1, 1, 0, 1)
     self:SetupFontString(simulatorFrame.defaultFrame.defaultNameText, NotPlater.db.profile.nameText)
-    simulatorFrame.defaultFrame.defaultNameText:SetText(L["Playername"])
 
     simulatorFrame.defaultFrame.nameText = simulatorFrame.defaultFrame.defaultNameText
     simulatorFrame.defaultFrame.levelText = simulatorFrame.defaultFrame.defaultLevelText

@@ -62,7 +62,7 @@ local function GetOrderedFrameRegions(frame)
 end
 
 local function GetFrameTexts(frame)
-	local nameText = frame.nameText
+	local nameText = frame.defaultNameText or frame.nameText
 	local levelText = frame.levelText
 	if not nameText or not levelText then
 		local regions = {GetOrderedFrameRegions(frame)}
@@ -84,10 +84,42 @@ local function CreateNameTextProxy(frame, defaultNameText)
 		return frame.npNameTextProxy
 	end
 	local proxy = frame:CreateFontString(nil, "ARTWORK")
-	NotPlater:SetupFontString(proxy, NotPlater.db.profile.nameText)
-	proxy:SetText(defaultNameText:GetText())
+	local config = NotPlater and NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.nameText
+	if config then
+		NotPlater:SetupFontString(proxy, config)
+	else
+		local fallbackFont, fallbackSize, fallbackFlags = defaultNameText:GetFont()
+		if not fallbackFont and GameFontNormal and GameFontNormal.GetFont then
+			fallbackFont, fallbackSize, fallbackFlags = GameFontNormal:GetFont()
+		end
+		if fallbackFont then
+			proxy:SetFont(fallbackFont, fallbackSize, fallbackFlags)
+		end
+	end
+
+	local function SetProxyTextFromDefault(text)
+		if not proxy then
+			return
+		end
+		local activeConfig = NotPlater and NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.nameText
+		if activeConfig and activeConfig.general and activeConfig.general.maxLetters then
+			NotPlater:SetMaxLetterText(proxy, text, activeConfig)
+		else
+			proxy:SetText(text)
+		end
+	end
+
+	SetProxyTextFromDefault(defaultNameText:GetText())
 	defaultNameText:SetAlpha(0)
 	defaultNameText:Hide()
+	hooksecurefunc(defaultNameText, "Show", function(text)
+		text:SetAlpha(0)
+		text:Hide()
+	end)
+	hooksecurefunc(defaultNameText, "SetText", function(_, text)
+		SetProxyTextFromDefault(text)
+	end)
+
 	frame.npNameTextProxy = proxy
 	return proxy
 end
@@ -189,7 +221,7 @@ function NotPlater:IsTarget(frame)
         return false
     end
 
-	local nameText = GetFrameTexts(frame)
+	local nameText = frame and frame.defaultNameText or select(1, GetFrameTexts(frame))
 	local targetName = UnitName('target')
 
 	return nameText and targetName == nameText:GetText() and frame:GetAlpha() >= 0.99
@@ -205,7 +237,10 @@ function NotPlater:PlateMatchesUnit(frame, unit)
 	if not UnitCanAttack("player", unit) or UnitIsDeadOrGhost(unit) then
 		return false
 	end
-	local nameText, levelText = GetFrameTexts(frame)
+	local nameText, levelText = frame and frame.defaultNameText or nil, nil
+	if not nameText or not levelText then
+		nameText, levelText = GetFrameTexts(frame)
+	end
 	if not nameText then
 		return false
 	end
@@ -343,7 +378,14 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:TargetCheck(self)
 			self.targetChanged = true
 			NotPlater:UpdateFrameMatch(self)
-			self.nameText:SetText(self.defaultNameText:GetText())
+			if self.nameText and self.defaultNameText then
+				local config = NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.nameText
+				if config and config.general and config.general.maxLetters then
+					NotPlater:SetMaxLetterText(self.nameText, self.defaultNameText:GetText(), config)
+				else
+					self.nameText:SetText(self.defaultNameText:GetText())
+				end
+			end
 			self.defaultNameText:SetAlpha(0)
 			self.defaultNameText:Hide()
 		end)
@@ -394,7 +436,7 @@ function NotPlater:PrepareFrame(frame)
 				levelText:Hide()
 			end
 			if NotPlater.db.profile.nameText.general.enable then
-				NotPlater:NameTextOnShow(nameText)
+				NotPlater:NameTextOnShow(self.nameText)
 			end
 		end)
 		self:HookScript(frame, "OnHide", function(self)
@@ -501,7 +543,11 @@ function NotPlater:ClassCheck(frame)
 		return
 	end
 
-	local nameText, levelText = GetFrameTexts(frame)
+	local nameText = frame and frame.defaultNameText or nil
+	local levelText = frame and frame.levelText or nil
+	if not nameText or not levelText then
+		nameText, levelText = GetFrameTexts(frame)
+	end
 	if not nameText or not levelText then
 		return
 	end
