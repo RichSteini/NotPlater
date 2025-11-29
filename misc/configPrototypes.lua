@@ -630,6 +630,12 @@ function ConfigPrototypes:LoadConfigPrototypes()
         min = 0, max = 1, step = 0.01,
     }
     ConfigPrototypes.Icon = ConfigPrototypes:GetGeneralisedIconConfig()
+    ConfigPrototypes.BossIcon = ConfigPrototypes:GetGeneralisedIconConfig()
+    ConfigPrototypes.BossIcon.general.args.usePlaterBossIcon = {
+        order = 2,
+        type = "toggle",
+        name = L["Use Plater Boss Icon"],
+    }
     ConfigPrototypes.CastBarIcon = ConfigPrototypes:GetGeneralisedIconConfig()
     ConfigPrototypes.CastBarIcon.border = ConfigPrototypes:GetGeneralisedBorderConfig()
     ConfigPrototypes.CastBarIcon.background = ConfigPrototypes:GetGeneralisedBackgroundConfig()

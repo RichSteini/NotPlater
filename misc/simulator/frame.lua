@@ -242,7 +242,6 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
         --return
     --end
     if not simulatorTextSet then
-        --self.defaultFrame.defaultBossIcon:SetTexture(BOSS_ICON_PATH)
         self.defaultFrame.defaultLevelText:SetText(L["70"])
         self.defaultFrame.defaultLevelText:SetTextColor(1, 1, 0, 1)
         self.defaultFrame.defaultNameText:SetText(L["Playername"])
@@ -269,7 +268,6 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
 
     if raidIconElapsed > raidIconInterval then
         self.defaultFrame.defaultRaidIcon:SetTexture(RAID_ICON_BASE_PATH .. tostring(currentRaidIconNum))
-        self.defaultFrame.defaultBossIcon:SetTexture(RAID_ICON_BASE_PATH .. tostring(currentRaidIconNum))
         currentRaidIconNum = currentRaidIconNum + 1
         if currentRaidIconNum > MAX_RAID_ICONS then
             currentRaidIconNum = 1
@@ -447,8 +445,10 @@ function NotPlater:ConstructSimulatorFrame()
         simulatorFrame.defaultFrame.defaultNameText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
         simulatorFrame.defaultFrame.defaultLevelText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
         simulatorFrame.defaultFrame.dangerSkull = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
-        simulatorFrame.defaultFrame.defaultBossIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
         simulatorFrame.defaultFrame.defaultRaidIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+        simulatorFrame.defaultFrame.defaultBossIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+        simulatorFrame.defaultFrame.defaultBossIcon:SetTexture(BOSS_ICON_PATH)
+        simulatorFrame.defaultFrame.defaultBossIcon:SetTexCoord(0, 1, 0, 1)
     else
         simulatorFrame.defaultFrame.defaultHealthBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
         simulatorFrame.defaultFrame.defaultCastBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
@@ -457,6 +457,8 @@ function NotPlater:ConstructSimulatorFrame()
         simulatorFrame.defaultFrame.defaultNameText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
         simulatorFrame.defaultFrame.defaultLevelText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
         simulatorFrame.defaultFrame.defaultBossIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
+        simulatorFrame.defaultFrame.defaultBossIcon:SetTexture(BOSS_ICON_PATH)
+        simulatorFrame.defaultFrame.defaultBossIcon:SetTexCoord(0, 1, 0, 1)
         simulatorFrame.defaultFrame.defaultRaidIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
         simulatorFrame.defaultFrame.defaultThreatGlow = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
         simulatorFrame.defaultFrame.defaultCastNoStop = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")

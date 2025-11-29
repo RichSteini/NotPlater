@@ -383,22 +383,23 @@ function NotPlater:LoadDefaultConfig()
                     height = 20,
                 },
                 position = {
-                    anchor = "LEFT",
-                    xOffset = -5,
+                    anchor = "RIGHT",
+                    xOffset = 5,
                     yOffset = 0,
                 }
             },
             bossIcon = {
                 general = {
                     opacity = 1,
+                    usePlaterBossIcon = true,
                 },
                 size = {
-                    width = 20,
-                    height = 20,
+                    width = 12,
+                    height = 12,
                 },
                 position = {
-                    anchor = "RIGHT",
-                    xOffset = 5,
+                    anchor = "LEFT",
+                    xOffset = -5,
                     yOffset = 0,
                 }
             },
