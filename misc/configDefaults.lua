@@ -263,11 +263,12 @@ function NotPlater:LoadDefaultConfig()
                         color = {0, 0, 0, 1},
                         thickness = 1
                     },
-                },
-                spellIcon = {
-                    general = {
-                        opacity = 1
-                    },
+				},
+				spellIcon = {
+					general = {
+						enable = true,
+						opacity = 1
+					},
                     size = {
                         width = 14,
                         height = 14
@@ -376,6 +377,7 @@ function NotPlater:LoadDefaultConfig()
             },
             raidIcon = {
                 general = {
+					enable = true,
                     opacity = 1,
                 },
                 size = {
@@ -390,6 +392,7 @@ function NotPlater:LoadDefaultConfig()
             },
             bossIcon = {
                 general = {
+					enable = true,
                     opacity = 1,
                     usePlaterBossIcon = true,
                 },

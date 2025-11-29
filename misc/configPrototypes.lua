@@ -147,13 +147,13 @@ function ConfigPrototypes:GetGeneralisedSizeConfig()
                 order = 0,
                 type = "range",
                 name = L["Width"],
-                min = 0, max = 500, step = 1,
+                min = 1, max = 500, step = 1,
             },
             height = {
                 order = 1,
                 type = "range",
                 name = L["Height"],
-                min = 0, max = 500, step = 1,
+                min = 1, max = 500, step = 1,
             },
         }
     }
@@ -630,7 +630,17 @@ function ConfigPrototypes:LoadConfigPrototypes()
         min = 0, max = 1, step = 0.01,
     }
     ConfigPrototypes.Icon = ConfigPrototypes:GetGeneralisedIconConfig()
+    ConfigPrototypes.Icon.general.args.enable = {
+        order = 0,
+        type = "toggle",
+        name = L["Enable"],
+    }
     ConfigPrototypes.BossIcon = ConfigPrototypes:GetGeneralisedIconConfig()
+    ConfigPrototypes.BossIcon.general.args.enable = {
+        order = 0,
+        type = "toggle",
+        name = L["Enable"],
+    }
     ConfigPrototypes.BossIcon.general.args.usePlaterBossIcon = {
         order = 2,
         type = "toggle",

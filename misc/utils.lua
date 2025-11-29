@@ -154,10 +154,18 @@ function NotPlater:CreateFullBorder(parent)
 end
 
 function NotPlater:ConfigureGeneralisedIcon(iconFrame, anchorFrame, config)
+	if not iconFrame or not anchorFrame or not config then
+		return
+	end
+
     iconFrame:ClearAllPoints()
     self:SetSize(iconFrame, config.size.width, config.size.height)
     iconFrame:SetPoint(self.oppositeAnchors[config.position.anchor], anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
-    iconFrame:SetAlpha(config.general.opacity)
+	local enabled = config.general.enable
+	if enabled == nil then
+		enabled = true
+	end
+    iconFrame:SetAlpha(enabled and config.general.opacity or 0)
 end
 
 function NotPlater:ConfigureGeneralisedStatusBar(bar, config)
