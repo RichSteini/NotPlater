@@ -11,7 +11,11 @@ local tonumber = tonumber
 local max = math.max
 local tinsert = table.insert
 local tconcat = table.concat
-local wipe = wipe
+local wipe = wipe or function(tbl)
+	for key in pairs(tbl) do
+		tbl[key] = nil
+	end
+end
 
 local COLOR_RESET = "|r"
 local COLOR_HEADING_1 = "|cffffd100"

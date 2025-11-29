@@ -22,7 +22,6 @@ local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local GameTooltip = GameTooltip
 local DebuffTypeColor = DebuffTypeColor
 local GetSpellInfo = GetSpellInfo
-local wipe = wipe
 local tinsert = table.insert
 local ipairs = ipairs
 local pairs = pairs
