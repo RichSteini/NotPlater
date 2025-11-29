@@ -25,7 +25,6 @@ local UnitGUID = UnitGUID
 
 local L = NotPlaterLocals
 local simulatorFrameConstructed = false
-local simulatorTextSet = false
 
 local healthMin = 0
 local healthMax = 30000
@@ -241,13 +240,6 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
         --NotPlater:HideSimulatorFrame()
         --return
     --end
-    if not simulatorTextSet then
-        self.defaultFrame.defaultLevelText:SetText(L["70"])
-        self.defaultFrame.defaultLevelText:SetTextColor(1, 1, 0, 1)
-        self.defaultFrame.defaultNameText:SetText(L["Playername"])
-        simulatorTextSet = true
-        ThreatSimulator:Reset(self.defaultFrame.defaultHealthFrame)
-    end
     if not self.defaultFrame.castBar.casting and NotPlater.db.profile.castBar.statusBar.general.enable then
         local startTime = GetTime()
         local endTime = startTime + castTime
@@ -464,6 +456,12 @@ function NotPlater:ConstructSimulatorFrame()
         simulatorFrame.defaultFrame.defaultCastNoStop = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
         simulatorFrame.defaultFrame.dangerSkull = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
     end
+
+    self:SetupFontString(simulatorFrame.defaultFrame.defaultLevelText, NotPlater.db.profile.levelText)
+    simulatorFrame.defaultFrame.defaultLevelText:SetText(L["70"])
+    simulatorFrame.defaultFrame.defaultLevelText:SetTextColor(1, 1, 0, 1)
+    self:SetupFontString(simulatorFrame.defaultFrame.defaultNameText, NotPlater.db.profile.nameText)
+    simulatorFrame.defaultFrame.defaultNameText:SetText(L["Playername"])
 
     simulatorFrame.defaultFrame.nameText = simulatorFrame.defaultFrame.defaultNameText
     simulatorFrame.defaultFrame.levelText = simulatorFrame.defaultFrame.defaultLevelText

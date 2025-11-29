@@ -76,6 +76,22 @@ local function GetFrameTexts(frame)
 	return nameText, levelText
 end
 
+local function CreateNameTextProxy(frame, defaultNameText)
+	if not frame or not defaultNameText then
+		return defaultNameText
+	end
+	if frame.npNameTextProxy then
+		return frame.npNameTextProxy
+	end
+	local proxy = frame:CreateFontString(nil, "ARTWORK")
+	NotPlater:SetupFontString(proxy, NotPlater.db.profile.nameText)
+	proxy:SetText(defaultNameText:GetText())
+	defaultNameText:SetAlpha(0)
+	defaultNameText:Hide()
+	frame.npNameTextProxy = proxy
+	return proxy
+end
+
 NotPlater.frame = CreateFrame("Frame")
 
 function NotPlater:SetTrackedMatchUnits(units)
@@ -279,10 +295,11 @@ function NotPlater:PrepareFrame(frame)
 		frame.npHooked = true
 
 		local resolvedNameText, resolvedLevelText = GetFrameTexts(frame)
-		frame.nameText = resolvedNameText or nameText
+		frame.defaultNameText = resolvedNameText or nameText
 		frame.levelText = resolvedLevelText or levelText
 		frame.bossIcon = bossIcon or frame.bossIcon
 		frame.raidIcon = raidIcon or frame.raidIcon
+		frame.nameText = CreateNameTextProxy(frame, frame.defaultNameText)
 		if NotPlater.isWrathClient then
 			if not frame.highlightTexture or frame.highlightTexture == highlightTexture then
 				frame.highlightTexture = frame:CreateTexture(nil, "ARTWORK")
@@ -326,6 +343,9 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:TargetCheck(self)
 			self.targetChanged = true
 			NotPlater:UpdateFrameMatch(self)
+			self.nameText:SetText(self.defaultNameText:GetText())
+			self.defaultNameText:SetAlpha(0)
+			self.defaultNameText:Hide()
 		end)
 
 		self:HookScript(frame, 'OnUpdate', function(self, elapsed)
