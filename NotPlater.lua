@@ -58,7 +58,7 @@ local function GetOrderedFrameRegions(frame)
 		return frame:GetRegions()
 	end
 	local healthBorder, castBorder, spellIcon, highlightTexture, nameText, levelText, bossIcon, raidIcon = frame:GetRegions()
-	return nil, healthBorder, castBorder, nil, spellIcon, highlightTexture, nameText, levelText, nil, bossIcon, raidIcon
+	return nil, healthBorder, castBorder, nil, spellIcon, highlightTexture, nameText, levelText, nil, raidIcon, bossIcon
 end
 
 local function GetFrameTexts(frame)
@@ -271,7 +271,7 @@ function NotPlater:UpdateFrameMatch(frame)
 end
 
 function NotPlater:PrepareFrame(frame)
-	local threatGlow, healthBorder, castBorder, castNoStop, spellIcon, highlightTexture, nameText, levelText, dangerSkull, bossIcon, raidIcon = GetOrderedFrameRegions(frame)
+	local threatGlow, healthBorder, castBorder, castNoStop, spellIcon, highlightTexture, nameText, levelText, dangerSkull, raidIcon, bossIcon = GetOrderedFrameRegions(frame)
 	local health, cast = frame:GetChildren()
 
 	-- Hooks and creation (only once that way settings can be applied while frame is visible)
