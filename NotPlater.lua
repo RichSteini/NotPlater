@@ -5,7 +5,7 @@ local IS_WRATH_CLIENT = CLIENT_INTERFACE >= 30000
 NotPlater = LibStub("AceAddon-3.0"):NewAddon("NotPlater", "AceEvent-3.0", "AceHook-3.0")
 NotPlater.clientInterface = CLIENT_INTERFACE
 NotPlater.isWrathClient = IS_WRATH_CLIENT
-NotPlater.revision = "v3.0.0"
+NotPlater.revision = "v3.0.1"
 NotPlater.addonName = addonName or NotPlater.addonName or "NotPlater-2.4.3"
 
 local UnitName = UnitName

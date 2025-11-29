@@ -9,10 +9,9 @@ end
 	- Paste your Markdown content into `markdown`. Headings (#, ##, ###) and bullet/numbered lists are supported.
 ]]
 NotPlaterReleaseData = {
-	id = "v3.0.0",
-	title = "v3.0.0 Snapshot",
-	markdown = [[
-# v3.0.0 — Overview
+	id = NotPlater.revision,
+	title = NotPlater.revision .. " Snapshot",
+	markdown = NotPlater.revision .. [[ 
 
 - New aura engine with configurable tracking buff/debuff slots and cooldown visuals  
 - Component display order controls for adjusting frame stacking  
@@ -24,6 +23,6 @@ NotPlaterReleaseData = {
 - Default CVar applied to hide the Blizzard castbar  
 - General polish: better defaults, clearer warnings, and a new “What’s New” dialog
 - Support for all localizations
-
+- Various bug fixes 
 	]],
 }
