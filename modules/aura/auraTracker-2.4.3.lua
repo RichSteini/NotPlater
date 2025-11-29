@@ -36,14 +36,20 @@ local function BuildAuraKey(spellID, casterGUID, isDebuff)
 	return (spellID or 0) .. ":" .. (casterGUID or "0") .. ":" .. (isDebuff and "D" or "B")
 end
 
-local function CopyTable(source)
+local function CopyTable(source, seen)
 	if not source then
 		return nil
 	end
+	-- guard against self-referential tables causing recursive overflows
+	if seen and seen[source] then
+		return seen[source]
+	end
+	seen = seen or {}
 	local target = {}
+	seen[source] = target
 	for key, value in pairs(source) do
 		if type(value) == "table" then
-			target[key] = CopyTable(value)
+			target[key] = CopyTable(value, seen)
 		else
 			target[key] = value
 		end
