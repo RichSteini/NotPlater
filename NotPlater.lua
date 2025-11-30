@@ -13,6 +13,7 @@ local UnitLevel = UnitLevel
 local UnitHealth = UnitHealth
 local UnitGUID = UnitGUID
 local UnitClass = UnitClass
+local UnitIsPlayer = UnitIsPlayer
 local UnitExists = UnitExists
 local UnitCanAttack = UnitCanAttack
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
@@ -32,10 +33,12 @@ local function SetFrameClassColorFromUnit(frame, unit)
 	if not frame or not unit or not UnitExists(unit) then
 		return false
 	end
-	local classToken = select(2, UnitClass(unit))
-	if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
-		frame.unitClass = RAID_CLASS_COLORS[classToken]
-		return true
+	if UnitIsPlayer(unit) then
+		local classToken = select(2, UnitClass(unit))
+		if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+			frame.unitClass = RAID_CLASS_COLORS[classToken]
+			return true
+		end
 	end
 	return false
 end
