@@ -18,6 +18,16 @@ local COMBATLOG_OBJECT_TYPE_PLAYER = _G.COMBATLOG_OBJECT_TYPE_PLAYER or 0x000004
 local COMBATLOG_OBJECT_TYPE_PET = _G.COMBATLOG_OBJECT_TYPE_PET or 0x00001000
 local COMBATLOG_OBJECT_TYPE_GUARDIAN = _G.COMBATLOG_OBJECT_TYPE_GUARDIAN or 0x00002000
 
+local GUID_PREFIX_UNIT_TYPE = {
+	[0x0000] = "player",
+	[0xF100] = "dynamicobject",
+	[0xF101] = "corpse",
+	[0xF110] = "gameobject",
+	[0xF130] = "creature",
+	[0xF140] = "pet",
+	[0xF150] = "vehicle",
+}
+
 local Base = {}
 
 local function wipe(t)
@@ -93,20 +103,27 @@ function Base:IsPlayerGUID(guid)
 	if not guid then
 		return false
 	end
-	return guid:find("^Player%-%") ~= nil
+	return self:GetUnitTypeFromGUID(guid) == "player"
 end
 
 function Base:GetUnitTypeFromGUID(guid)
 	if not guid then
 		return "unknown"
 	end
-	if guid:find("^Player%-%") then
-		return "player"
+	local prefix = guid:match("^0[xX](%x%x%x%x)") or guid:match("^(%x%x%x%x)")
+	if prefix then
+		local unitType = GUID_PREFIX_UNIT_TYPE[tonumber(prefix, 16)]
+		if unitType then
+			if unitType == "pet" or unitType == "vehicle" then
+				return "pet"
+			end
+			if unitType == "player" then
+				return "player"
+			end
+			return "npc"
+		end
 	end
-	if guid:find("^Pet%-%") or guid:find("^Vehicle%-%") then
-		return "pet"
-	end
-	return "npc"
+	return "unknown"
 end
 
 function Base:GetUnitTypeFromFlags(flags)

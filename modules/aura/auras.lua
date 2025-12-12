@@ -36,7 +36,7 @@ local math_ceil = math.ceil
 local DEFAULT_COOLDOWN_STYLE = "vertical"
 
 local function SafeUnit(unit)
-	return unit and UnitExists(unit) and UnitCanAttack("player", unit) and not UnitIsDeadOrGhost(unit)
+	return unit and UnitExists(unit) and not UnitIsDeadOrGhost(unit)
 end
 
 local function ToGUID(candidate)
@@ -796,10 +796,15 @@ function Auras:IsPlayerGUID(guid)
 	if guid == self.playerGUID then
 		return true
 	end
-	if self.tracker and self.tracker.IsPlayerGUID then
-		return self.tracker:IsPlayerGUID(guid)
+	if self.tracker then
+		if self.tracker.GetUnitTypeFromGUID then
+			return self.tracker:GetUnitTypeFromGUID(guid) == "player"
+		end
+		if self.tracker.IsPlayerGUID then
+			return self.tracker:IsPlayerGUID(guid)
+		end
 	end
-	return guid:find("^Player%-") ~= nil
+	return false
 end
 
 function Auras:CollectAuras(unit, guid)
