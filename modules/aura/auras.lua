@@ -1157,7 +1157,9 @@ function Auras:UpdateIconTimer(icon)
 		self.activeIcons[icon] = nil
 		return
 	end
-	if self.auraTimer.general.showDecimals and remaining < 10 then
+	if remaining >= 60 then
+		icon.timerText:SetText(format("%dm", math_ceil(remaining / 60)))
+	elseif self.auraTimer.general.showDecimals and remaining < 10 then
 		icon.timerText:SetText(format("%.1f", remaining))
 	else
 		icon.timerText:SetText(format("%d", remaining))
