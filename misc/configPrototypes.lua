@@ -583,7 +583,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
         order = 5,
         type = "range",
         name = L["Max. Letters"],
-        min = 1, max = 40, step = 1,
+        min = 1, max = 100, step = 1,
     }
     ConfigPrototypes.HealthBar = ConfigPrototypes:GetGeneralisedStatusBarConfig()
     ConfigPrototypes.HealthText = ConfigPrototypes:GetGeneralisedColorFontConfig()
@@ -612,7 +612,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
         order = 6,
         type = "range",
         name = L["Max. Letters"],
-        min = 1, max = 40, step = 1,
+        min = 1, max = 100, step = 1,
     }
     ConfigPrototypes.LevelText = ConfigPrototypes:GetGeneralisedFontConfig()
     ConfigPrototypes.LevelText.general.args.useCustomColor = {
@@ -855,7 +855,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
         order = 5,
         type = "range",
         name = L["Max. Letters"],
-        min = 1, max = 40, step = 1,
+        min = 1, max = 100, step = 1,
     }
     ConfigPrototypes.Simulator = {
         general = {
