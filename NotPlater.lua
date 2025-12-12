@@ -265,7 +265,12 @@ function NotPlater:PlateMatchesUnit(frame, unit)
 	local healthBar = frame.healthBar
 	if healthBar then
 		local healthValue = healthBar:GetValue()
+		local _, healthMaxValue = healthBar:GetMinMaxValues()
 		if healthValue ~= UnitHealth(unit) then
+			return false
+		end
+		
+		if not UnitIsPlayer(unit) and healthValue == healthMaxValue then
 			return false
 		end
 	end
