@@ -594,19 +594,16 @@ function ConfigPrototypes:LoadConfigPrototypes()
         values = {["none"] = L["None"], ["minmax"] = L["Min / Max"], ["both"] = L["Both"], ["percent"] = L["Percent"]},
     }
     ConfigPrototypes.NameText = ConfigPrototypes:GetGeneralisedFontConfig()
-    ConfigPrototypes.NameText.general.args.useCustomColor = {
+    ConfigPrototypes.NameText.general.args.useClassColor = {
         order = 4,
         type = "toggle",
-        name = L["Use Custom Color"],
+        name = L["Use Class Colors when Possible"],
     }
     ConfigPrototypes.NameText.general.args.color = {
         order = 5,
         type = "color",
         name = L["Color"],
-        hasAlpha = true,
-        disabled = function()
-            return not (NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.nameText.general.useCustomColor)
-        end,
+        hasAlpha = true
     }
     ConfigPrototypes.NameText.general.args.maxLetters = {
         order = 6,

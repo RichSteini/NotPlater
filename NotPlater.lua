@@ -385,18 +385,9 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:StackingCheck(self)
 			NotPlater:ThreatComponentsOnShow(self)
 			NotPlater:TargetCheck(self)
+			NotPlater:NameTextOnShow(self)
 			self.targetChanged = true
 			NotPlater:UpdateFrameMatch(self)
-			if self.nameText and self.defaultNameText then
-				local config = NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.nameText
-				if config and config.general and config.general.maxLetters then
-					NotPlater:SetMaxLetterText(self.nameText, self.defaultNameText:GetText(), config)
-				else
-					self.nameText:SetText(self.defaultNameText:GetText())
-				end
-			end
-			self.defaultNameText:SetAlpha(0)
-			self.defaultNameText:Hide()
 		end)
 
 		self:HookScript(frame, 'OnUpdate', function(self, elapsed)
@@ -412,7 +403,15 @@ function NotPlater:PrepareFrame(frame)
 						NotPlater:ClassCheck(self)
 					end
 					if self.unitClass then
-						frame.healthBar:SetStatusBarColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
+						self.healthBar:SetStatusBarColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
+					end
+				end
+				if NotPlater.db.profile.nameText.general.useClassColor then
+					if not self.unitClass then
+						NotPlater:ClassCheck(self)
+					end
+					if self.unitClass then
+						self.nameText:SetTextColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
 					end
 				end
 				NotPlater:SetTargetTargetText(self)
@@ -444,9 +443,6 @@ function NotPlater:PrepareFrame(frame)
 			else
 				levelText:Hide()
 			end
-			if NotPlater.db.profile.nameText.general.enable then
-				NotPlater:NameTextOnShow(self.nameText)
-			end
 		end)
 		self:HookScript(frame, "OnHide", function(self)
 			if self.healthBar then
@@ -457,6 +453,7 @@ function NotPlater:PrepareFrame(frame)
 			self.lastGuidMatch = nil
 			self.npUnit = nil
 			self.npGUID = nil
+			self.unitClass = nil
 			if self.highlightTexture then
 				self.highlightTexture:Hide()
 			end
@@ -626,8 +623,7 @@ NotPlater.frame:SetScript("OnEvent", function(self, event, unit)
 					NotPlater:CastBarOnCast(frame, event, unit)
 				end
 			else
-				local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
-				if NotPlater:PlateMatchesUnit(frame, unit) and frame.healthBar:GetValue() ~= healthMaxValue then
+				if NotPlater:PlateMatchesUnit(frame, unit) then
 					NotPlater:SetFrameMatch(frame, unit)
 					NotPlater:CastBarOnCast(frame, event, unit)
 				end

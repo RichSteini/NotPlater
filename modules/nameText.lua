@@ -16,26 +16,23 @@ function NotPlater:ConfigureNameText(nameText, anchorFrame)
 		return
 	end
 
-	-- Use the original plate text so max-letter changes are always applied to the full name.
 	local baseText = nameText.npOriginalText or nameText:GetText() or ""
 	local parent = nameText:GetParent()
 	if parent and parent.defaultNameText and parent.defaultNameText.GetText then
 		baseText = parent.defaultNameText:GetText() or baseText
 	end
 
-	if config.general.maxLetters then
-		self:SetMaxLetterText(nameText, baseText, config)
-	else
-		nameText:SetText(baseText)
-	end
+	NotPlater:NameTextOnShow(anchorFrame:GetParent())
 end
 
-function NotPlater:NameTextOnShow(nameText)
+function NotPlater:NameTextOnShow(frame)
 	local config = self.db.profile.nameText
-	if config.general.useCustomColor and config.general.color then
-		nameText:SetTextColor(self:GetColor(config.general.color))
-	end
+	frame.nameText:SetTextColor(self:GetColor(config.general.color))
 	if config.general.maxLetters then
-		self:SetMaxLetterText(nameText, nameText:GetText(), config)
+		NotPlater:SetMaxLetterText(frame.nameText, frame.defaultNameText:GetText(), config)
+	else
+		frame.nameText:SetText(frame.defaultNameText:GetText())
 	end
+	frame.defaultNameText:SetAlpha(0)
+	frame.defaultNameText:Hide()
 end

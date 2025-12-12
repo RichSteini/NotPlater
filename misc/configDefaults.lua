@@ -331,11 +331,11 @@ function NotPlater:LoadDefaultConfig()
                         yOffset = 0
                     }
                 },
-            },
+			},
 			nameText = {
 				general = {
 					enable = true,
-					useCustomColor = false,
+					useClassColor = false,
 					color = {1, 1, 1, 1},
 					name = "Arial Narrow",
 					size = 11,
