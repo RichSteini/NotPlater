@@ -2,10 +2,21 @@ if( not NotPlater ) then return end
 
 local L = NotPlaterLocals
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
+local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local unpack = unpack
 local slen = string.len
 local ssub = string.sub
 local tinsert = table.insert
+
+function NotPlater:GetClassColorFromRGB(r, g, b)
+	local tolerance = 0.1
+	for _, color in pairs(RAID_CLASS_COLORS) do
+		if math.abs(color.r - r) <= tolerance and math.abs(color.g - g) <= tolerance and math.abs(color.b - b) <= tolerance then
+			return color
+		end
+	end
+	return nil
+end
 
 function NotPlater:GetColor(config)
 	return unpack(config)

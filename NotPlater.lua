@@ -22,6 +22,8 @@ local GetCVar = GetCVar
 local SetCVar = SetCVar
 
 local NAMEPLATE_CASTBAR_CVAR = "ShowVKeyCastbar"
+local NAMEPLATE_CLASS_COLOR_CVAR = "ShowClassColorInNameplate"
+
 local WRATH_NAMEPLATE_TEXTURE = "Interface\\TargetingFrame\\UI-TargetingFrame-Flash"
 local LEGACY_NAMEPLATE_TEXTURE = "Interface\\Tooltips\\Nameplate-Border"
 
@@ -189,6 +191,16 @@ function NotPlater:UpdateNameplateCastBarCVar()
 		self:DisableDefaultNameplateCastBar()
 	else
 		self:RestoreDefaultNameplateCastBar()
+	end
+end
+
+function NotPlater:UpdateNameplateClassColorCVar()
+	local shouldEnable = self.db.profile.threat.nameplateColors.general.useClassColors or self.db.profile.nameText.general.useClassColor
+	if shouldEnable then
+		local current = GetCVar(NAMEPLATE_CLASS_COLOR_CVAR)
+		if current ~= "1" then
+			SetCVar(NAMEPLATE_CLASS_COLOR_CVAR, "1")
+		end
 	end
 end
 
@@ -509,6 +521,7 @@ function NotPlater:Reload()
 		self:UnregisterCastBarEvents(NotPlater.frame)
 	end
 	self:UpdateNameplateCastBarCVar()
+	self:UpdateNameplateClassColorCVar()
 
 	if self.db.profile.threat.general.enableMouseoverUpdate then
 		self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
@@ -545,6 +558,14 @@ end
 
 function NotPlater:ClassCheck(frame)
 	if frame.unitClass then return end
+
+	local r, g, b = frame.healthBar:GetStatusBarColor()
+	local classColor = NotPlater:GetClassColorFromRGB(r, g, b)
+	if classColor then
+		frame.unitClass = classColor
+		classCache[frame.defaultNameText:GetText()] = classColor
+		return
+	end
 
 	if self:IsTarget(frame) then
 		SetFrameClassColorFromUnit(frame, "target")
