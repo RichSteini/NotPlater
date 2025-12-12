@@ -417,9 +417,9 @@ function NotPlater:ConstructSimulatorFrame()
             end
             self.targetChanged = true
         end
-    end)
+	end)
     self:SetSize(simulatorFrame.defaultFrame, 156.65, 39.16)
-    simulatorFrame.defaultFrame:SetPoint("CENTER")
+    simulatorFrame.defaultFrame:SetPoint("BOTTOM", simulatorFrame.outlineText, "TOP", 0, 5)
 
     -- Frames
     simulatorFrame.defaultFrame.defaultHealthFrame = CreateFrame("StatusBar", "NotPlaterSimulatorHealthFrame", simulatorFrame.defaultFrame)
