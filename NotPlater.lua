@@ -26,6 +26,8 @@ local WRATH_NAMEPLATE_TEXTURE = "Interface\\TargetingFrame\\UI-TargetingFrame-Fl
 local LEGACY_NAMEPLATE_TEXTURE = "Interface\\Tooltips\\Nameplate-Border"
 
 local frames = {}
+local classCache = {}
+NotPlater.classCache = classCache
 local DEFAULT_TRACKED_UNITS = {"target", "focus", "mouseover"}
 local MAX_ARENA_UNIT_IDS = type(MAX_ARENA_ENEMIES) == "number" and MAX_ARENA_ENEMIES or 5
 
@@ -37,6 +39,11 @@ local function SetFrameClassColorFromUnit(frame, unit)
 		local classToken = select(2, UnitClass(unit))
 		if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
 			frame.unitClass = RAID_CLASS_COLORS[classToken]
+			local nameText = frame.defaultNameText
+			local unitName = nameText:GetText()
+			if unitName and unitName ~= "" then
+				classCache[unitName] = frame.unitClass
+			end
 			return true
 		end
 	end
@@ -379,7 +386,8 @@ function NotPlater:PrepareFrame(frame)
 		health:Hide()
     
 		self:HookScript(frame, "OnShow", function(self)
-			self.unitClass = nil
+			local cachedClass = classCache[self.defaultNameText:GetText()]
+			self.unitClass = cachedClass
 			NotPlater:CastBarOnShow(self)
 			NotPlater:HealthBarOnShow(health)
 			NotPlater:StackingCheck(self)
