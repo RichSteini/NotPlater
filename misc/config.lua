@@ -313,6 +313,9 @@ local function TraverseBuffDB(info)
 	if not db then return end
 	for i = 2, #info - 1 do
 		local key = info[i]
+		if i == #info - 1 and key == info[#info] and type(db) == "table" and type(db[key]) ~= "table" then
+			break
+		end
 		if key ~= "frames" then
 			db = db and db[key]
 		end
