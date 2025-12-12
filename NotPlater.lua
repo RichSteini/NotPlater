@@ -449,6 +449,14 @@ function NotPlater:PrepareFrame(frame)
 			end
 		end)
 		self:HookScript(frame, "OnHide", function(self)
+			if self.healthBar then
+				self.healthBar.lastUnitMatch = nil
+				self.healthBar.lastGuidMatch = nil
+			end
+			self.lastUnitMatch = nil
+			self.lastGuidMatch = nil
+			self.npUnit = nil
+			self.npGUID = nil
 			if self.highlightTexture then
 				self.highlightTexture:Hide()
 			end
