@@ -64,13 +64,27 @@ function NotPlater:SetMaxLetterText(textObject, text, config)
 	end
 end
 
-function NotPlater:ScaleGeneralisedText(text, scalingFactor, config)
+function NotPlater:ScaleGeneralisedText(text, scalingFactor, config, anchorFrame)
+	if not text or not config then
+		return
+	end
+
 	text:SetFont(self.SML:Fetch(self.SML.MediaType.FONT, config.general.name), config.general.size * scalingFactor, config.general.border)
+
+	local position = config.position
+	local targetAnchor = anchorFrame or text.npAnchorFrame
+	if position and targetAnchor then
+		text:ClearAllPoints()
+		local xOffset = (position.xOffset or 0) * scalingFactor
+		local yOffset = (position.yOffset or 0) * scalingFactor
+		text:SetPoint(position.anchor, targetAnchor, position.anchor, xOffset, yOffset)
+	end
 end
 
 function NotPlater:ConfigureGeneralisedText(text, anchorFrame, config)
     text:ClearAllPoints()
 	text:SetPoint(config.position.anchor, anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
+	text.npAnchorFrame = anchorFrame
 	self:SetupFontString(text, config)
 	if config.general.enable then
 		text:Show()
@@ -86,12 +100,22 @@ function NotPlater:ScaleGeneralisedStatusBar(bar, scalingFactor, config)
 	bar.scaleAnim.width:SetChange(config.size.width * scalingFactor)
 	bar.scaleAnim.height:SetChange(config.size.height * scalingFactor)
 	bar.scaleAnim:Play()
+
+	local position = config.position
+	local anchorFrame = bar.npAnchorFrame
+	if position and anchorFrame then
+		bar:ClearAllPoints()
+		local xOffset = (position.xOffset or 0) * scalingFactor
+		local yOffset = (position.yOffset or 0) * scalingFactor
+		bar:SetPoint(self.oppositeAnchors[position.anchor], anchorFrame, position.anchor, xOffset, yOffset)
+	end
 end
 
 function NotPlater:ConfigureGeneralisedPositionedStatusBar(bar, anchorFrame, config)
 	bar:ClearAllPoints()
 	self:SetSize(bar, config.size.width, config.size.height)
 	bar:SetPoint(self.oppositeAnchors[config.position.anchor], anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
+	bar.npAnchorFrame = anchorFrame
 	self:ConfigureGeneralisedStatusBar(bar, config)
 end
 
@@ -161,6 +185,7 @@ function NotPlater:ConfigureGeneralisedIcon(iconFrame, anchorFrame, config)
     iconFrame:ClearAllPoints()
     self:SetSize(iconFrame, config.size.width, config.size.height)
     iconFrame:SetPoint(self.oppositeAnchors[config.position.anchor], anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
+	iconFrame.npAnchorFrame = anchorFrame
 	local enabled = config.general.enable
 	if enabled == nil then
 		enabled = true

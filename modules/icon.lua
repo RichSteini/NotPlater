@@ -2,6 +2,14 @@ if( not NotPlater ) then return end
 
 function NotPlater:ScaleIcon(iconFrame, scalingFactor, config)
     self:SetSize(iconFrame, config.size.width * scalingFactor, config.size.height * scalingFactor)
+	local position = config.position
+	local anchorFrame = iconFrame and iconFrame.npAnchorFrame
+	if position and anchorFrame then
+		iconFrame:ClearAllPoints()
+		local xOffset = (position.xOffset or 0) * scalingFactor
+		local yOffset = (position.yOffset or 0) * scalingFactor
+		iconFrame:SetPoint(self.oppositeAnchors[position.anchor], anchorFrame, position.anchor, xOffset, yOffset)
+	end
 end
 
 function NotPlater:ScaleBossIcon(iconFrame, isTarget)

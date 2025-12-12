@@ -10,8 +10,13 @@ end
 
 function NotPlater:LevelTextOnShow(levelText, anchorFrame)
 	local config = self.db.profile.levelText
-	levelText:ClearAllPoints()
-	levelText:SetPoint(config.position.anchor, anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
+	if anchorFrame then
+		levelText.npAnchorFrame = anchorFrame
+	end
+	local scaleConfig = self.db.profile.target.general.scale
+	local isTarget = anchorFrame and anchorFrame:GetParent() and self:IsTarget(anchorFrame:GetParent())
+	local scalingFactor = (scaleConfig.levelText and isTarget) and scaleConfig.scalingFactor or 1
+	self:ScaleGeneralisedText(levelText, scalingFactor, config, levelText.npAnchorFrame)
 	if config.general.useCustomColor and config.general.color then
 		levelText:SetTextColor(self:GetColor(config.general.color))
 	end
