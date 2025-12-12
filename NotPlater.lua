@@ -104,6 +104,7 @@ local function CreateNameTextProxy(frame, defaultNameText)
 		if not proxy then
 			return
 		end
+		proxy.npOriginalText = text or ""
 		local activeConfig = NotPlater and NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.nameText
 		if activeConfig and activeConfig.general and activeConfig.general.maxLetters then
 			NotPlater:SetMaxLetterText(proxy, text, activeConfig)

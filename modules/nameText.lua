@@ -9,7 +9,25 @@ function NotPlater:ScaleNameText(nameText, isTarget)
 end
 
 function NotPlater:ConfigureNameText(nameText, anchorFrame)
-	self:ConfigureGeneralisedText(nameText, anchorFrame, self.db.profile.nameText)
+	local config = self.db.profile.nameText
+	self:ConfigureGeneralisedText(nameText, anchorFrame, config)
+
+	if not nameText or not config or not config.general then
+		return
+	end
+
+	-- Use the original plate text so max-letter changes are always applied to the full name.
+	local baseText = nameText.npOriginalText or nameText:GetText() or ""
+	local parent = nameText:GetParent()
+	if parent and parent.defaultNameText and parent.defaultNameText.GetText then
+		baseText = parent.defaultNameText:GetText() or baseText
+	end
+
+	if config.general.maxLetters then
+		self:SetMaxLetterText(nameText, baseText, config)
+	else
+		nameText:SetText(baseText)
+	end
 end
 
 function NotPlater:NameTextOnShow(nameText)
