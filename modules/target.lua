@@ -5,8 +5,10 @@ local tinsert = table.insert
 
 function NotPlater:ConfigureTarget(frame)
     local healthBarHeight = frame.healthBar:GetHeight()
+	local targetConfig = self.db.profile.target.general
+	local targetBorderConfig = targetConfig.border
 
-	local preset = self.targetIndicators[self.db.profile.target.general.border.indicator.selection]
+	local preset = self.targetIndicators[targetBorderConfig.indicator.selection]
 	if (not preset) then
 		preset = self.targetIndicators["Silver"]
 	end
@@ -68,8 +70,27 @@ function NotPlater:ConfigureTarget(frame)
 		end
 	end
 
+	local targetBorderSettings = targetBorderConfig.targetBorder
+	if targetBorderSettings and frame.targetBorder and frame.targetBorderFrame then
+		local healthBorderConfig = self.db.profile.healthBar and self.db.profile.healthBar.statusBar and self.db.profile.healthBar.statusBar.border
+		local borderPadding = 0
+		if healthBorderConfig and healthBorderConfig.enable ~= false then
+			borderPadding = healthBorderConfig.thickness or 0
+		end
+		local strata = frame.healthBar:GetFrameStrata() or frame:GetFrameStrata() or "MEDIUM"
+		if strata == "UNKNOWN" then
+			strata = "MEDIUM"
+		end
+		frame.targetBorderFrame:SetFrameStrata(strata)
+		frame.targetBorderFrame:SetFrameLevel(frame.healthBar:GetFrameLevel() + 1)
+		frame.targetBorderFrame:ClearAllPoints()
+		frame.targetBorderFrame:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", -borderPadding, borderPadding)
+		frame.targetBorderFrame:SetPoint("BOTTOMRIGHT", frame.healthBar, "BOTTOMRIGHT", borderPadding, -borderPadding)
+		self:ConfigureFullBorder(frame.targetBorder, frame.targetBorderFrame, targetBorderSettings)
+	end
+
     -- highlight (glow)
-    local targetHighlightConfig = self.db.profile.target.general.border.highlight
+    local targetHighlightConfig = targetBorderConfig.highlight
     frame.targetNeonUp:SetVertexColor(self:GetColor(targetHighlightConfig.color))
 	frame.targetNeonUp:SetAlpha (self:GetAlpha(targetHighlightConfig.color))
 	frame.targetNeonUp:SetTexture(targetHighlightConfig.texture)
@@ -84,11 +105,11 @@ function NotPlater:ConfigureTarget(frame)
 	frame.targetNeonDown:SetPoint("topleft", frame.healthBar, "bottomleft", 0, 0)
 	frame.targetNeonDown:SetPoint("topright", frame.healthBar, "bottomright", 0, 0)
 
-    local targetOverlayConfig = self.db.profile.target.general.overlay
+    local targetOverlayConfig = targetConfig.overlay
     frame.targetOverlay:SetTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, targetOverlayConfig.texture))
     frame.targetOverlay:SetVertexColor(self:GetColor(targetOverlayConfig.color))
 
-    local nonTargetShadingConfig = self.db.profile.target.general.nonTargetShading
+    local nonTargetShadingConfig = targetConfig.nonTargetShading
     frame.nonTargetShading:SetAlpha(nonTargetShadingConfig.opacity)
 
 	self:ConfigureGeneralisedText(frame.targetTargetText, frame.healthBar, self.db.profile.target.targetTargetText)
@@ -135,6 +156,13 @@ function NotPlater:TargetOnTarget(frame)
         frame.targetNeonUp:Hide()
     end
 
+	local targetBorderSettings = targetBorderConfig.targetBorder
+	if targetBorderSettings and targetBorderSettings.enable and frame.targetBorder then
+		frame.targetBorder:Show()
+	elseif frame.targetBorder then
+		frame.targetBorder:Hide()
+	end
+
     if self.db.profile.target.general.overlay.enable then
         frame.targetOverlay:Show()
     else
@@ -153,6 +181,9 @@ function NotPlater:TargetOnNonTarget(frame)
     frame.targetNeonDown:Hide()
     frame.targetNeonUp:Hide()
     frame.targetOverlay:Hide()
+	if frame.targetBorder then
+		frame.targetBorder:Hide()
+	end
     if self.db.profile.target.general.nonTargetShading.enable then
         frame.nonTargetShading:Show()
     else
@@ -222,6 +253,23 @@ function NotPlater:ConstructTarget(frame)
         targetTexture:SetDrawLayer("overlay", 7)
         tinsert(frame.targetTextures4Sides, targetTexture)
     end
+
+	frame.targetBorderFrame = CreateFrame("Frame", "$parentTargetBorder", frame.healthBar)
+	frame.targetBorderFrame:SetFrameLevel(frame.healthBar:GetFrameLevel() + 1)
+	local strata = frame.healthBar:GetFrameStrata() or frame:GetFrameStrata() or "MEDIUM"
+	if strata == "UNKNOWN" then
+		strata = "MEDIUM"
+	end
+	frame.targetBorderFrame:SetFrameStrata(strata)
+	frame.targetBorderFrame:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", 0, 0)
+	frame.targetBorderFrame:SetPoint("BOTTOMRIGHT", frame.healthBar, "BOTTOMRIGHT", 0, 0)
+
+	frame.targetBorder = self:CreateFullBorder(frame.targetBorderFrame)
+	frame.targetBorder.left:SetDrawLayer("OVERLAY", 7)
+	frame.targetBorder.right:SetDrawLayer("OVERLAY", 7)
+	frame.targetBorder.top:SetDrawLayer("OVERLAY", 7)
+	frame.targetBorder.bottom:SetDrawLayer("OVERLAY", 7)
+	frame.targetBorder:Hide()
 
     local targetNeonUp = frame:CreateTexture(nil, "overlay")
     targetNeonUp:SetDrawLayer("overlay", 7)

@@ -425,6 +425,11 @@ function NotPlater:LoadDefaultConfig()
                             enable = true,
                             selection = "Silver"
                         },
+                        targetBorder = {
+                            enable = false,
+                            color = {1, 0.8, 0, 1},
+                            thickness = 2
+                        },
                         highlight = {
                             enable = true,
                             texture = NotPlater.defaultHighlightTexture,

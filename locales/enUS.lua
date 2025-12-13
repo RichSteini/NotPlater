@@ -190,6 +190,7 @@ NotPlaterLocals = {
 	["Tank no Aggro"] = "Tank no Aggro",
 	["Target"] = "Target",
 	["Target Frame"] = "Target Frame",
+	["Target Border"] = "Target Border",
 	["Target Overlay"] = "Target Overlay",
 	["Target-Target Text"] = "Target-Target Text",
 	["Text"] = "Text",

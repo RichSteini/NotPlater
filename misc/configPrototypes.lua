@@ -762,6 +762,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
                         },
                     },
                 },
+                targetBorder = ConfigPrototypes:GetGeneralisedBorderConfig(),
             },
         },
         overlay = {
@@ -847,6 +848,8 @@ function ConfigPrototypes:LoadConfigPrototypes()
             },
         },
     }
+    ConfigPrototypes.Target.border.args.targetBorder.order = 2
+    ConfigPrototypes.Target.border.args.targetBorder.name = L["Target Border"]
     ConfigPrototypes.TargetTargetText = ConfigPrototypes:GetGeneralisedColorFontConfig()
     ConfigPrototypes.TargetTargetText.general.args.maxLetters = {
         order = 5,
