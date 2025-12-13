@@ -729,6 +729,26 @@ function ConfigPrototypes:LoadConfigPrototypes()
                             name = L["Selection"],
                             values = GetIndicators,
                         },
+                        scale = {
+                            order = 2,
+                            type = "range",
+                            name = L["Scale"],
+                            min = 0.1, max = 5, step = 0.01,
+                        },
+                        useCustomColor = {
+                            order = 3,
+                            type = "toggle",
+                            name = L["Use Custom Color"],
+                        },
+                        color = {
+                            order = 4,
+                            type = "color",
+                            name = L["Color"],
+                            hasAlpha = true,
+                            disabled = function()
+                                return not NotPlater.db.profile.target.border.indicator.useCustomColor
+                            end,
+                        },
                     },
                 },
                 highlight = {

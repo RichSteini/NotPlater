@@ -24,8 +24,14 @@ function NotPlater:ConfigureTarget(frame)
 	local doScale = preset.autoScale
 	local custScale = preset.scale
 	local overlayColorR, overlayColorG, overlayColorB = preset.color and unpack(preset.color) or 1, 1, 1
+	if targetBorderConfig.indicator.useCustomColor and targetBorderConfig.indicator.color then
+		overlayColorR, overlayColorG, overlayColorB = unpack(targetBorderConfig.indicator.color)
+		alpha = targetBorderConfig.indicator.color[4] or alpha
+	end
 	
 	local scale = (not doScale and custScale) or (healthBarHeight / (doScale and height or 10))
+	local indicatorScale = targetBorderConfig.indicator.scale or 1
+	scale = scale * indicatorScale
 	
 	--four parts (textures)
 	if (#coords == 4) then

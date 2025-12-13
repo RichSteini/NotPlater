@@ -419,15 +419,18 @@ function NotPlater:LoadDefaultConfig()
                     bossIcon = false,
                     targetTargetText = false
                 },
-                border = {
-                    indicator = {
-                        enable = true,
-                        selection = "Silver"
-                    },
-                    targetBorder = {
-                        enable = false,
-                        color = {1, 0.8, 0, 1},
-                        thickness = 2
+				border = {
+					indicator = {
+						enable = true,
+						selection = "Silver",
+						scale = 1,
+						useCustomColor = false,
+						color = {1, 1, 1, 1},
+					},
+					targetBorder = {
+						enable = false,
+						color = {1, 0.8, 0, 1},
+						thickness = 2
                     },
                     highlight = {
                         enable = true,
