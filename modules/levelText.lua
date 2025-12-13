@@ -1,7 +1,7 @@
 if( not NotPlater ) then return end
 
 function NotPlater:ScaleLevelText(levelText, isTarget)
-	local scaleConfig = self.db.profile.target.general.scale
+	local scaleConfig = self.db.profile.target.scale
 	if scaleConfig.levelText then
 		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
 		self:ScaleGeneralisedText(levelText, scalingFactor, self.db.profile.levelText)
@@ -13,7 +13,7 @@ function NotPlater:LevelTextOnShow(levelText, anchorFrame)
 	if anchorFrame then
 		levelText.npAnchorFrame = anchorFrame
 	end
-	local scaleConfig = self.db.profile.target.general.scale
+	local scaleConfig = self.db.profile.target.scale
 	local isTarget = anchorFrame and anchorFrame:GetParent() and self:IsTarget(anchorFrame:GetParent())
 	local scalingFactor = (scaleConfig.levelText and isTarget) and scaleConfig.scalingFactor or 1
 	self:ScaleGeneralisedText(levelText, scalingFactor, config, levelText.npAnchorFrame)

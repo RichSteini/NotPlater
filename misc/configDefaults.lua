@@ -408,52 +408,50 @@ function NotPlater:LoadDefaultConfig()
                 }
             },
             target = {
-                general = {
-                    scale = {
-                        scalingFactor = 1.11,
-                        threat = false,
-                        healthBar = true,
-                        castBar = true,
-                        nameText = true,
-                        levelText = false,
-                        raidIcon = false,
-                        bossIcon = false,
-                        targetTargetText = false
-                    },
-                    border = {
-                        indicator = {
-                            enable = true,
-                            selection = "Silver"
-                        },
-                        targetBorder = {
-                            enable = false,
-                            color = {1, 0.8, 0, 1},
-                            thickness = 2
-                        },
-                        highlight = {
-                            enable = true,
-                            texture = NotPlater.defaultHighlightTexture,
-                            color = {0, 0.521568, 1, 0.75},
-                            thickness = 14
-                        },
-                    },
-                    overlay = {
+                scale = {
+                    scalingFactor = 1.11,
+                    threat = false,
+                    healthBar = true,
+                    castBar = true,
+                    nameText = true,
+                    levelText = false,
+                    raidIcon = false,
+                    bossIcon = false,
+                    targetTargetText = false
+                },
+                border = {
+                    indicator = {
                         enable = true,
-                        texture = "Flat",
-                        color = {1, 1, 1, 0.05}
+                        selection = "Silver"
                     },
-                    nonTargetAlpha = {
+                    targetBorder = {
+                        enable = false,
+                        color = {1, 0.8, 0, 1},
+                        thickness = 2
+                    },
+                    highlight = {
                         enable = true,
-                        opacity = 0.95
+                        texture = NotPlater.defaultHighlightTexture,
+                        color = {0, 0.521568, 1, 0.75},
+                        thickness = 14
                     },
-                    nonTargetShading = {
-                        enable = true,
-                        opacity = 0.4
-                    },
-                    mouseoverHighlight = {
-                        enable = true,
-                        opacity = 0.5
-                    },
+                },
+                overlay = {
+                    enable = true,
+                    texture = "Flat",
+                    color = {1, 1, 1, 0.05}
+                },
+                nonTargetAlpha = {
+                    enable = true,
+                    opacity = 0.95
+                },
+                nonTargetShading = {
+                    enable = true,
+                    opacity = 0.4
+                },
+                mouseoverHighlight = {
+                    enable = true,
+                    opacity = 0.5
                 },
                 targetTargetText = {
                     general = {

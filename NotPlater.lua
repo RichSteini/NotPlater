@@ -453,8 +453,8 @@ function NotPlater:PrepareFrame(frame)
 			if NotPlater:IsTarget(self) then
 				self:SetAlpha(1)
 			else
-				if NotPlater.db.profile.target.general.nonTargetAlpha.enable then
-					self:SetAlpha(NotPlater.db.profile.target.general.nonTargetAlpha.opacity)
+				if NotPlater.db.profile.target.nonTargetAlpha.enable then
+					self:SetAlpha(NotPlater.db.profile.target.nonTargetAlpha.opacity)
 				end
 			end
 			if NotPlater.db.profile.levelText.general.enable then

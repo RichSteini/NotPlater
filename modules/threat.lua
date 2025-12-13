@@ -324,7 +324,7 @@ function NotPlater:ThreatCheck(frame)
 end
 
 function NotPlater:ScaleThreatComponents(healthFrame, isTarget)
-	local scaleConfig = self.db.profile.target.general.scale
+	local scaleConfig = self.db.profile.target.scale
 	if scaleConfig.threat then
 		local threatConfig = self.db.profile.threat
 		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1

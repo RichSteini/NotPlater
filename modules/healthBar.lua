@@ -55,7 +55,7 @@ function NotPlater:HealthOnValueChanged(oldHealthBar, value)
 end
 
 function NotPlater:ScaleHealthBar(healthFrame, isTarget)
-	local scaleConfig = self.db.profile.target.general.scale
+	local scaleConfig = self.db.profile.target.scale
 	if scaleConfig.healthBar then
     	local healthBarConfig = self.db.profile.healthBar
 		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
@@ -85,8 +85,8 @@ function NotPlater:ConfigureHealthBar(frame, oldHealthBar)
 	self:ConfigureGeneralisedText(healthFrame.healthText, healthFrame, healthBarConfig.healthText)
 
 	-- Set Mouseover highlight
-	frame.highlightTexture:SetAlpha(self.db.profile.target.general.mouseoverHighlight.opacity)
-	if self.db.profile.target.general.mouseoverHighlight.enable then
+	frame.highlightTexture:SetAlpha(self.db.profile.target.mouseoverHighlight.opacity)
+	if self.db.profile.target.mouseoverHighlight.enable then
 		frame.highlightTexture:SetTexture(self.SML:Fetch(self.SML.MediaType.STATUSBAR, healthBarConfig.statusBar.general.texture))
 	else
 		frame.highlightTexture:SetTexture(0, 0, 0, 0)

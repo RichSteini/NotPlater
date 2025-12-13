@@ -5,7 +5,7 @@ local tinsert = table.insert
 
 function NotPlater:ConfigureTarget(frame)
     local healthBarHeight = frame.healthBar:GetHeight()
-	local targetConfig = self.db.profile.target.general
+	local targetConfig = self.db.profile.target
 	local targetBorderConfig = targetConfig.border
 
 	local preset = self.targetIndicators[targetBorderConfig.indicator.selection]
@@ -117,7 +117,7 @@ end
 
 function NotPlater:TargetOnTarget(frame)
     local hide2s, hide4s = false, false
-    local targetBorderConfig = NotPlater.db.profile.target.general.border
+    local targetBorderConfig = NotPlater.db.profile.target.border
     if targetBorderConfig.indicator.enable and frame.healthBar:GetHeight() > 4 then
         local preset = NotPlater.targetIndicators[targetBorderConfig.indicator.selection]
         if (not preset) then preset = NotPlater.targetIndicators["Silver"] end
@@ -163,7 +163,7 @@ function NotPlater:TargetOnTarget(frame)
 		frame.targetBorder:Hide()
 	end
 
-    if self.db.profile.target.general.overlay.enable then
+    if self.db.profile.target.overlay.enable then
         frame.targetOverlay:Show()
     else
         frame.targetOverlay:Hide()
@@ -184,7 +184,7 @@ function NotPlater:TargetOnNonTarget(frame)
 	if frame.targetBorder then
 		frame.targetBorder:Hide()
 	end
-    if self.db.profile.target.general.nonTargetShading.enable then
+    if self.db.profile.target.nonTargetShading.enable then
         frame.nonTargetShading:Show()
     else
         frame.nonTargetShading:Hide()
@@ -213,7 +213,7 @@ function NotPlater:SetTargetTargetText(frame)
 end
 
 function NotPlater:ScaleTargetTargetText(targetTargetText, isTarget)
-	local scaleConfig = self.db.profile.target.general.scale
+	local scaleConfig = self.db.profile.target.scale
 	if scaleConfig.targetTargetText then
 		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
 		self:ScaleGeneralisedText(targetTargetText, scalingFactor, self.db.profile.target.targetTargetText)

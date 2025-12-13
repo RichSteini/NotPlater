@@ -657,7 +657,6 @@ function ConfigPrototypes:LoadConfigPrototypes()
             order = 0,
             type = "group",
             name = L["Scale"],
-            inline = true,
             args = {
                 scalingFactor = {
                     order = 0,
@@ -712,12 +711,12 @@ function ConfigPrototypes:LoadConfigPrototypes()
             order = 1,
             type = "group",
             name = L["Border"],
-            inline = true,
             args = {
                 indicator = {
                     order = 0,
                     type = "group",
                     name = L["Indicator"],
+                    inline = true,
                     args = {
                         enable = {
                             order = 0,
@@ -736,6 +735,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
                     order = 1,
                     type = "group",
                     name = L["Highlight"],
+                    inline = true,
                     args = {
                         enable = {
                             order = 0,
@@ -769,7 +769,6 @@ function ConfigPrototypes:LoadConfigPrototypes()
             order = 2,
             type = "group",
             name = L["Overlay"],
-            inline = true,
             args = {
                 enable = {
                     order = 0,
@@ -794,7 +793,6 @@ function ConfigPrototypes:LoadConfigPrototypes()
             order = 3,
             type = "group",
             name = L["Non-Target Alpha"],
-            inline = true,
             args = {
                 enable = {
                     order = 0,
@@ -813,7 +811,6 @@ function ConfigPrototypes:LoadConfigPrototypes()
             order = 4,
             type = "group",
             name = L["Non-Target Shading"],
-            inline = true,
             args = {
                 enable = {
                     order = 0,
@@ -832,7 +829,6 @@ function ConfigPrototypes:LoadConfigPrototypes()
             order = 5,
             type = "group",
             name = L["Mouseover Highlight"],
-            inline = true,
             args = {
                 enable = {
                     order = 0,
