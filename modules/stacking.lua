@@ -185,6 +185,18 @@ local stackingComponentDefinitions = {
 			return EnsureRegionContainer(frame, "targetTargetText", frame and frame.targetTargetText, frame and frame.healthBar)
 		end,
 	},
+	rangeStatusBar = {
+		label = L["Range Status Bar"],
+		get = function(frame)
+			return frame and frame.rangeBar
+		end,
+	},
+	rangeText = {
+		label = L["Range Text"],
+		get = function(frame)
+			return EnsureRegionContainer(frame, "rangeText", frame and frame.rangeText, frame and frame.healthBar)
+		end,
+	},
 	aurasDebuffs = {
 		label = L["Aura Frame 1"],
 		get = function(frame)

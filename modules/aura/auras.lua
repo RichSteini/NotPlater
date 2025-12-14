@@ -383,24 +383,12 @@ function Auras:CreateContainer(frame, index)
 end
 
 function Auras:OnPlateShow(frame)
-	if frame.healthBar then
-		frame.healthBar.lastGuidMatch = nil
-		frame.healthBar.lastUnitMatch = nil
-	end
-	frame.lastGuidMatch = nil
-	frame.lastUnitMatch = nil
 	self:SetFrameGUID(frame, nil)
 	self:SetFrameUnit(frame, nil)
 	self:UpdateFrameAuras(frame)
 end
 
 function Auras:OnPlateHide(frame)
-	if frame.healthBar then
-		frame.healthBar.lastGuidMatch = nil
-		frame.healthBar.lastUnitMatch = nil
-	end
-	frame.lastGuidMatch = nil
-	frame.lastUnitMatch = nil
 	self:SetFrameGUID(frame, nil)
 	self:SetFrameUnit(frame, nil)
 	self:HideContainers(frame)
@@ -756,7 +744,7 @@ function Auras:UpdateFrameAuras(frame, forcedUnit)
 end
 
 function Auras:IdentifyUnit(frame)
-	local matched = frame.lastUnitMatch or (frame.healthBar and frame.healthBar.lastUnitMatch)
+	local matched = frame.lastUnitMatch
 	if matched and SafeUnit(matched) then
 		return matched
 	end

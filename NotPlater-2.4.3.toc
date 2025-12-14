@@ -36,6 +36,7 @@ modules\nameText.lua
 modules\stacking.lua
 modules\target.lua
 modules\threat.lua
+modules\range.lua
 modules\aura\auraTrackerBase.lua
 modules\aura\auraTracker-2.4.3.lua
 modules\aura\auraCooldownVertical.lua

@@ -873,6 +873,122 @@ function ConfigPrototypes:LoadConfigPrototypes()
         name = L["Max. Letters"],
         min = 1, max = 100, step = 1,
     }
+	local rangeStatusArgs = ConfigPrototypes:GetGeneralisedStatusBarConfig()
+	rangeStatusArgs.position = ConfigPrototypes:GetGeneralisedPositionConfig()
+	rangeStatusArgs.general.args.showProgress = {
+		order = 3,
+		type = "toggle",
+		name = L["Show Progress"],
+	}
+	local rangeTextArgs = ConfigPrototypes:GetGeneralisedColorFontConfig()
+	rangeTextArgs.general.args.format = {
+		order = 1.5,
+		type = "input",
+		width = "full",
+		name = L["Text Format"],
+		desc = L["Use {range} to insert the current range value."],
+	}
+	ConfigPrototypes.Range = {
+		statusBar = {
+			order = 1,
+			type = "group",
+			name = L["Status Bar"],
+			args = rangeStatusArgs,
+		},
+		text = {
+			order = 2,
+			type = "group",
+			name = L["Text"],
+			args = rangeTextArgs,
+		},
+		buckets = {
+			order = 3,
+			type = "group",
+			name = L["Ranges"],
+            args = {
+                range10 = {
+                    order = 0,
+                    type = "group",
+                    inline = true,
+                    name = L["0-10 Yards"],
+                    args = {
+                        statusBarColor = {
+                            order = 0,
+                            type = "color",
+                            name = L["Status Bar Color"],
+                            hasAlpha = true,
+                        },
+						textColor = {
+							order = 1,
+							type = "color",
+							name = L["Text Color"],
+							hasAlpha = true,
+						},
+					},
+				},
+				range20 = {
+					order = 1,
+					type = "group",
+                    inline = true,
+                    name = L["10-20 Yards"],
+                    args = {
+                        statusBarColor = {
+                            order = 0,
+                            type = "color",
+                            name = L["Status Bar Color"],
+                            hasAlpha = true,
+                        },
+						textColor = {
+							order = 1,
+							type = "color",
+							name = L["Text Color"],
+							hasAlpha = true,
+						},
+					},
+				},
+				range30 = {
+					order = 2,
+					type = "group",
+                    inline = true,
+                    name = L["20-30 Yards"],
+                    args = {
+                        statusBarColor = {
+                            order = 0,
+                            type = "color",
+                            name = L["Status Bar Color"],
+                            hasAlpha = true,
+                        },
+						textColor = {
+							order = 1,
+							type = "color",
+							name = L["Text Color"],
+							hasAlpha = true,
+						},
+					},
+				},
+				range40 = {
+					order = 3,
+					type = "group",
+                    inline = true,
+                    name = L["30-40 Yards"],
+                    args = {
+                        statusBarColor = {
+                            order = 0,
+                            type = "color",
+                            name = L["Status Bar Color"],
+                            hasAlpha = true,
+                        },
+						textColor = {
+							order = 1,
+							type = "color",
+							name = L["Text Color"],
+							hasAlpha = true,
+						},
+					},
+				},
+			},
+		},
+	}
     ConfigPrototypes.Simulator = {
         general = {
             order = 1,

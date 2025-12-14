@@ -232,6 +232,7 @@ function NotPlater:TargetCheck(frame)
         NotPlater:TargetOnTarget(frame)
         NotPlater:SetTargetFrameStrata(frame)
         NotPlater:CastCheck(frame)
+        NotPlater:SetFrameMatch(frame, "target")
     else
         NotPlater:TargetOnNonTarget(frame)
         NotPlater:SetNormalFrameStrata(frame)

@@ -19,6 +19,8 @@ local DEFAULT_STACKING_COMPONENTS = NotPlater.defaultStackingComponents or {
 	"targetTargetText",
 	"aurasDebuffs",
 	"aurasBuffs",
+	"rangeStatusBar",
+	"rangeText",
 }
 
 NotPlater.defaultStackingComponents = DEFAULT_STACKING_COMPONENTS
@@ -190,6 +192,82 @@ function NotPlater:LoadDefaultConfig()
                             c2 = {1, 0.65, 0, 1},
                             c3 = {0, 1, 0, 1},
                         }
+                    },
+                },
+            },
+            range = {
+                statusBar = {
+                    general = {
+                        enable = false,
+                        color = {0.3, 0.6, 1, 1},
+                        texture = "NotPlater Default",
+                        showProgress = true,
+                    },
+                    background = {
+                        enable = true,
+                        color = {0, 0, 0, 0.4},
+                        texture = "NotPlater Background",
+                    },
+                    size = {
+                        width = 40,
+                        height = 10,
+                    },
+                    position = {
+                        anchor = "RIGHT",
+                        xOffset = 5,
+                        yOffset = 0,
+                    },
+                    border = {
+                        enable = false,
+                        color = {0, 0, 0, 1},
+                        thickness = 1,
+                    },
+                },
+				text = {
+					general = {
+						enable = false,
+						color = {1, 1, 1, 1},
+						name = "Arial Narrow",
+						size = 10,
+						border = "OUTLINE",
+						format = "{range} Yards",
+					},
+					position = {
+						anchor = "RIGHT",
+						xOffset = 45,
+						yOffset = 0,
+                    },
+                    shadow = {
+                        enable = false,
+                        color = {0, 0, 0, 1 },
+                        xOffset = 0,
+                        yOffset = 0
+                    }
+                },
+                buckets = {
+                    range10 = {
+                        max = 10,
+                        statusBarColor = {0.3, 0.9, 0.3, 1},
+                        textColor = {1, 1, 1, 1},
+                        text = "≤10"
+                    },
+                    range20 = {
+                        max = 20,
+                        statusBarColor = {1, 0.9, 0.2, 1},
+                        textColor = {1, 1, 1, 1},
+                        text = "≤20"
+                    },
+                    range30 = {
+                        max = 30,
+                        statusBarColor = {1, 0.6, 0, 1},
+                        textColor = {1, 1, 1, 1},
+                        text = "≤30"
+                    },
+                    range40 = {
+                        max = 40,
+                        statusBarColor = {1, 0.2, 0.2, 1},
+                        textColor = {1, 1, 1, 1},
+                        text = "≤40"
                     },
                 },
             },

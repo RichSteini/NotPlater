@@ -53,10 +53,10 @@ local function SetFrameClassColorFromUnit(frame, unit)
 end
 
 local function ShouldUseArenaUnits()
-	if type(IsActiveBattlefieldArena) == "function" and IsActiveBattlefieldArena() then
+	if IsActiveBattlefieldArena and IsActiveBattlefieldArena() then
 		return true
 	end
-	if type(GetNumArenaOpponents) == "function" then
+	if GetNumArenaOpponents then
 		local opponentCount = GetNumArenaOpponents()
 		if opponentCount and opponentCount > 0 then
 			return true
@@ -257,7 +257,7 @@ function NotPlater:PlateMatchesUnit(frame, unit)
 	if not frame or not frame.healthBar then
 		return false
 	end
-	if not UnitCanAttack("player", unit) or UnitIsDeadOrGhost(unit) then
+	if UnitIsDeadOrGhost(unit) then
 		return false
 	end
 	local nameText, levelText = frame and frame.defaultNameText or nil, nil
@@ -298,14 +298,10 @@ end
 
 function NotPlater:SetFrameMatch(frame, unit)
 	local healthFrame = frame.healthBar
-	if not healthFrame then
-		return
-	end
 	local guid = unit and UnitGUID(unit) or nil
+	
 	frame.lastUnitMatch = unit
-	healthFrame.lastUnitMatch = unit
 	frame.lastGuidMatch = guid
-	healthFrame.lastGuidMatch = guid
 end
 
 function NotPlater:MatchGroupTargetUnit(frame)
@@ -389,6 +385,7 @@ function NotPlater:PrepareFrame(frame)
 		self:ConstructThreatComponents(frame.healthBar)
 		self:ConstructCastBar(frame)
 		self:ConstructTarget(frame)
+		self:ConstructRange(frame)
 		local auraModule = self:GetAuraModule()
 		if auraModule and auraModule.AttachToFrame then
 			auraModule:AttachToFrame(frame)
@@ -435,6 +432,7 @@ function NotPlater:PrepareFrame(frame)
 					end
 				end
 				NotPlater:SetTargetTargetText(self)
+				NotPlater:RangeCheck(self, self.targetCheckElapsed)
 				NotPlater:UpdateFrameMatch(self)
 				self.targetCheckElapsed = 0
 			end
@@ -465,18 +463,12 @@ function NotPlater:PrepareFrame(frame)
 			end
 		end)
 		self:HookScript(frame, "OnHide", function(self)
-			if self.healthBar then
-				self.healthBar.lastUnitMatch = nil
-				self.healthBar.lastGuidMatch = nil
-			end
 			self.lastUnitMatch = nil
 			self.lastGuidMatch = nil
 			self.npUnit = nil
 			self.npGUID = nil
 			self.unitClass = nil
-			if self.highlightTexture then
-				self.highlightTexture:Hide()
-			end
+			self.highlightTexture:Hide()
 		end)
 	end
 	
@@ -495,6 +487,7 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureLevelText(frame.levelText, frame.healthBar)
 	self:ConfigureNameText(frame.nameText, frame.healthBar)
 	self:ConfigureTarget(frame)
+	self:ConfigureRange(frame)
 	self:ApplyStackingOrder(frame)
 	self:UpdateFrameMatch(frame)
 	self:TargetCheck(frame)
@@ -612,23 +605,20 @@ function NotPlater:ClassCheck(frame)
 end
 
 function NotPlater:UPDATE_MOUSEOVER_UNIT()
-	if UnitCanAttack("player", "mouseover") and not UnitIsDeadOrGhost("mouseover") and UnitAffectingCombat("mouseover") then
-		local mouseOverGuid = UnitGUID("mouseover")
-		local targetGuid = UnitGUID("target")
-		for frame in pairs(frames) do
-			if frame:IsShown() then
-				if mouseOverGuid == targetGuid then
-					if self:IsTarget(frame) then
-						self:SetFrameMatch(frame, "mouseover")
-						self:MouseoverThreatCheck(frame.healthBar, targetGuid)
-						frame.highlightTexture:Show()
-					end
-				else
-					local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
-					if self:PlateMatchesUnit(frame, "mouseover") and frame.healthBar:GetValue() ~= healthMaxValue then
-						self:SetFrameMatch(frame, "mouseover")
-						self:MouseoverThreatCheck(frame.healthBar, mouseOverGuid)
-					end
+	local mouseOverGuid = UnitGUID("mouseover")
+	local targetGuid = UnitGUID("target")
+	for frame in pairs(frames) do
+		if frame:IsShown() then
+			if mouseOverGuid == targetGuid then
+				if self:IsTarget(frame) then
+					self:SetFrameMatch(frame, "mouseover")
+					self:MouseoverThreatCheck(frame.healthBar, targetGuid)
+					frame.highlightTexture:Show()
+				end
+			else
+				if self:PlateMatchesUnit(frame, "mouseover") then
+					self:SetFrameMatch(frame, "mouseover")
+					self:MouseoverThreatCheck(frame.healthBar, mouseOverGuid)
 				end
 			end
 		end

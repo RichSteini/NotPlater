@@ -110,7 +110,7 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 
 	if USE_NATIVE_THREAT then
 		local threatProvider = ThreatLib or NativeThreat
-		local unit = healthFrame.lastUnitMatch
+		local unit = healthFrame:GetParent().lastUnitMatch
 		if not unit or not group then return end
 		threatKey = unit
 		playerThreat = threatProvider:GetThreat("player", unit) or 0
@@ -278,22 +278,19 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 end
 
 function NotPlater:MouseoverThreatCheck(healthFrame, guid)
-	local plateFrame = healthFrame and healthFrame:GetParent()
-	if plateFrame then
-		self:SetFrameMatch(plateFrame, "mouseover")
-	end
+	local plateFrame = healthFrame:GetParent()
 	if UnitInParty("party1") or UnitInRaid("player") then
 		local group = self.raid or self.party
 		if group then
 			self:OnNameplateMatch(healthFrame, group)
 		end
 	else
-		local unitClass = plateFrame and plateFrame.unitClass
-		if self.db.profile.threat.nameplateColors.general.useClassColors and unitClass then
-			healthFrame:SetStatusBarColor(unitClass.r, unitClass.g, unitClass.b, 1)
-		else
-			if self.db.profile.healthBar.statusBar.general.enable then
-				healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
+		if UnitCanAttack("player", "mouseover") and not UnitIsDeadOrGhost("mouseover") and UnitAffectingCombat("mouseover") and healthValue ~= healthMaxValue then
+			local unitClass = plateFrame.unitClass
+			if not (self.db.profile.threat.nameplateColors.general.useClassColors and unitClass) then
+				if self.db.profile.healthBar.statusBar.general.enable and UnitGUID("player") == UnitGUID("mouseover-target") then
+					healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
+				end
 			end
 		end
 	end
@@ -307,15 +304,14 @@ function NotPlater:ThreatCheck(frame)
 	self:UpdateFrameMatch(frame)
 	if UnitInParty("party1") or UnitInRaid("player") then
 		local group = self.raid or self.party
-		if group and healthFrame.lastUnitMatch then
+		if group and frame.lastUnitMatch then
 			self:OnNameplateMatch(healthFrame, group)
 		end
 	else -- Not in party
-		if healthFrame.lastUnitMatch == "target" and UnitCanAttack("player", "target") and not UnitIsDeadOrGhost("target") and UnitAffectingCombat("target") and healthValue ~= healthMaxValue then
-			if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
-				healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
-			else
-				if self.db.profile.healthBar.statusBar.general.enable then
+		if frame.lastUnitMatch == "target" and UnitCanAttack("player", "target") and not UnitIsDeadOrGhost("target") and UnitAffectingCombat("target") and healthValue ~= healthMaxValue then
+			local unitClass = frame.unitClass
+			if not (self.db.profile.threat.nameplateColors.general.useClassColors and unitClass) then
+				if self.db.profile.healthBar.statusBar.general.enable and UnitGUID("player") == UnitGUID("target-target") then
 					healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
 				end
 			end
@@ -341,10 +337,6 @@ function NotPlater:ThreatComponentsOnShow(frame)
 	healthFrame.threatNumberText:SetText("")
 	healthFrame.threatPercentText:SetText("")
 	healthFrame.threatPercentBar:Hide()
-	healthFrame.lastUnitMatch = nil
-	healthFrame.lastGuidMatch = nil
-	frame.lastUnitMatch = nil
-	frame.lastGuidMatch = nil
 	self:ThreatCheck(frame)
 end
 

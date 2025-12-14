@@ -272,8 +272,8 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
 
     if threatUpdateElapsed > 1 then
         ThreatSimulator:Step(self.defaultFrame.defaultHealthFrame)
-        self.defaultFrame.healthBar.lastUnitMatch = "target"
-        self.defaultFrame.healthBar.lastGuidMatch = ThreatSimulator.simulatedTargetGuid
+        self.defaultFrame.lastUnitMatch = "target"
+        self.defaultFrame.lastGuidMatch = ThreatSimulator.simulatedTargetGuid
         NotPlater:OnNameplateMatch(self.defaultFrame.healthBar, ThreatSimulator.group, ThreatSimulator)
         threatUpdateElapsed = 0
     end

@@ -76,6 +76,7 @@ local CATEGORY_ICONS = {
 	raidIcon = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_1",
 	bossIcon = "Interface\\TargetingFrame\\UI-TargetingFrame-Skull",
 	target = "Interface\\Icons\\Ability_Hunter_SniperShot",
+	range = "Interface\\Icons\\Ability_Hunter_MarkedForDeath",
 	buffs = "Interface\\Icons\\Spell_Holy_WordFortitude",
 	stacking = "Interface\\Icons\\Ability_Warrior_SavageBlow",
 	simulator = "Interface\\Icons\\INV_Gizmo_01",
@@ -985,8 +986,21 @@ options.args.bossIcon = {
 			}
 		}
 	}
-	options.args.buffs = {
+	options.args.range = {
 		order = 8,
+		type = "group",
+		name = WithCategoryIcon("range", L["Range Indicator"]),
+		get = GetValue,
+		set = SetValue,
+		childGroups = "tab",
+		args = {
+			statusBar = NotPlater.ConfigPrototypes.Range.statusBar,
+			text = NotPlater.ConfigPrototypes.Range.text,
+			buckets = NotPlater.ConfigPrototypes.Range.buckets,
+		},
+	}
+	options.args.buffs = {
+		order = 9,
 		type = "group",
 		name = WithCategoryIcon("buffs", L["Buffs"]),
 		childGroups = "tab",
@@ -995,7 +1009,7 @@ options.args.bossIcon = {
 		args = NotPlater.ConfigPrototypes.Buffs,
 	}
 	options.args.stacking = {
-		order = 9,
+		order = 10,
         type = "group",
         childGroups = "tab",
 		name = WithCategoryIcon("stacking", L["Stacking"]),
@@ -1004,7 +1018,7 @@ options.args.bossIcon = {
 		args = NotPlater.ConfigPrototypes.Stacking,
 	}
 	options.args.simulator = {
-		order = 10,
+		order = 11,
 		type = "group",
 		name = WithCategoryIcon("simulator", L["Simulator"]),
 		get = GetValue,
@@ -1018,7 +1032,7 @@ options.args.bossIcon = {
 
 	local profileLabel = L["Profiles"] or "Profiles"
 	options.args.profile = {
-		order = 11,
+		order = 12,
 		type = "group",
 		childGroups = "tab",
 		name = WithCategoryIcon("profile", profileLabel),
