@@ -342,7 +342,7 @@ function NotPlater:UpdateFrameMatch(frame)
 			end
 		end
 	end
-	self:SetFrameMatch(frame, match)
+	--self:SetFrameMatch(frame, match)
 end
 
 function NotPlater:PrepareFrame(frame)

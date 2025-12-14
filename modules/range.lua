@@ -43,7 +43,8 @@ function NotPlater:IsRangeTrackableUnit(unit)
     return false
 end
 
-function NotPlater:GetEstimatedRange(unit)
+function NotPlater:GetEstimatedRange(frame)
+    local unit = frame.lastUnitMatch
 	if not rc or not self:IsRangeTrackableUnit(unit) or not UnitExists(unit) then
 		return nil
 	end
@@ -103,16 +104,13 @@ function NotPlater:RangeCheck(frame, elapsed)
     frame.rangeElapsed = 0
 
     local unit = frame.lastUnitMatch
-    if not unit and self.IsTarget and self:IsTarget(frame) then
-        unit = "target"
-    end
     if not unit or not self:IsRangeTrackableUnit(unit) then
         frame.rangeBar:Hide()
         frame.rangeText:Hide()
         return
     end
 
-    local estimatedRange = self:GetEstimatedRange(unit)
+    local estimatedRange = self:GetEstimatedRange(frame)
     if not estimatedRange then
         frame.rangeBar:Hide()
         frame.rangeText:Hide()

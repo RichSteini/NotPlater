@@ -36,6 +36,10 @@ local dpsPotential = function() return mfmod(mrand(), 0.8 - 0.5) + 0.5 end -- {m
 local tankPotential = function() return mfmod(mrand(), 0.99 - 0.8) + 0.8 end -- {max = 0.99, min = 0.8}
 local threatUpdateElapsed = 0
 local castTime = 5000 -- in ms
+local simRangeElapsed = 0
+local simRangeIndex = 1
+local SIM_RANGE_INTERVAL = 1.5
+local SIM_RANGE_STEPS = {40, 35, 30, 25, 20, 18, 15, 8, 5}
 
 local MAX_RAID_ICONS = 8
 local RAID_ICON_BASE_PATH = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_"
@@ -278,6 +282,15 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
         threatUpdateElapsed = 0
     end
     threatUpdateElapsed = threatUpdateElapsed + elapsed
+    simRangeElapsed = simRangeElapsed + elapsed
+    if simRangeElapsed >= SIM_RANGE_INTERVAL then
+        simRangeElapsed = 0
+        simRangeIndex = simRangeIndex + 1
+        if simRangeIndex > #SIM_RANGE_STEPS then
+            simRangeIndex = 1
+        end
+        self.defaultFrame.simulatedRangeValue = SIM_RANGE_STEPS[simRangeIndex]
+    end
     if NotPlater.SimulatorAuras and NotPlater.SimulatorAuras.OnUpdate then
         NotPlater.SimulatorAuras:OnUpdate(elapsed)
     end
@@ -340,6 +353,14 @@ function NotPlater:SimulatorFrameOnShow()
         if frame.ignoreStrataOptions then return true end
         NotPlater.oldSetTargetFrameStrata(name, frame, ...)
     end
+	NotPlater.simulatorFrame.defaultFrame.simulatedRangeValue = SIM_RANGE_STEPS[simRangeIndex]
+	NotPlater.oldGetEstimatedRange = NotPlater.GetEstimatedRange
+	NotPlater.GetEstimatedRange = function(name, frame, ...)
+		if frame.simulatedRangeValue then
+			return frame.simulatedRangeValue
+		end
+		return NotPlater.oldGetEstimatedRange(name, frame, ...)
+	end
     NotPlater.oldReload = NotPlater.Reload
     NotPlater.Reload = function(...)
         NotPlater:SimulatorReload()
@@ -357,6 +378,7 @@ function NotPlater:SimulatorFrameOnHide()
     if NotPlater.oldIsTarget then NotPlater.IsTarget = NotPlater.oldIsTarget end
     if NotPlater.oldSetNormalFrameStrata then NotPlater.SetNormalFrameStrata = NotPlater.oldSetNormalFrameStrata end
     if NotPlater.oldSetTargetFrameStrata then NotPlater.SetTargetFrameStrata = NotPlater.oldSetTargetFrameStrata end
+	if NotPlater.oldGetEstimatedRange then NotPlater.GetEstimatedRange = NotPlater.oldGetEstimatedRange end
     if NotPlater.oldReload then NotPlater.Reload = NotPlater.oldReload end
     if NotPlater.SimulatorAuras and NotPlater.SimulatorAuras.OnHide then
         NotPlater.SimulatorAuras:OnHide()
