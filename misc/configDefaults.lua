@@ -243,31 +243,28 @@ function NotPlater:LoadDefaultConfig()
                         xOffset = 0,
                         yOffset = 0
                     }
-                },
-                buckets = {
-                    range10 = {
-                        max = 10,
-                        statusBarColor = {0.3, 0.9, 0.3, 1},
-                        textColor = {1, 1, 1, 1},
-                        text = "≤10"
+				},
+				buckets = {
+					enable = true,
+					range10 = {
+						max = 10,
+						statusBarColor = {0.3, 0.9, 0.3, 1},
+						textColor = {1, 1, 1, 1}
                     },
                     range20 = {
                         max = 20,
                         statusBarColor = {1, 0.9, 0.2, 1},
-                        textColor = {1, 1, 1, 1},
-                        text = "≤20"
+                        textColor = {1, 1, 1, 1}
                     },
                     range30 = {
                         max = 30,
                         statusBarColor = {1, 0.6, 0, 1},
-                        textColor = {1, 1, 1, 1},
-                        text = "≤30"
+                        textColor = {1, 1, 1, 1}
                     },
                     range40 = {
                         max = 40,
                         statusBarColor = {1, 0.2, 0.2, 1},
-                        textColor = {1, 1, 1, 1},
-                        text = "≤40"
+                        textColor = {1, 1, 1, 1}
                     },
                 },
             },

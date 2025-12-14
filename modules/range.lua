@@ -117,24 +117,26 @@ function NotPlater:RangeCheck(frame, elapsed)
         return
     end
 
-    local bucket = self:GetRangeBucket(estimatedRange)
+	local bucket = self:GetRangeBucket(estimatedRange)
+	local bucketsConfig = rangeConfig.buckets or {}
+	local bucketColorsEnabled = bucketsConfig.enable ~= false
 
-    if statusBarEnabled then
-        frame.rangeBar:Show()
-        local maxRange = (rangeConfig.buckets.range40 and rangeConfig.buckets.range40.max) or 40
-        frame.rangeBar:SetMinMaxValues(0, maxRange)
+	if statusBarEnabled then
+		frame.rangeBar:Show()
+		local maxRange = (rangeConfig.buckets.range40 and rangeConfig.buckets.range40.max) or 40
+		frame.rangeBar:SetMinMaxValues(0, maxRange)
         local value = maxRange
         if rangeConfig.statusBar.general.showProgress ~= false then
             value = estimatedRange or maxRange
         end
         frame.rangeBar:SetValue(value)
-        local bucketBarColor = bucket and (bucket.statusBarColor or bucket.color)
-        if bucketBarColor then
-            frame.rangeBar:SetStatusBarColor(unpack(bucketBarColor))
-            if frame.rangeBar.background then
-                frame.rangeBar.background:SetVertexColor(self:GetColor(rangeConfig.statusBar.background.color or bucketBarColor))
-            end
-        else
+		local bucketBarColor = bucketColorsEnabled and bucket and (bucket.statusBarColor or bucket.color)
+		if bucketBarColor then
+			frame.rangeBar:SetStatusBarColor(unpack(bucketBarColor))
+			if frame.rangeBar.background then
+				frame.rangeBar.background:SetVertexColor(self:GetColor(rangeConfig.statusBar.background.color or bucketBarColor))
+			end
+		else
             frame.rangeBar:SetStatusBarColor(self:GetColor(rangeConfig.statusBar.general.color or {1, 1, 1, 1}))
         end
     else
@@ -144,11 +146,11 @@ function NotPlater:RangeCheck(frame, elapsed)
 	if textEnabled then
 		local textValue = FormatRangeText(rangeConfig, bucket, estimatedRange)
 		frame.rangeText:SetText(textValue)
-		if bucket and bucket.textColor then
+		if bucketColorsEnabled and bucket and bucket.textColor then
 			frame.rangeText:SetTextColor(unpack(bucket.textColor))
 		elseif rangeConfig.text.general.color then
 			frame.rangeText:SetTextColor(unpack(rangeConfig.text.general.color))
-        end
+		end
         frame.rangeText:Show()
     else
         frame.rangeText:Hide()
