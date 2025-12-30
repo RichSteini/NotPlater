@@ -6,7 +6,7 @@ local CreateFrame = CreateFrame
 local UnitExists = UnitExists
 local rc = LibStub and LibStub("LibRangeCheck-2.0", true)
 
-local UPDATE_RATE = 0.5 
+local UPDATE_RATE = 0.2 
 
 local function FormatRangeText(rangeConfig, bucket, estimatedRange)
 	local formatString = (rangeConfig.text and rangeConfig.text.general and rangeConfig.text.general.format) or "{range}"

@@ -9,8 +9,6 @@ NotPlater.revision = "v3.0.2"
 NotPlater.addonName = addonName or NotPlater.addonName or "NotPlater-2.4.3"
 
 local UnitName = UnitName
-local UnitLevel = UnitLevel
-local UnitHealth = UnitHealth
 local UnitGUID = UnitGUID
 local UnitClass = UnitClass
 local UnitIsPlayer = UnitIsPlayer
@@ -30,8 +28,7 @@ local LEGACY_NAMEPLATE_TEXTURE = "Interface\\Tooltips\\Nameplate-Border"
 local frames = {}
 local classCache = {}
 NotPlater.classCache = classCache
-local DEFAULT_TRACKED_UNITS = {"target", "focus", "mouseover"}
-local MAX_ARENA_UNIT_IDS = type(MAX_ARENA_ENEMIES) == "number" and MAX_ARENA_ENEMIES or 5
+NotPlater.frames = frames
 
 local function SetFrameClassColorFromUnit(frame, unit)
 	if not frame or not unit or not UnitExists(unit) then
@@ -52,19 +49,6 @@ local function SetFrameClassColorFromUnit(frame, unit)
 	return false
 end
 
-local function ShouldUseArenaUnits()
-	if IsActiveBattlefieldArena and IsActiveBattlefieldArena() then
-		return true
-	end
-	if GetNumArenaOpponents then
-		local opponentCount = GetNumArenaOpponents()
-		if opponentCount and opponentCount > 0 then
-			return true
-		end
-	end
-	return false
-end
-
 local function GetOrderedFrameRegions(frame)
 	if IS_WRATH_CLIENT then
 		return frame:GetRegions()
@@ -73,7 +57,7 @@ local function GetOrderedFrameRegions(frame)
 	return nil, healthBorder, castBorder, nil, spellIcon, highlightTexture, nameText, levelText, nil, raidIcon, bossIcon
 end
 
-local function GetFrameTexts(frame)
+function NotPlater:GetFrameTexts(frame)
 	local nameText = frame.defaultNameText or frame.nameText
 	local levelText = frame.levelText
 	if not nameText or not levelText then
@@ -139,27 +123,6 @@ end
 
 NotPlater.frame = CreateFrame("Frame")
 
-function NotPlater:SetTrackedMatchUnits(units)
-	self.trackedMatchUnits = {}
-	if type(units) == "table" then
-		for index = 1, #units do
-			self.trackedMatchUnits[#self.trackedMatchUnits + 1] = units[index]
-		end
-	end
-	if #self.trackedMatchUnits == 0 then
-		for index = 1, #DEFAULT_TRACKED_UNITS do
-			self.trackedMatchUnits[index] = DEFAULT_TRACKED_UNITS[index]
-		end
-	end
-end
-
-function NotPlater:GetTrackedMatchUnits()
-	if not self.trackedMatchUnits or #self.trackedMatchUnits == 0 then
-		self:SetTrackedMatchUnits(DEFAULT_TRACKED_UNITS)
-	end
-	return self.trackedMatchUnits
-end
-
 function NotPlater:DisableDefaultNameplateCastBar()
 	if not GetCVar or not SetCVar then
 		return
@@ -204,10 +167,6 @@ function NotPlater:UpdateNameplateClassColorCVar()
 	end
 end
 
-function NotPlater:GetAuraModule()
-	return self.Auras
-end
-
 function NotPlater:OnInitialize()
 	self:LoadDefaultConfig()
 
@@ -217,7 +176,7 @@ function NotPlater:OnInitialize()
 		self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileUpdated")
 		self.db.RegisterCallback(self, "OnProfileReset", "OnProfileUpdated")
 	end
-	self:SetTrackedMatchUnits(DEFAULT_TRACKED_UNITS)
+	self:SetTrackedMatchUnits()
 	self.SML = LibStub:GetLibrary("LibSharedMedia-3.0")
 	
 	if self.Auras then
@@ -235,6 +194,7 @@ function NotPlater:OnInitialize()
 	self:RegisterEvent("PARTY_MEMBERS_CHANGED")
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
+	self:RegisterEvent("PLAYER_FOCUS_CHANGED")
 	self:Reload()
 end
 
@@ -244,105 +204,10 @@ function NotPlater:IsTarget(frame)
         return false
     end
 
-	local nameText = frame and frame.defaultNameText or select(1, GetFrameTexts(frame))
+	local nameText = frame and frame.defaultNameText or select(1, self:GetFrameTexts(frame))
 	local targetName = UnitName('target')
 
 	return nameText and targetName == nameText:GetText() and frame:GetAlpha() >= 0.99
-end
-
-function NotPlater:PlateMatchesUnit(frame, unit)
-	if not unit or not UnitExists(unit) then
-		return false
-	end
-	if not frame or not frame.healthBar then
-		return false
-	end
-	if UnitIsDeadOrGhost(unit) then
-		return false
-	end
-	local nameText, levelText = frame and frame.defaultNameText or nil, nil
-	if not nameText or not levelText then
-		nameText, levelText = GetFrameTexts(frame)
-	end
-	if not nameText then
-		return false
-	end
-	local plateName = nameText:GetText()
-	if not plateName or plateName ~= UnitName(unit) then
-		return false
-	end
-	if levelText then
-		local plateLevel = levelText:GetText()
-		if plateLevel then
-			local unitLevel = UnitLevel(unit)
-			local levelString = unitLevel and tostring(unitLevel) or plateLevel
-			if plateLevel ~= levelString then
-				return false
-			end
-		end
-	end
-	local healthBar = frame.healthBar
-	if healthBar then
-		local healthValue = healthBar:GetValue()
-		local _, healthMaxValue = healthBar:GetMinMaxValues()
-		if healthValue ~= UnitHealth(unit) then
-			return false
-		end
-		
-		if not UnitIsPlayer(unit) and healthValue == healthMaxValue then
-			return false
-		end
-	end
-	return true
-end
-
-function NotPlater:SetFrameMatch(frame, unit)
-	local healthFrame = frame.healthBar
-	local guid = unit and UnitGUID(unit) or nil
-	
-	frame.lastUnitMatch = unit
-	frame.lastGuidMatch = guid
-end
-
-function NotPlater:MatchGroupTargetUnit(frame)
-	local group = self.raid or self.party
-	if not group then
-		return false
-	end
-	for _, unitID in pairs(group) do
-		local targetString = unitID .. "-target"
-		if self:PlateMatchesUnit(frame, targetString) then
-			SetFrameClassColorFromUnit(frame, targetString)
-			return true
-		end
-	end
-	return false
-end
-
-function NotPlater:UpdateFrameMatch(frame)
-	if not frame or not frame:IsShown() or not frame.healthBar then
-		return
-	end
-	local match
-	for _, unit in ipairs(self:GetTrackedMatchUnits()) do
-		if self:PlateMatchesUnit(frame, unit) then
-			match = unit
-			break
-		end
-	end
-	if not match then
-		local group = self.raid or self.party
-		if group then
-			for _, unitID in pairs(group) do
-				local targetString = unitID .. "-target"
-				if self:PlateMatchesUnit(frame, targetString) then
-					match = targetString
-					break
-				end
-			end
-		end
-	end
-	--self:SetFrameMatch(frame, match)
 end
 
 function NotPlater:PrepareFrame(frame)
@@ -353,7 +218,7 @@ function NotPlater:PrepareFrame(frame)
 	if not frame.npHooked then
 		frame.npHooked = true
 
-		local resolvedNameText, resolvedLevelText = GetFrameTexts(frame)
+		local resolvedNameText, resolvedLevelText = self:GetFrameTexts(frame)
 		frame.defaultNameText = resolvedNameText or nameText
 		frame.levelText = resolvedLevelText or levelText
 		frame.bossIcon = bossIcon or frame.bossIcon
@@ -386,10 +251,7 @@ function NotPlater:PrepareFrame(frame)
 		self:ConstructCastBar(frame)
 		self:ConstructTarget(frame)
 		self:ConstructRange(frame)
-		local auraModule = self:GetAuraModule()
-		if auraModule and auraModule.AttachToFrame then
-			auraModule:AttachToFrame(frame)
-		end
+		self.Auras:AttachToFrame(frame)
 
 		-- Hide old healthbar
 		health:Hide()
@@ -397,8 +259,6 @@ function NotPlater:PrepareFrame(frame)
 		self:HookScript(frame, "OnShow", function(self)
 			local cachedClass = classCache[self.defaultNameText:GetText()]
 			self.unitClass = cachedClass
-			self.lastUnitMatch = nil
-			self.lastGuidMatch = nil
 			NotPlater:CastBarOnShow(self)
 			NotPlater:HealthBarOnShow(health)
 			NotPlater:StackingCheck(self)
@@ -407,7 +267,7 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:TargetCheck(self)
 			NotPlater:NameTextOnShow(self)
 			self.targetChanged = true
-			NotPlater:UpdateFrameMatch(self)
+			NotPlater:MatchTrackerOnShow(self)
 		end)
 
 		self:HookScript(frame, 'OnUpdate', function(self, elapsed)
@@ -436,7 +296,6 @@ function NotPlater:PrepareFrame(frame)
 				end
 				NotPlater:SetTargetTargetText(self)
 				NotPlater:RangeCheck(self, self.targetCheckElapsed)
-				NotPlater:UpdateFrameMatch(self)
 				self.targetCheckElapsed = 0
 			end
 			if NotPlater.isWrathClient and self.useHighlightProxy and self.highlightTexture then
@@ -466,8 +325,7 @@ function NotPlater:PrepareFrame(frame)
 			end
 		end)
 		self:HookScript(frame, "OnHide", function(self)
-			self.lastUnitMatch = nil
-			self.lastGuidMatch = nil
+			NotPlater:MatchTrackerOnHide(self)
 			self.npUnit = nil
 			self.npGUID = nil
 			self.unitClass = nil
@@ -492,7 +350,6 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureTarget(frame)
 	self:ConfigureRange(frame)
 	self:ApplyStackingOrder(frame)
-	self:UpdateFrameMatch(frame)
 	self:TargetCheck(frame)
 end
 
@@ -529,25 +386,13 @@ function NotPlater:Reload()
 		self:PrepareFrame(frame)
 	end
 
-	local auraModule = self:GetAuraModule()
-	if auraModule and auraModule.ApplyProfile then
-		auraModule:ApplyProfile()
-	end
+	self.Auras:ApplyProfile()
 end
 
 function NotPlater:OnProfileUpdated()
 	self:Reload()
 	if self.simulatorFrame and self.simulatorFrame:IsShown() then
 		self:SimulatorReload()
-	end
-end
-
-function NotPlater:PLAYER_TARGET_CHANGED()
-	for frame in pairs(frames) do
-		if frame.lastUnitMatch == "target" then
-			frame.lastUnitMatch = nil
-		end
-		frame.targetChanged = true
 	end
 end
 
@@ -571,63 +416,9 @@ function NotPlater:ClassCheck(frame)
 		return
 	end
 
-	if ShouldUseArenaUnits() then
-		for index = 1, MAX_ARENA_UNIT_IDS do
-			local arenaUnit = "arena" .. index
-			if self:PlateMatchesUnit(frame, arenaUnit) then
-				SetFrameClassColorFromUnit(frame, arenaUnit)
-				return
-			end
-		end
-	end
-
-	if self:MatchGroupTargetUnit(frame) then
-		return
-	end
-
-	local nameText = frame and frame.defaultNameText or nil
-	local levelText = frame and frame.levelText or nil
-	if not nameText or not levelText then
-		nameText, levelText = GetFrameTexts(frame)
-	end
-	if not nameText or not levelText then
-		return
-	end
-	local name = nameText:GetText()
-	local level = levelText:GetText()
-	--local _, healthMaxValue = frame.healthBar:GetMinMaxValues()
-	local healthBar = frame.healthBar
-	if not healthBar then
-		return
-	end
-	local healthValue = healthBar:GetValue()
-	if name == UnitName("mouseover") and level == tostring(UnitLevel("mouseover")) and healthValue == UnitHealth("mouseover") then
-		SetFrameClassColorFromUnit(frame, "mouseover")
-		return
-	end
-	if name == UnitName("focus") and level == tostring(UnitLevel("focus")) and healthValue == UnitHealth("focus") then
-		SetFrameClassColorFromUnit(frame, "focus")
-	end
-end
-
-function NotPlater:UPDATE_MOUSEOVER_UNIT()
-	local mouseOverGuid = UnitGUID("mouseover")
-	local targetGuid = UnitGUID("target")
-	for frame in pairs(frames) do
-		if frame:IsShown() then
-			if mouseOverGuid == targetGuid then
-				if self:IsTarget(frame) then
-					self:SetFrameMatch(frame, "mouseover")
-					self:MouseoverThreatCheck(frame.healthBar, targetGuid)
-					frame.highlightTexture:Show()
-				end
-			else
-				if self:PlateMatchesUnit(frame, "mouseover") then
-					self:SetFrameMatch(frame, "mouseover")
-					self:MouseoverThreatCheck(frame.healthBar, mouseOverGuid)
-				end
-			end
-		end
+	local matchedUnit = frame.lastUnitMatch
+	if matchedUnit and self:IsTrackedMatchUnit(matchedUnit) and UnitExists(matchedUnit) then
+		SetFrameClassColorFromUnit(frame, matchedUnit)
 	end
 end
 
@@ -639,20 +430,3 @@ NotPlater.frame:SetScript("OnUpdate", function(self, elapsed)
 	end
 end)
 
-NotPlater.frame:SetScript("OnEvent", function(self, event, unit)
-	for frame in pairs(frames) do
-		if frame:IsShown() then
-			if unit == "target" then
-				if NotPlater:IsTarget(frame) then
-					NotPlater:SetFrameMatch(frame, "target")
-					NotPlater:CastBarOnCast(frame, event, unit)
-				end
-			else
-				if NotPlater:PlateMatchesUnit(frame, unit) then
-					NotPlater:SetFrameMatch(frame, unit)
-					NotPlater:CastBarOnCast(frame, event, unit)
-				end
-			end
-		end
-	end
-end)

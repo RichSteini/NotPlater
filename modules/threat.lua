@@ -301,7 +301,6 @@ function NotPlater:ThreatCheck(frame)
 	if not healthFrame then return end
 	local _, healthMaxValue = healthFrame:GetMinMaxValues()
     local healthValue = healthFrame:GetValue()
-	self:UpdateFrameMatch(frame)
 	if UnitInParty("party1") or UnitInRaid("player") then
 		local group = self.raid or self.party
 		if group and frame.lastUnitMatch then

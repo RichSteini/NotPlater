@@ -34,6 +34,7 @@ modules\icon.lua
 modules\levelText.lua
 modules\nameText.lua
 modules\stacking.lua
+modules\matchTracker.lua
 modules\target.lua
 modules\threat.lua
 modules\range.lua

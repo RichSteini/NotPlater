@@ -269,6 +269,18 @@ function NotPlater:ConstructCastBar(frame)
 end
 
 function NotPlater:RegisterCastBarEvents(frame)
+	if not frame.npCastBarEventsHooked then
+		frame.npCastBarEventsHooked = true
+		frame:SetScript("OnEvent", function(self, event, unit)
+			if not unit or not NotPlater:IsTrackedMatchUnit(unit) then
+				return
+			end
+			local matchedFrame = NotPlater:GetMatchedFrameForUnit(unit)
+			if matchedFrame then
+				NotPlater:CastBarOnCast(matchedFrame, event, unit)
+			end
+		end)
+	end
 	frame:RegisterEvent("UNIT_SPELLCAST_INTERRUPTED")
 	frame:RegisterEvent("UNIT_SPELLCAST_DELAYED")
 	frame:RegisterEvent("UNIT_SPELLCAST_CHANNEL_START")
