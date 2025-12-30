@@ -207,7 +207,7 @@ function SimulatorAuras:AttachFrame(frame)
 	self.frame = frame
 	self.guid = self.guid or GenerateGuid()
 	frame.npSimulatedAuras = true
-	local auraModule = NotPlater.GetAuraModule and NotPlater:GetAuraModule()
+	local auraModule = NotPlater.Auras
 	if auraModule and auraModule.SetFrameGUID then
 		auraModule:SetFrameGUID(frame, self.guid)
 	else
@@ -243,7 +243,7 @@ function SimulatorAuras:IsEnabled()
 	if not tracker or not tracker.NotifyListeners then
 		return false
 	end
-	local auraModule = NotPlater.GetAuraModule and NotPlater:GetAuraModule()
+	local auraModule = NotPlater.Auras
 	return auraModule ~= nil
 end
 

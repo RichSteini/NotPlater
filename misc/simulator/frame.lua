@@ -274,13 +274,18 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
 
     raidIconElapsed = raidIconElapsed + elapsed
 
-    if threatUpdateElapsed > 1 then
-        ThreatSimulator:Step(self.defaultFrame.defaultHealthFrame)
-        self.defaultFrame.lastUnitMatch = "target"
-        self.defaultFrame.lastGuidMatch = ThreatSimulator.simulatedTargetGuid
-        NotPlater:OnNameplateMatch(self.defaultFrame.healthBar, ThreatSimulator.group, ThreatSimulator)
-        threatUpdateElapsed = 0
-    end
+	if threatUpdateElapsed > 1 then
+		ThreatSimulator:Step(self.defaultFrame.defaultHealthFrame)
+		self.defaultFrame.lastUnitMatch = "target"
+		local simAuras = NotPlater.SimulatorAuras
+		if simAuras and simAuras.guid then
+			self.defaultFrame.lastGuidMatch = simAuras.guid
+		else
+			self.defaultFrame.lastGuidMatch = ThreatSimulator.simulatedTargetGuid
+		end
+		NotPlater:OnNameplateMatch(self.defaultFrame.healthBar, ThreatSimulator.group, ThreatSimulator)
+		threatUpdateElapsed = 0
+	end
     threatUpdateElapsed = threatUpdateElapsed + elapsed
     simRangeElapsed = simRangeElapsed + elapsed
     if simRangeElapsed >= SIM_RANGE_INTERVAL then

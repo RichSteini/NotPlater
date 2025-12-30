@@ -359,7 +359,7 @@ local function NotifyAuraOptions()
 end
 
 local function RefreshAuraModule()
-	local module = NotPlater.GetAuraModule and NotPlater:GetAuraModule()
+	local module = NotPlater.Auras
 	if module and module.ApplyProfile then
 		module:ApplyProfile()
 	end
