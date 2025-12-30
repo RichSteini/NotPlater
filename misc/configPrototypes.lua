@@ -591,7 +591,17 @@ function ConfigPrototypes:LoadConfigPrototypes()
         order = 1,
         type = "select",
         name = L["Display Type"],
-        values = {["none"] = L["None"], ["minmax"] = L["Min / Max"], ["both"] = L["Both"], ["percent"] = L["Percent"]},
+        values = {["none"] = L["None"], ["minmax"] = L["Min / Max"], ["minmaxpercent"] = L["Min / Max"] .. " / " .. L["Percent"], ["both"] = L["Both"], ["percent"] = L["Percent"]},
+    }
+    ConfigPrototypes.HealthText.general.args.showDecimalNumbers = {
+        order = 1.1,
+        type = "toggle",
+        name = L["Show Decimals"] .. " (" .. L["Min / Max"] .. ")",
+    }
+    ConfigPrototypes.HealthText.general.args.showDecimalPercent = {
+        order = 1.2,
+        type = "toggle",
+        name = L["Show Decimals"] .. " (" .. L["Percent"] .. ")",
     }
     ConfigPrototypes.NameText = ConfigPrototypes:GetGeneralisedFontConfig()
     ConfigPrototypes.NameText.general.args.useClassColor = {

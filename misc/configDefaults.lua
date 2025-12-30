@@ -294,6 +294,8 @@ function NotPlater:LoadDefaultConfig()
                     general = {
                         enable = true,
                         displayType = "both",
+                        showDecimalNumbers = true,
+                        showDecimalPercent = false,
                         color = {1, 1, 1, 1},
                         name = "Arial Narrow",
                         size = 10,

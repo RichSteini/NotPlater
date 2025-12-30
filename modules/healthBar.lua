@@ -24,28 +24,49 @@ function NotPlater:HealthOnValueChanged(oldHealthBar, value)
 
 	-- Update health text if it exists
 	if healthFrame.healthText then
+		local showDecimalNumbers = healthBarConfig.healthText.general.showDecimalNumbers
+		local showDecimalPercent = healthBarConfig.healthText.general.showDecimalPercent
+		local percentValue = value / maxValue * 100
+		local percentText
+		if showDecimalPercent then
+			percentText = string.format("%.1f%%", percentValue)
+		else
+			percentText = string.format("%d%%", math.floor(percentValue))
+		end
+		local maxPercentText
+		if showDecimalPercent then
+			maxPercentText = string.format("%.1f%%", 100)
+		else
+			maxPercentText = "100%"
+		end
+		local function FormatNumber(currentValue)
+			if currentValue > 1000 then
+				if showDecimalNumbers then
+					return string.format("%.1fk", currentValue / 1000)
+				end
+				return string.format("%dk", math.floor(currentValue / 1000 + 0.5))
+			end
+			return string.format("%d", currentValue)
+		end
+
 		if healthBarConfig.healthText.general.displayType == "minmax" then
 			if( maxValue == 100 ) then
-				healthFrame.healthText:SetFormattedText("%d%% / %d%%", value, maxValue)
+				healthFrame.healthText:SetText(percentText .. " / " .. maxPercentText)
 			else
-				if(maxValue > 1000) then
-					if(value > 1000) then
-						healthFrame.healthText:SetFormattedText("%.1fk / %.1fk", value / 1000, maxValue / 1000)
-					else
-						healthFrame.healthText:SetFormattedText("%d / %.1fk", value, maxValue / 1000)
-					end
-				else
-					healthFrame.healthText:SetFormattedText("%d / %d", value, maxValue)
-				end
+				healthFrame.healthText:SetText(FormatNumber(value) .. " / " .. FormatNumber(maxValue))
 			end
+		elseif healthBarConfig.healthText.general.displayType == "minmaxpercent" then
+			local minmaxText
+			if( maxValue == 100 ) then
+				minmaxText = percentText .. " / " .. maxPercentText
+			else
+				minmaxText = FormatNumber(value) .. " / " .. FormatNumber(maxValue)
+			end
+			healthFrame.healthText:SetText(minmaxText .. " (" .. percentText .. ")")
 		elseif healthBarConfig.healthText.general.displayType == "both" then
-			if(value > 1000) then
-				healthFrame.healthText:SetFormattedText("%.1fk (%d%%)", value/1000, math.floor(value/maxValue * 100))
-			else
-				healthFrame.healthText:SetFormattedText("%d (%d%%)", value, math.floor(value/maxValue * 100))
-			end
+			healthFrame.healthText:SetFormattedText("%s (%s)", FormatNumber(value), percentText)
 		elseif healthBarConfig.healthText.general.displayType == "percent" then
-			healthFrame.healthText:SetFormattedText("%d%%", math.floor(value / maxValue * 100))
+			healthFrame.healthText:SetText(percentText)
 		else
 			healthFrame.healthText:SetText("")
 		end
