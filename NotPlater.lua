@@ -266,8 +266,9 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:RangeComponentsOnShow(self)
 			NotPlater:TargetCheck(self)
 			NotPlater:NameTextOnShow(self)
-			self.targetChanged = true
 			NotPlater:MatchTrackerOnShow(self)
+			NotPlater.Auras:OnPlateShow(self)
+			self.targetChanged = true
 		end)
 
 		self:HookScript(frame, 'OnUpdate', function(self, elapsed)
@@ -326,8 +327,7 @@ function NotPlater:PrepareFrame(frame)
 		end)
 		self:HookScript(frame, "OnHide", function(self)
 			NotPlater:MatchTrackerOnHide(self)
-			self.npUnit = nil
-			self.npGUID = nil
+			NotPlater.Auras:OnPlateHide(self)
 			self.unitClass = nil
 			self.highlightTexture:Hide()
 		end)

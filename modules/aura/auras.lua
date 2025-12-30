@@ -237,30 +237,6 @@ function Auras:RefreshConfig()
 	self.general.showAnimations = self.general.showAnimations ~= false
 	self.db.auraFrame1 = self.db.auraFrame1 or {}
 	self.db.auraFrame2 = self.db.auraFrame2 or {}
-	local legacyPerRow = self.db.aurasPerRow
-	if legacyPerRow then
-		if legacyPerRow.frame1 and self.db.auraFrame1.rowCount == nil then
-			self.db.auraFrame1.rowCount = legacyPerRow.frame1
-		end
-		if legacyPerRow.frame2 and self.db.auraFrame2.rowCount == nil then
-			self.db.auraFrame2.rowCount = legacyPerRow.frame2
-		end
-		self.db.aurasPerRow = nil
-	end
-	local legacySize1 = self.db.auraSize1
-	if legacySize1 then
-		self.db.auraFrame1.width = self.db.auraFrame1.width or legacySize1.width
-		self.db.auraFrame1.height = self.db.auraFrame1.height or legacySize1.height
-		self.db.auraFrame1.borderThickness = self.db.auraFrame1.borderThickness or legacySize1.borderThickness
-		self.db.auraSize1 = nil
-	end
-	local legacySize2 = self.db.auraSize2
-	if legacySize2 then
-		self.db.auraFrame2.width = self.db.auraFrame2.width or legacySize2.width
-		self.db.auraFrame2.height = self.db.auraFrame2.height or legacySize2.height
-		self.db.auraFrame2.borderThickness = self.db.auraFrame2.borderThickness or legacySize2.borderThickness
-		self.db.auraSize2 = nil
-	end
 	self.auraFrameConfig = {
 		[1] = self.db.auraFrame1 or {},
 		[2] = self.db.auraFrame2 or {},
@@ -357,12 +333,6 @@ function Auras:AttachToFrame(frame)
 	if not frame.npAuras.frames[2] then
 		frame.npAuras.frames[2] = self:CreateContainer(frame, 2)
 	end
-	frame:HookScript("OnShow", function(f)
-		Auras:OnPlateShow(f)
-	end)
-	frame:HookScript("OnHide", function(f)
-		Auras:OnPlateHide(f)
-	end)
 	self:ConfigureFrame(frame)
 end
 
