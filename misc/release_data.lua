@@ -13,16 +13,17 @@ NotPlaterReleaseData = {
 	title = NotPlater.revision .. " Snapshot",
 	markdown = NotPlater.revision .. [[ 
 
-- New aura engine with configurable tracking buff/debuff slots and cooldown visuals  
-- Component display order controls for adjusting frame stacking  
-- Profile import/export with shareable strings and links  
-- Added group version checking  
-- Improved WoW class-matching  
-- Fixed highlight textures for 3.3.5  
-- Added color options for level text and name text  
-- Default CVar applied to hide the Blizzard castbar  
-- General polish: better defaults, clearer warnings, and a new “What’s New” dialog
-- Support for all localizations
-- Various bug fixes 
+- Implemented target indicator scaling  
+- Fixed automatic aura tracking
+- Implemented health text showing min / max / % at the same time  
+- Fixed name text length working incorrectly  
+- Fixed non-target level offset zooming/scaling not working properly  
+- Implemented target indicator border on hover and for selected targets  
+- Implemented option to paint names in class colors  
+- Fixed simulator frame with auras overlapping the close button  
+- Fixed buffs tracking error with manual aura tracking method  
+- Implemented distance indicator
+- Various other minor fixes  
+
 	]],
 }
