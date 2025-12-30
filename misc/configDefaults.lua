@@ -37,8 +37,7 @@ function NotPlater:LoadDefaultConfig()
 		profile = {
             threat = {
                 general = {
-                    mode = "hdps",
-                    enableMouseoverUpdate = true
+                    mode = "hdps"
                 },
                 nameplateColors = {
                     general = {

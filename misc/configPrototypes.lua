@@ -515,12 +515,6 @@ function ConfigPrototypes:LoadConfigPrototypes()
             name = L["Mode"],
             values = {["hdps"] = L["Healer / DPS"], ["tank"] = L["Tank"]},
         },
-        enableMouseoverUpdate = {
-            order = 1,
-            type = "toggle",
-            name = L["Enable Mouseover Nameplate Threat Update"],
-            width = "double",
-        },
     }
     ConfigPrototypes.ThreatNameplateColors = {
         general = {

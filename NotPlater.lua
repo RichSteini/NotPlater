@@ -376,11 +376,7 @@ function NotPlater:Reload()
 	self:UpdateNameplateCastBarCVar()
 	self:UpdateNameplateClassColorCVar()
 
-	if self.db.profile.threat.general.enableMouseoverUpdate then
-		self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
-	else
-		self:UnregisterEvent("UPDATE_MOUSEOVER_UNIT")
-	end
+	self:RegisterEvent("UPDATE_MOUSEOVER_UNIT")
 
 	for frame in pairs(frames) do
 		self:PrepareFrame(frame)
