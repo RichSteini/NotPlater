@@ -11,8 +11,24 @@ local UnitName = UnitName
 
 local DEFAULT_TRACKED_UNITS = {"target", "focus", "mouseover"}
 
+local function ReleaseFrameMatch(self, frame)
+	if not frame then
+		return
+	end
+	local unit = frame.lastUnitMatch
+	local guid = frame.lastGuidMatch
+	if unit and self.matchUnitToFrame and self.matchUnitToFrame[unit] == frame then
+		self.matchUnitToFrame[unit] = nil
+	end
+	if guid and self.matchGuidToFrame and self.matchGuidToFrame[guid] == frame then
+		self.matchGuidToFrame[guid] = nil
+	end
+end
+
 function NotPlater:SetTrackedMatchUnits(units)
 	self.trackedMatchUnits = {}
+	self.matchUnitToFrame = {}
+	self.matchGuidToFrame = {}
 	if type(units) == "table" then
 		for index = 1, #units do
 			self.trackedMatchUnits[#self.trackedMatchUnits + 1] = units[index]
@@ -90,24 +106,49 @@ function NotPlater:PlateMatchesUnit(frame, unit)
 	return true
 end
 
-function NotPlater:ClearFrameMatch(frame)
+function NotPlater:ClearFrameMatch(frame, keepGuid)
 	if not frame then
 		return
 	end
+	ReleaseFrameMatch(self, frame)
 	frame.lastUnitMatch = nil
-	frame.lastGuidMatch = nil
+	if not keepGuid then
+		frame.lastGuidMatch = nil
+	end
 end
 
 function NotPlater:SetFrameMatch(frame, unit)
 	if not frame then
 		return
 	end
+	self.matchUnitToFrame = self.matchUnitToFrame or {}
+	self.matchGuidToFrame = self.matchGuidToFrame or {}
 	local guid = unit and UnitGUID(unit) or nil
 	if frame.lastUnitMatch == unit and frame.lastGuidMatch == guid then
-		return
+		return true
+	end
+	ReleaseFrameMatch(self, frame)
+	if unit then
+		local claimedFrame = self.matchUnitToFrame[unit]
+		if claimedFrame and claimedFrame ~= frame and claimedFrame:IsShown() and self:PlateMatchesUnit(claimedFrame, unit) then
+			return false
+		end
+		if guid then
+			local claimedGuidFrame = self.matchGuidToFrame[guid]
+			if claimedGuidFrame and claimedGuidFrame ~= frame and claimedGuidFrame:IsShown() and self:PlateMatchesUnit(claimedGuidFrame, unit) then
+				return false
+			end
+		end
 	end
 	frame.lastUnitMatch = unit
 	frame.lastGuidMatch = guid
+	if unit then
+		self.matchUnitToFrame[unit] = frame
+	end
+	if guid then
+		self.matchGuidToFrame[guid] = frame
+	end
+	return true
 end
 
 function NotPlater:UpdateFrameMatch(frame)
@@ -122,23 +163,11 @@ function NotPlater:UpdateFrameMatch(frame)
 		end
 	end
 	if match then
-		self:SetFrameMatch(frame, match)
-	else
-		self:ClearFrameMatch(frame)
-	end
-end
-
-function NotPlater:UpdateAllFrameMatches()
-	local frames = self.frames
-	if not frames then
-		return
-	end
-	for frame in pairs(frames) do
-		if frame:IsShown() then
-			self:UpdateFrameMatch(frame)
-		else
-			self:ClearFrameMatch(frame)
+		if not self:SetFrameMatch(frame, match) then
+			self:ClearFrameMatch(frame, true)
 		end
+	else
+		self:ClearFrameMatch(frame, true)
 	end
 end
 

@@ -255,6 +255,12 @@ function Auras:RefreshConfig()
 	if self.tracker and self.tracker.ApplySettings then
 		self.tracker:ApplySettings()
 	end
+	if NotPlater and NotPlater.SetTrackedMatchUnits and self.tracker and self.tracker.trackedUnitList then
+		NotPlater:SetTrackedMatchUnits(self.tracker.trackedUnitList)
+		if NotPlater.UpdateAllFrameMatches then
+			NotPlater:UpdateAllFrameMatches()
+		end
+	end
 	self:UpdateMouseoverWatcher()
 	self:RebuildLists()
 end
@@ -670,23 +676,19 @@ function Auras:UpdateFrameAuras(frame, forcedUnit)
 	if forcedUnit and not SafeUnit(forcedUnit) then
 		forcedUnit = nil
 	end
-	local unit = forcedUnit or self:IdentifyUnit(frame)
-	if unit and not SafeUnit(unit) then
-		unit = nil
-	end
+	local unit = forcedUnit or (frame.lastUnitMatch and SafeUnit(frame.lastUnitMatch) and frame.lastUnitMatch) or nil
 	if unit then
 		self:SetFrameUnit(frame, unit)
 	else
 		self:SetFrameUnit(frame, nil)
 	end
-	local guid = frame.lastGuidMatch or (unit and UnitGUID(unit)) or frame.npGUID
-	if not unit and not (self.tracker and self.tracker.enableCombatLogTracking) then
-		self:SetFrameGUID(frame, nil)
-		self:HideContainers(frame)
-		return
-	end
+	local guid = frame.lastGuidMatch or frame.npGUID or (unit and UnitGUID(unit)) or nil
 	if guid then
 		self:SetFrameGUID(frame, guid)
+	end
+	if not guid and not (self.tracker and self.tracker.enableCombatLogTracking) then
+		self:HideContainers(frame)
+		return
 	end
 	local targetIsPlayer = false
 	if guid then
@@ -717,21 +719,6 @@ function Auras:IdentifyUnit(frame)
 	local matched = frame.lastUnitMatch
 	if matched and SafeUnit(matched) then
 		return matched
-	end
-	local trackedList = (self.tracker and self.tracker.trackedUnitList and #self.tracker.trackedUnitList > 0) and self.tracker.trackedUnitList or DEFAULT_TRACKED_UNITS
-	for _, unit in ipairs(trackedList) do
-		if self:VerifyUnit(frame, unit) then
-			return unit
-		end
-	end
-	local group = NotPlater.raid or NotPlater.party
-	if group then
-		for _, unitID in pairs(group) do
-			local targetString = unitID .. "-target"
-			if self:VerifyUnit(frame, targetString) then
-				return targetString
-			end
-		end
 	end
 	return nil
 end
