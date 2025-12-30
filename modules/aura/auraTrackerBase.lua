@@ -92,11 +92,28 @@ function Base:UnregisterListener(listener)
 end
 
 function Base:NotifyListeners(guid)
-	for listener in pairs(self.listeners) do
-		if listener.OnAuraTrackerUpdate then
-			listener:OnAuraTrackerUpdate(guid)
+	self.notifyQueue = self.notifyQueue or {}
+	self.notifyPending = self.notifyPending or {}
+	local key = guid or "__ALL__"
+	if not self.notifyPending[key] then
+		self.notifyPending[key] = true
+		tinsert(self.notifyQueue, guid)
+	end
+	if self.notifying then
+		return
+	end
+	self.notifying = true
+	while #self.notifyQueue > 0 do
+		local nextGuid = table.remove(self.notifyQueue, 1)
+		local nextKey = nextGuid or "__ALL__"
+		self.notifyPending[nextKey] = nil
+		for listener in pairs(self.listeners) do
+			if listener.OnAuraTrackerUpdate then
+				listener:OnAuraTrackerUpdate(nextGuid)
+			end
 		end
 	end
+	self.notifying = false
 end
 
 function Base:IsPlayerGUID(guid)
