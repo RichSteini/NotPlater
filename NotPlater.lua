@@ -397,10 +397,13 @@ function NotPlater:PrepareFrame(frame)
 		self:HookScript(frame, "OnShow", function(self)
 			local cachedClass = classCache[self.defaultNameText:GetText()]
 			self.unitClass = cachedClass
+			self.lastUnitMatch = nil
+			self.lastGuidMatch = nil
 			NotPlater:CastBarOnShow(self)
 			NotPlater:HealthBarOnShow(health)
 			NotPlater:StackingCheck(self)
 			NotPlater:ThreatComponentsOnShow(self)
+			NotPlater:RangeComponentsOnShow(self)
 			NotPlater:TargetCheck(self)
 			NotPlater:NameTextOnShow(self)
 			self.targetChanged = true
@@ -541,6 +544,9 @@ end
 
 function NotPlater:PLAYER_TARGET_CHANGED()
 	for frame in pairs(frames) do
+		if frame.lastUnitMatch == "target" then
+			frame.lastUnitMatch = nil
+		end
 		frame.targetChanged = true
 	end
 end

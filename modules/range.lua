@@ -2,19 +2,11 @@ if not NotPlater then return end
 
 local ipairs = ipairs
 local unpack = unpack
+local CreateFrame = CreateFrame
+local UnitExists = UnitExists
 local rc = LibStub and LibStub("LibRangeCheck-2.0", true)
 
 local UPDATE_RATE = 0.5 
-
-local TRACKABLE_PATTERNS = {
-	"^target$",
-	"^focus$",
-	"^mouseover$",
-	"^party%d+$",
-	"^raid%d+$",
-	"^party%d+-target$",
-	"^raid%d+-target$",
-}
 
 local function FormatRangeText(rangeConfig, bucket, estimatedRange)
 	local formatString = (rangeConfig.text and rangeConfig.text.general and rangeConfig.text.general.format) or "{range}"
@@ -35,12 +27,7 @@ function NotPlater:IsRangeTrackableUnit(unit)
     if not unit then
         return false
     end
-    for _, pattern in ipairs(TRACKABLE_PATTERNS) do
-        if unit:match(pattern) then
-            return true
-        end
-    end
-    return false
+    return true
 end
 
 function NotPlater:GetEstimatedRange(frame)
@@ -77,6 +64,12 @@ function NotPlater:ConstructRange(frame)
     frame.rangeText = frame.healthBar:CreateFontString(nil, "OVERLAY")
 end
 
+function NotPlater:RangeComponentsOnShow(frame)
+    frame.rangeBar:Hide()
+    frame.rangeText:Hide()
+	frame.rangeElapsed = 0
+end
+
 function NotPlater:ConfigureRange(frame)
     local rangeConfig = self.db.profile.range
 
@@ -84,8 +77,7 @@ function NotPlater:ConfigureRange(frame)
     frame.rangeBar:SetMinMaxValues(0, (rangeConfig.buckets.range40 and rangeConfig.buckets.range40.max) or 40)
 
     self:ConfigureGeneralisedText(frame.rangeText, frame.healthBar, rangeConfig.text)
-    frame.rangeBar:Hide()
-    frame.rangeText:Hide()
+    self:RangeComponentsOnShow(frame)
 end
 
 function NotPlater:RangeCheck(frame, elapsed)
