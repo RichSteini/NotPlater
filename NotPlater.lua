@@ -299,8 +299,8 @@ function NotPlater:PrepareFrame(frame)
 				NotPlater:RangeCheck(self, self.targetCheckElapsed)
 				self.targetCheckElapsed = 0
 			end
+			local isMouseOver = self:IsMouseOver()
 			if NotPlater.isWrathClient and self.useHighlightProxy and self.highlightTexture then
-				local isMouseOver = self:IsMouseOver()
 				if isMouseOver then
 					if not self.highlightTexture:IsShown() then
 						self.highlightTexture:Show()
@@ -310,6 +310,12 @@ function NotPlater:PrepareFrame(frame)
 						self.highlightTexture:Hide()
 					end
 				end
+			end
+			local mouseoverConfig = NotPlater.db.profile.target.mouseoverHighlight
+			if mouseoverConfig.enable and mouseoverConfig.border and mouseoverConfig.border.enable and isMouseOver then
+				self.mouseoverBorder:Show()
+			else
+				self.mouseoverBorder:Hide()
 			end
 			if NotPlater:IsTarget(self) then
 				self:SetAlpha(1)

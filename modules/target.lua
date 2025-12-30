@@ -95,6 +95,25 @@ function NotPlater:ConfigureTarget(frame)
 		self:ConfigureFullBorder(frame.targetBorder, frame.targetBorderFrame, targetBorderSettings)
 	end
 
+	local mouseoverBorderSettings = targetConfig.mouseoverHighlight.border
+	if mouseoverBorderSettings and frame.mouseoverBorder and frame.mouseoverBorderFrame then
+		local healthBorderConfig = self.db.profile.healthBar and self.db.profile.healthBar.statusBar and self.db.profile.healthBar.statusBar.border
+		local borderPadding = 0
+		if healthBorderConfig and healthBorderConfig.enable ~= false then
+			borderPadding = healthBorderConfig.thickness or 0
+		end
+		local strata = frame.healthBar:GetFrameStrata() or frame:GetFrameStrata() or "MEDIUM"
+		if strata == "UNKNOWN" then
+			strata = "MEDIUM"
+		end
+		frame.mouseoverBorderFrame:SetFrameStrata(strata)
+		frame.mouseoverBorderFrame:SetFrameLevel(frame.healthBar:GetFrameLevel() + 1)
+		frame.mouseoverBorderFrame:ClearAllPoints()
+		frame.mouseoverBorderFrame:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", -borderPadding, borderPadding)
+		frame.mouseoverBorderFrame:SetPoint("BOTTOMRIGHT", frame.healthBar, "BOTTOMRIGHT", borderPadding, -borderPadding)
+		self:ConfigureFullBorder(frame.mouseoverBorder, frame.mouseoverBorderFrame, mouseoverBorderSettings)
+	end
+
     -- highlight (glow)
     local targetHighlightConfig = targetBorderConfig.highlight
     frame.targetNeonUp:SetVertexColor(self:GetColor(targetHighlightConfig.color))
@@ -277,6 +296,23 @@ function NotPlater:ConstructTarget(frame)
 	frame.targetBorder.top:SetDrawLayer("OVERLAY", 7)
 	frame.targetBorder.bottom:SetDrawLayer("OVERLAY", 7)
 	frame.targetBorder:Hide()
+
+	frame.mouseoverBorderFrame = CreateFrame("Frame", "$parentMouseoverBorder", frame.healthBar)
+	frame.mouseoverBorderFrame:SetFrameLevel(frame.healthBar:GetFrameLevel() + 1)
+	local mouseoverStrata = frame.healthBar:GetFrameStrata() or frame:GetFrameStrata() or "MEDIUM"
+	if mouseoverStrata == "UNKNOWN" then
+		mouseoverStrata = "MEDIUM"
+	end
+	frame.mouseoverBorderFrame:SetFrameStrata(mouseoverStrata)
+	frame.mouseoverBorderFrame:SetPoint("TOPLEFT", frame.healthBar, "TOPLEFT", 0, 0)
+	frame.mouseoverBorderFrame:SetPoint("BOTTOMRIGHT", frame.healthBar, "BOTTOMRIGHT", 0, 0)
+
+	frame.mouseoverBorder = self:CreateFullBorder(frame.mouseoverBorderFrame)
+	frame.mouseoverBorder.left:SetDrawLayer("OVERLAY", 7)
+	frame.mouseoverBorder.right:SetDrawLayer("OVERLAY", 7)
+	frame.mouseoverBorder.top:SetDrawLayer("OVERLAY", 7)
+	frame.mouseoverBorder.bottom:SetDrawLayer("OVERLAY", 7)
+	frame.mouseoverBorder:Hide()
 
     local targetNeonUp = frame:CreateTexture(nil, "overlay")
     targetNeonUp:SetDrawLayer("overlay", 7)

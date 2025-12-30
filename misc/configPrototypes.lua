@@ -865,6 +865,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
                     name = L["Opacity"],
                     min = 0, max = 1, step = 0.01,
                 },
+                border = ConfigPrototypes:GetGeneralisedBorderConfig(),
             },
         },
     }

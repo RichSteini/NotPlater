@@ -530,7 +530,12 @@ function NotPlater:LoadDefaultConfig()
                 },
                 mouseoverHighlight = {
                     enable = true,
-                    opacity = 0.5
+                    opacity = 0.5,
+                    border = {
+                        enable = false,
+                        color = {1, 1, 1, 1},
+                        thickness = 2
+                    },
                 },
                 targetTargetText = {
                     general = {
