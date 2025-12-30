@@ -1266,6 +1266,13 @@ function Config:OpenConfig()
 		frame:SetStatusText(text)
 	end
 
+	if frame and not frame.npCloseHooked then
+		frame.npCloseHooked = true
+		frame.frame:HookScript("OnHide", function()
+			NotPlater:HideSimulatorFrame()
+		end)
+	end
+
 end
 
 -- Slash commands
