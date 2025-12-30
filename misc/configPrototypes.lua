@@ -528,12 +528,6 @@ function ConfigPrototypes:LoadConfigPrototypes()
                     type = "toggle",
                     name = L["Enable"],
                 },
-                useClassColors = {
-                    order = 0,
-                    type = "toggle",
-                    width = "double",
-                    name = L["Use Class Colors when Possible"],
-                },
             }
         },
         colors = ConfigPrototypes:GetGeneralisedThreatColorsConfig(L["Aggro on You"], L["Tank no Aggro"], L["DPS Close"], L["Aggro on You"], L["High Threat"], L["No Aggro"])
@@ -580,6 +574,12 @@ function ConfigPrototypes:LoadConfigPrototypes()
         min = 1, max = 100, step = 1,
     }
     ConfigPrototypes.HealthBar = ConfigPrototypes:GetGeneralisedStatusBarConfig()
+    ConfigPrototypes.HealthBar.general.args.useClassColors = {
+        order = 0.5,
+        type = "toggle",
+        width = "double",
+        name = L["Use Class Colors when Possible"],
+    }
     ConfigPrototypes.HealthText = ConfigPrototypes:GetGeneralisedColorFontConfig()
     ConfigPrototypes.HealthText.general.args.displayType = {
         order = 1,

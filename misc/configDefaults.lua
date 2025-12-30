@@ -42,7 +42,6 @@ function NotPlater:LoadDefaultConfig()
                 nameplateColors = {
                     general = {
                         enable = true,
-                        useClassColors = false,
                     },
                     colors = {
                         tank = {
@@ -273,6 +272,7 @@ function NotPlater:LoadDefaultConfig()
                         enable = true,
                         color = {0.5, 0.5, 1, 1},
                         texture = "NotPlater HealthBar",
+                        useClassColors = false,
                     },
                     background = {
                         enable = true,

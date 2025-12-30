@@ -158,7 +158,7 @@ function NotPlater:UpdateNameplateCastBarCVar()
 end
 
 function NotPlater:UpdateNameplateClassColorCVar()
-	local shouldEnable = self.db.profile.threat.nameplateColors.general.useClassColors or self.db.profile.nameText.general.useClassColor
+	local shouldEnable = self.db.profile.healthBar.statusBar.general.useClassColors or self.db.profile.nameText.general.useClassColor
 	if shouldEnable then
 		local current = GetCVar(NAMEPLATE_CLASS_COLOR_CVAR)
 		if current ~= "1" then
@@ -279,7 +279,7 @@ function NotPlater:PrepareFrame(frame)
 					NotPlater:TargetCheck(self)
 					self.targetChanged = nil
 				end
-				if NotPlater.db.profile.threat.nameplateColors.general.useClassColors then
+				if NotPlater.db.profile.healthBar.statusBar.general.useClassColors then
 					if not self.unitClass then
 						NotPlater:ClassCheck(self)
 					end

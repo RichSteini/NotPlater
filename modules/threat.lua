@@ -189,7 +189,7 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 		end
 
 		local frame = healthFrame:GetParent()
-		if self.db.profile.threat.nameplateColors.general.useClassColors and frame.unitClass then
+		if self.db.profile.healthBar.statusBar.general.useClassColors and frame.unitClass then
 			healthFrame:SetStatusBarColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, 1)
 		elseif threatConfig.nameplateColors.general.enable then
 			healthFrame:SetStatusBarColor(self:GetColor(barColor))
@@ -287,7 +287,7 @@ function NotPlater:MouseoverThreatCheck(healthFrame, guid)
 	else
 		if UnitCanAttack("player", "mouseover") and not UnitIsDeadOrGhost("mouseover") and UnitAffectingCombat("mouseover") and healthValue ~= healthMaxValue then
 			local unitClass = plateFrame.unitClass
-			if not (self.db.profile.threat.nameplateColors.general.useClassColors and unitClass) then
+			if not (self.db.profile.healthBar.statusBar.general.useClassColors and unitClass) then
 				if self.db.profile.healthBar.statusBar.general.enable and UnitGUID("player") == UnitGUID("mouseover-target") then
 					healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
 				end
@@ -309,7 +309,7 @@ function NotPlater:ThreatCheck(frame)
 	else -- Not in party
 		if frame.lastUnitMatch == "target" and UnitCanAttack("player", "target") and not UnitIsDeadOrGhost("target") and UnitAffectingCombat("target") and healthValue ~= healthMaxValue then
 			local unitClass = frame.unitClass
-			if not (self.db.profile.threat.nameplateColors.general.useClassColors and unitClass) then
+			if not (self.db.profile.healthBar.statusBar.general.useClassColors and unitClass) then
 				if self.db.profile.healthBar.statusBar.general.enable and UnitGUID("player") == UnitGUID("target-target") then
 					healthFrame:SetStatusBarColor(self:GetColor(self.db.profile.healthBar.statusBar.general.color))
 				end
