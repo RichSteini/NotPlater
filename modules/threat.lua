@@ -5,6 +5,8 @@ local USE_NATIVE_THREAT = addonName ~= nil
 
 local tostring = tostring
 local UnitGUID = UnitGUID
+local UnitName = UnitName
+local UnitClass = UnitClass
 local UnitAffectingCombat = UnitAffectingCombat
 local UnitInRaid = UnitInRaid
 local GetRaidRosterInfo = GetRaidRosterInfo
@@ -53,6 +55,23 @@ local function GetGroupSize(group)
 	return count
 end
 
+local function CacheUnitClass(unitId)
+	if not unitId then
+		return
+	end
+	local unitName = UnitName(unitId)
+	if not unitName or unitName == "" then
+		return
+	end
+	local classToken = select(2, UnitClass(unitId))
+	if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+		local classCache = NotPlater and NotPlater.classCache
+		if classCache then
+			classCache[unitName] = RAID_CLASS_COLORS[classToken]
+		end
+	end
+end
+
 function NotPlater:RAID_ROSTER_UPDATE()
 	self.raid = nil
 	if UnitInRaid("player") then
@@ -61,8 +80,10 @@ function NotPlater:RAID_ROSTER_UPDATE()
 		local i = 1
 		while raidNum > 0 and i <= MAX_RAID_MEMBERS do
 			if GetRaidRosterInfo(i) then
-				local guid = UnitGUID("raid" .. i)
+				local unitId = "raid" .. i
+				local guid = UnitGUID(unitId)
 				self.raid[guid] = "raid" .. i
+				CacheUnitClass(unitId)
 
 				local pet = UnitGUID("raidpet" .. i)
 				if pet then
@@ -83,7 +104,9 @@ function NotPlater:PARTY_MEMBERS_CHANGED()
 		self.party = {}
 		while partyNum > 0 and i < MAX_PARTY_MEMBERS do
 			if GetPartyMember(i) then
-				self.party[UnitGUID("party" .. i)] = "party" .. i
+				local unitId = "party" .. i
+				self.party[UnitGUID(unitId)] = unitId
+				CacheUnitClass(unitId)
 				local pet = UnitGUID("partypet" .. i)
 				if pet then
 					self.party[pet] = "partypet" .. i
@@ -93,6 +116,7 @@ function NotPlater:PARTY_MEMBERS_CHANGED()
 			i = i + 1
 		end
 		self.party[UnitGUID("player")] = "player"
+		CacheUnitClass("player")
 		local pet = UnitGUID("pet")
 		if pet then
 			self.party[pet] = "pet"
