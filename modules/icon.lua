@@ -13,7 +13,7 @@ function NotPlater:ScaleIcon(iconFrame, scalingFactor, config)
 end
 
 function NotPlater:ScaleBossIcon(iconFrame, isTarget)
-	local bossIconConfig = self.db.profile.bossIcon
+	local bossIconConfig = self.db.profile.icons.bossIcon
 	if bossIconConfig.general.enable == false then
 		return
 	end
@@ -25,7 +25,7 @@ function NotPlater:ScaleBossIcon(iconFrame, isTarget)
 end
 
 function NotPlater:ScaleRaidIcon(iconFrame, isTarget)
-	local raidIconConfig = self.db.profile.raidIcon
+	local raidIconConfig = self.db.profile.icons.raidIcon
 	if raidIconConfig.general.enable == false then
 		return
 	end

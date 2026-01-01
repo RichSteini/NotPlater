@@ -73,6 +73,7 @@ local CATEGORY_ICONS = {
 	castBar = "Interface\\Icons\\Spell_Frost_Frostbolt02",
 	nameText = "Interface\\Icons\\INV_Scroll_03",
 	levelText = "Interface\\Icons\\INV_Misc_Note_01",
+	icons = "Interface\\Icons\\INV_Misc_Gear_01",
 	raidIcon = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_1",
 	bossIcon = "Interface\\TargetingFrame\\UI-TargetingFrame-Skull",
 	target = "Interface\\Icons\\Ability_Hunter_SniperShot",
@@ -948,24 +949,30 @@ local function LoadOptions()
 		set = SetValue,
 		args = NotPlater.ConfigPrototypes.LevelText
 	}
-	options.args.raidIcon = {
+	options.args.icons = {
 		order = 5,
 		type = "group",
-		name = WithCategoryIcon("raidIcon", L["Raid Icon"]),
+		name = WithCategoryIcon("icons", L["Icons"]),
 		get = GetValue,
 		set = SetValue,
-		args = NotPlater.ConfigPrototypes.Icon
+		childGroups = "tab",
+		args = {
+			raidIcon = {
+				order = 0,
+				type = "group",
+				name = L["Raid Icon"],
+				args = NotPlater.ConfigPrototypes.Icon,
+			},
+			bossIcon = {
+				order = 1,
+				type = "group",
+				name = L["Boss Icon"],
+				args = NotPlater.ConfigPrototypes.BossIcon,
+			},
+		},
 	}
-options.args.bossIcon = {
-	order = 6,
-	type = "group",
-	name = WithCategoryIcon("bossIcon", L["Boss Icon"]),
-	get = GetValue,
-	set = SetValue,
-	args = NotPlater.ConfigPrototypes.BossIcon
-}
 	options.args.target = {
-		order = 7,
+		order = 6,
 		type = "group",
 		name = WithCategoryIcon("target", L["Target"]),
 		get = GetValue,
@@ -987,7 +994,7 @@ options.args.bossIcon = {
 		}
 	}
 	options.args.range = {
-		order = 8,
+		order = 7,
 		type = "group",
 		name = WithCategoryIcon("range", L["Range Indicator"]),
 		get = GetValue,
@@ -1000,7 +1007,7 @@ options.args.bossIcon = {
 		},
 	}
 	options.args.buffs = {
-		order = 9,
+		order = 8,
 		type = "group",
 		name = WithCategoryIcon("buffs", L["Buffs"]),
 		childGroups = "tab",
@@ -1009,7 +1016,7 @@ options.args.bossIcon = {
 		args = NotPlater.ConfigPrototypes.Buffs,
 	}
 	options.args.stacking = {
-		order = 10,
+		order = 9,
         type = "group",
         childGroups = "tab",
 		name = WithCategoryIcon("stacking", L["Stacking"]),
@@ -1018,7 +1025,7 @@ options.args.bossIcon = {
 		args = NotPlater.ConfigPrototypes.Stacking,
 	}
 	options.args.simulator = {
-		order = 11,
+		order = 10,
 		type = "group",
 		name = WithCategoryIcon("simulator", L["Simulator"]),
 		get = GetValue,
@@ -1032,7 +1039,7 @@ options.args.bossIcon = {
 
 	local profileLabel = L["Profiles"] or "Profiles"
 	options.args.profile = {
-		order = 12,
+		order = 11,
 		type = "group",
 		childGroups = "tab",
 		name = WithCategoryIcon("profile", profileLabel),
@@ -1355,11 +1362,8 @@ register:SetScript("OnShow", function(self)
 	config:RegisterOptionsTable("NotPlater-LevelText", options.args.levelText)
 	dialog:AddToBlizOptions("NotPlater-LevelText", options.args.levelText.name, "NotPlater")
 
-	config:RegisterOptionsTable("NotPlater-RaidIcon", options.args.raidIcon)
-	dialog:AddToBlizOptions("NotPlater-RaidIcon", options.args.raidIcon.name, "NotPlater")
-
-	config:RegisterOptionsTable("NotPlater-BossIcon", options.args.bossIcon)
-	dialog:AddToBlizOptions("NotPlater-BossIcon", options.args.bossIcon.name, "NotPlater")
+	config:RegisterOptionsTable("NotPlater-Icons", options.args.icons)
+	dialog:AddToBlizOptions("NotPlater-Icons", options.args.icons.name, "NotPlater")
 
 	config:RegisterOptionsTable("NotPlater-Target", options.args.target)
 	dialog:AddToBlizOptions("NotPlater-Target", options.args.target.name, "NotPlater")

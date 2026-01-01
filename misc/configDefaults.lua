@@ -452,36 +452,38 @@ function NotPlater:LoadDefaultConfig()
                     yOffset = 0
                 }
             },
-            raidIcon = {
-                general = {
-					enable = true,
-                    opacity = 1,
+            icons = {
+                raidIcon = {
+                    general = {
+						enable = true,
+                        opacity = 1,
+                    },
+                    size = {
+                        width = 20,
+                        height = 20,
+                    },
+                    position = {
+                        anchor = "RIGHT",
+                        xOffset = 5,
+                        yOffset = 0,
+                    }
                 },
-                size = {
-                    width = 20,
-                    height = 20,
+                bossIcon = {
+                    general = {
+						enable = true,
+                        opacity = 1,
+                        usePlaterBossIcon = true,
+                    },
+                    size = {
+                        width = 12,
+                        height = 12,
+                    },
+                    position = {
+                        anchor = "LEFT",
+                        xOffset = -5,
+                        yOffset = 0,
+                    }
                 },
-                position = {
-                    anchor = "RIGHT",
-                    xOffset = 5,
-                    yOffset = 0,
-                }
-            },
-            bossIcon = {
-                general = {
-					enable = true,
-                    opacity = 1,
-                    usePlaterBossIcon = true,
-                },
-                size = {
-                    width = 12,
-                    height = 12,
-                },
-                position = {
-                    anchor = "LEFT",
-                    xOffset = -5,
-                    yOffset = 0,
-                }
             },
             target = {
                 scale = {

@@ -94,6 +94,7 @@ NotPlaterLocals = {
 	["High Threat"] = "High Threat",
 	["Highlight"] = "Highlight",
 	["Icon Spacing"] = "Icon Spacing",
+	["Icons"] = "Icons",
 	["Important"] = "Important",
 	["Indicator"] = "Indicator",
 	["Invalid spell name or ID"] = "Invalid spell name or ID",

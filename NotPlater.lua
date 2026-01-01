@@ -344,13 +344,13 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureHealthBar(frame, health)
 	self:ConfigureCastBar(frame)
 	self:ConfigureStacking(frame)
-	if self.db.profile.bossIcon.general.usePlaterBossIcon then
+	if self.db.profile.icons.bossIcon.general.usePlaterBossIcon then
 		frame.bossIcon:SetTexture("Interface\\AddOns\\" .. self.addonName .. "\\images\\glues-addon-icons.blp")
 		frame.bossIcon:SetTexCoord(0.75, 1, 0, 1)
 		frame.bossIcon:SetVertexColor(1, 0.8, 0, 1)
 	end
-	self:ConfigureGeneralisedIcon(frame.bossIcon, frame.healthBar, self.db.profile.bossIcon)
-	self:ConfigureGeneralisedIcon(frame.raidIcon, frame.healthBar, self.db.profile.raidIcon)
+	self:ConfigureGeneralisedIcon(frame.bossIcon, frame.healthBar, self.db.profile.icons.bossIcon)
+	self:ConfigureGeneralisedIcon(frame.raidIcon, frame.healthBar, self.db.profile.icons.raidIcon)
 	self:ConfigureLevelText(frame.levelText, frame.healthBar)
 	self:ConfigureNameText(frame.nameText, frame.healthBar)
 	self:ConfigureTarget(frame)
