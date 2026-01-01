@@ -13,8 +13,12 @@ local CLASS_ICON_TCOORDS = {
 	PALADIN = {0, 0.25, 0.5, 0.75},
 	DEATHKNIGHT = {0.25, 0.5, 0.5, 0.75},
 }
-local ELITE_ICON_TEXTURE = "Interface\\GLUES\\CharacterSelect\\Glues-AddOn-Icons"
 local ELITE_ICON_TCOORDS = {0.75, 1, 0, 1}
+
+local function GetEliteIconTexture()
+	local addonName = NotPlater and NotPlater.addonName or ""
+	return "Interface\\AddOns\\" .. addonName .. "\\images\\glues-addon-icons.blp"
+end
 
 local function ResolveClassToken(frame)
 	if not frame then
@@ -79,9 +83,6 @@ function NotPlater:ScaleRaidIcon(iconFrame, isTarget)
 end
 
 function NotPlater:ScaleEliteIcon(iconFrame, isTarget)
-	if not self.isWrathClient then
-		return
-	end
 	if not iconFrame then
 		return
 	end
@@ -132,8 +133,18 @@ function NotPlater:ConstructIcon(parentFrame)
 	parentFrame.icon.texture = parentFrame.icon:CreateTexture(nil, "BORDER")
 	parentFrame.icon.texture:SetAllPoints()
 	parentFrame.icon.border = self:CreateFullBorder(parentFrame.icon)
-    parentFrame.icon.background = parentFrame.icon:CreateTexture(nil, "BACKGROUND")
+	parentFrame.icon.background = parentFrame.icon:CreateTexture(nil, "BACKGROUND")
 	parentFrame.icon.background:SetAllPoints(parentFrame.icon)
+end
+
+function NotPlater:ConstructEliteIcon(frame)
+	if frame.eliteIcon then
+		return
+	end
+	frame.eliteIcon = frame:CreateTexture(nil, "ARTWORK")
+	frame.eliteIcon:SetTexture(GetEliteIconTexture())
+	frame.eliteIcon:SetTexCoord(0, 0, 0, 0)
+	frame.eliteIcon:SetAlpha(0)
 end
 
 function NotPlater:ConstructClassIcon(frame)
@@ -171,9 +182,6 @@ function NotPlater:UpdateClassIcon(frame)
 end
 
 function NotPlater:UpdateEliteIcon(frame)
-	if not self.isWrathClient then
-		return
-	end
 	if not frame or not frame.eliteIcon then
 		return
 	end
@@ -203,18 +211,19 @@ function NotPlater:UpdateEliteIcon(frame)
 
 	local opacity = eliteIconConfig.general.opacity or 1
 	if rank == rankEnums.Rare or rank == rankEnums.RareElite then
-		frame.eliteIcon:SetTexture(ELITE_ICON_TEXTURE)
+		frame.eliteIcon:SetTexture(GetEliteIconTexture())
 		frame.eliteIcon:SetTexCoord(ELITE_ICON_TCOORDS[1], ELITE_ICON_TCOORDS[2], ELITE_ICON_TCOORDS[3], ELITE_ICON_TCOORDS[4])
 		frame.eliteIcon:SetVertexColor(1, 1, 1, 1)
 		frame.eliteIcon:SetDesaturated(true)
 		frame.eliteIcon:SetAlpha(opacity)
 		frame.eliteIcon:Show()
 	elseif rank == rankEnums.Elite or rank == rankEnums.WorldBoss then
-		frame.eliteIcon:SetTexture(ELITE_ICON_TEXTURE)
+		frame.eliteIcon:SetTexture(GetEliteIconTexture())
 		frame.eliteIcon:SetTexCoord(ELITE_ICON_TCOORDS[1], ELITE_ICON_TCOORDS[2], ELITE_ICON_TCOORDS[3], ELITE_ICON_TCOORDS[4])
 		frame.eliteIcon:SetVertexColor(1, 0.8, 0, 1)
 		frame.eliteIcon:SetDesaturated(false)
 		frame.eliteIcon:SetAlpha(opacity)
+		frame.eliteIcon:Show()
 	else
 		frame.eliteIcon:SetAlpha(0)
 	end
@@ -230,9 +239,6 @@ function NotPlater:ConfigureClassIcon(frame)
 end
 
 function NotPlater:ConfigureEliteIcon(frame)
-	if not self.isWrathClient then
-		return
-	end
 	if not frame or not frame.eliteIcon then
 		return
 	end

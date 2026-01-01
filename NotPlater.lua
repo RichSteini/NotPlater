@@ -246,12 +246,7 @@ function NotPlater:PrepareFrame(frame)
 		frame.levelText = resolvedLevelText or levelText
 		frame.bossIcon = bossIcon or frame.bossIcon
 		frame.raidIcon = raidIcon or frame.raidIcon
-		if self.isWrathClient then
-			frame.eliteIcon = eliteIcon or frame.eliteIcon
-			frame.eliteIcon:SetTexture("Interface\\AddOns\\" .. self.addonName .. "\\images\\glues-addon-icons.blp")
-			frame.eliteIcon:SetTexCoord(0.75, 1, 0, 1)
-			frame.eliteIcon:SetVertexColor(1, 0.8, 0, 1)
-		end
+		frame.eliteIcon = eliteIcon or frame.eliteIcon
 		frame.nameText = CreateNameTextProxy(frame, frame.defaultNameText)
 		if NotPlater.isWrathClient then
 			if not frame.highlightTexture or frame.highlightTexture == highlightTexture then
@@ -279,6 +274,7 @@ function NotPlater:PrepareFrame(frame)
 		self:ConstructCastBar(frame)
 		self:ConstructTarget(frame)
 		self:ConstructRange(frame)
+		self:ConstructEliteIcon(frame)
 		self:ConstructClassIcon(frame)
 		self.Auras:AttachToFrame(frame)
 

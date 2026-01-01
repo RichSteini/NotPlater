@@ -962,6 +962,12 @@ local function LoadOptions()
 			name = L["Boss Icon"],
 			args = NotPlater.ConfigPrototypes.BossIcon,
 		},
+		eliteIcon = {
+			order = 2,
+			type = "group",
+			name = L["Elite Icon"],
+			args = NotPlater.ConfigPrototypes.Icon,
+		},
 		classIcon = {
 			order = 3,
 			type = "group",
@@ -969,14 +975,6 @@ local function LoadOptions()
 			args = NotPlater.ConfigPrototypes.Icon,
 		},
 	}
-	if NotPlater.isWrathClient then
-		iconsArgs.eliteIcon = {
-			order = 2,
-			type = "group",
-			name = L["Elite Icon"],
-			args = NotPlater.ConfigPrototypes.Icon,
-		}
-	end
 	options.args.icons = {
 		order = 5,
 		type = "group",
