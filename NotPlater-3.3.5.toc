@@ -44,3 +44,17 @@ modules\aura\auraCooldownVertical.lua
 modules\aura\auraCooldownSwirl.lua
 modules\aura\auraCooldownRichSteini.lua
 modules\aura\auras.lua
+
+# NPC data
+misc\npc_data\enUS.lua
+misc\npc_data\deDE.lua
+misc\npc_data\frFR.lua
+misc\npc_data\koKR.lua
+misc\npc_data\zhCN.lua
+misc\npc_data\zhTW.lua
+misc\npc_data\esES.lua
+misc\npc_data\esMX.lua
+misc\npc_data\ruRU.lua
+misc\npc_data\ptBR.lua
+misc\npc_data\itIT.lua
+misc\npc_data\data.lua

@@ -13,6 +13,8 @@ local CLASS_ICON_TCOORDS = {
 	PALADIN = {0, 0.25, 0.5, 0.75},
 	DEATHKNIGHT = {0.25, 0.5, 0.5, 0.75},
 }
+local ELITE_ICON_TEXTURE = "Interface\\GLUES\\CharacterSelect\\Glues-AddOn-Icons"
+local ELITE_ICON_TCOORDS = {0.75, 1, 0, 1}
 
 local function ResolveClassToken(frame)
 	if not frame then
@@ -168,6 +170,56 @@ function NotPlater:UpdateClassIcon(frame)
 	frame.classIcon:SetAlpha(classIconConfig.general.opacity or 1)
 end
 
+function NotPlater:UpdateEliteIcon(frame)
+	if not self.isWrathClient then
+		return
+	end
+	if not frame or not frame.eliteIcon then
+		return
+	end
+	local eliteIconConfig = self.db.profile.icons.eliteIcon
+	local enabled = eliteIconConfig.general.enable
+	if not enabled then
+		frame.eliteIcon:SetAlpha(0)
+		return
+	end
+	local nameText = frame.defaultNameText
+	if not nameText then
+		frame.eliteIcon:SetAlpha(0)
+		return
+	end
+	local unitName = nameText:GetText()
+	if not unitName or unitName == "" then
+		frame.eliteIcon:SetAlpha(0)
+		return
+	end
+	local npcData = NotPlater.NPCData and NotPlater.NPCData[unitName]
+	local rank = npcData and npcData.rank
+	local rankEnums = NotPlater.NPCEnums and NotPlater.NPCEnums.Rank
+	if not rank or not rankEnums then
+		frame.eliteIcon:SetAlpha(0)
+		return
+	end
+
+	local opacity = eliteIconConfig.general.opacity or 1
+	if rank == rankEnums.Rare or rank == rankEnums.RareElite then
+		frame.eliteIcon:SetTexture(ELITE_ICON_TEXTURE)
+		frame.eliteIcon:SetTexCoord(ELITE_ICON_TCOORDS[1], ELITE_ICON_TCOORDS[2], ELITE_ICON_TCOORDS[3], ELITE_ICON_TCOORDS[4])
+		frame.eliteIcon:SetVertexColor(1, 1, 1, 1)
+		frame.eliteIcon:SetDesaturated(true)
+		frame.eliteIcon:SetAlpha(opacity)
+		frame.eliteIcon:Show()
+	elseif rank == rankEnums.Elite or rank == rankEnums.WorldBoss then
+		frame.eliteIcon:SetTexture(ELITE_ICON_TEXTURE)
+		frame.eliteIcon:SetTexCoord(ELITE_ICON_TCOORDS[1], ELITE_ICON_TCOORDS[2], ELITE_ICON_TCOORDS[3], ELITE_ICON_TCOORDS[4])
+		frame.eliteIcon:SetVertexColor(1, 0.8, 0, 1)
+		frame.eliteIcon:SetDesaturated(false)
+		frame.eliteIcon:SetAlpha(opacity)
+	else
+		frame.eliteIcon:SetAlpha(0)
+	end
+end
+
 function NotPlater:ConfigureClassIcon(frame)
 	if not frame or not frame.classIcon then
 		return
@@ -175,4 +227,16 @@ function NotPlater:ConfigureClassIcon(frame)
 	local classIconConfig = self.db.profile.icons.classIcon
 	self:ConfigureGeneralisedIcon(frame.classIcon, frame.healthBar, classIconConfig)
 	self:UpdateClassIcon(frame)
+end
+
+function NotPlater:ConfigureEliteIcon(frame)
+	if not self.isWrathClient then
+		return
+	end
+	if not frame or not frame.eliteIcon then
+		return
+	end
+	local eliteIconConfig = self.db.profile.icons.eliteIcon
+	self:ConfigureGeneralisedIcon(frame.eliteIcon, frame.healthBar, eliteIconConfig)
+	self:UpdateEliteIcon(frame)
 end

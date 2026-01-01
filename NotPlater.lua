@@ -285,7 +285,7 @@ function NotPlater:PrepareFrame(frame)
 		-- Hide old healthbar
 		health:Hide()
     
-	self:HookScript(frame, "OnShow", function(self)
+		self:HookScript(frame, "OnShow", function(self)
 			local unitName = self.defaultNameText:GetText()
 			local cachedClass = classCache[unitName]
 			self.unitClass = cachedClass
@@ -300,6 +300,7 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:MatchTrackerOnShow(self)
 			NotPlater.Auras:OnPlateShow(self)
 			NotPlater:UpdateClassIcon(self)
+			NotPlater:UpdateEliteIcon(self)
 			self.targetChanged = true
 		end)
 
@@ -376,9 +377,6 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater.Auras:OnPlateHide(self)
 			self.unitClass = nil
 			self.unitClassToken = nil
-			if self.classIcon then
-				self.classIcon:SetAlpha(0)
-			end
 			self.highlightTexture:Hide()
 		end)
 	end
@@ -390,9 +388,7 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureStacking(frame)
 	self:ConfigureGeneralisedIcon(frame.bossIcon, frame.healthBar, self.db.profile.icons.bossIcon)
 	self:ConfigureGeneralisedIcon(frame.raidIcon, frame.healthBar, self.db.profile.icons.raidIcon)
-	if self.isWrathClient then
-		self:ConfigureGeneralisedIcon(frame.eliteIcon, frame.healthBar, self.db.profile.icons.eliteIcon)
-	end
+	self:ConfigureEliteIcon(frame)
 	self:ConfigureClassIcon(frame)
 	self:ConfigureLevelText(frame.levelText, frame.healthBar)
 	self:ConfigureNameText(frame.nameText, frame.healthBar)
