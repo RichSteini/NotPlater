@@ -76,6 +76,24 @@ function NotPlater:ScaleRaidIcon(iconFrame, isTarget)
     end
 end
 
+function NotPlater:ScaleEliteIcon(iconFrame, isTarget)
+	if not self.isWrathClient then
+		return
+	end
+	if not iconFrame then
+		return
+	end
+	local eliteIconConfig = self.db.profile.icons.eliteIcon
+	if eliteIconConfig.general.enable == false then
+		return
+	end
+	local scaleConfig = self.db.profile.target.scale
+	if scaleConfig.eliteIcon then
+		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
+		self:ScaleIcon(iconFrame, scalingFactor, eliteIconConfig)
+	end
+end
+
 function NotPlater:ScaleClassIcon(iconFrame, isTarget)
 	local classIconConfig = self.db.profile.icons.classIcon
 	if classIconConfig.general.enable == false then

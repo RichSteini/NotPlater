@@ -77,7 +77,7 @@ local function GetOrderedFrameRegions(frame)
 		return frame:GetRegions()
 	end
 	local healthBorder, castBorder, spellIcon, highlightTexture, nameText, levelText, bossIcon, raidIcon = frame:GetRegions()
-	return nil, healthBorder, castBorder, nil, spellIcon, highlightTexture, nameText, levelText, nil, raidIcon, bossIcon
+	return nil, healthBorder, castBorder, nil, spellIcon, highlightTexture, nameText, levelText, bossIcon, raidIcon
 end
 
 function NotPlater:GetFrameTexts(frame)
@@ -234,7 +234,7 @@ function NotPlater:IsTarget(frame)
 end
 
 function NotPlater:PrepareFrame(frame)
-	local threatGlow, healthBorder, castBorder, castNoStop, spellIcon, highlightTexture, nameText, levelText, dangerSkull, raidIcon, bossIcon = GetOrderedFrameRegions(frame)
+	local threatGlow, healthBorder, castBorder, castNoStop, spellIcon, highlightTexture, nameText, levelText, bossIcon, raidIcon, eliteIcon = GetOrderedFrameRegions(frame)
 	local health, cast = frame:GetChildren()
 
 	-- Hooks and creation (only once that way settings can be applied while frame is visible)
@@ -246,6 +246,12 @@ function NotPlater:PrepareFrame(frame)
 		frame.levelText = resolvedLevelText or levelText
 		frame.bossIcon = bossIcon or frame.bossIcon
 		frame.raidIcon = raidIcon or frame.raidIcon
+		if self.isWrathClient then
+			frame.eliteIcon = eliteIcon or frame.eliteIcon
+			frame.eliteIcon:SetTexture("Interface\\AddOns\\" .. self.addonName .. "\\images\\glues-addon-icons.blp")
+			frame.eliteIcon:SetTexCoord(0.75, 1, 0, 1)
+			frame.eliteIcon:SetVertexColor(1, 0.8, 0, 1)
+		end
 		frame.nameText = CreateNameTextProxy(frame, frame.defaultNameText)
 		if NotPlater.isWrathClient then
 			if not frame.highlightTexture or frame.highlightTexture == highlightTexture then
@@ -259,7 +265,6 @@ function NotPlater:PrepareFrame(frame)
 		if healthBorder then healthBorder:Hide() end
 		if threatGlow then threatGlow:SetTexCoord(0, 0, 0, 0) end
 		if castNoStop then castNoStop:SetTexCoord(0, 0, 0, 0) end
-		if dangerSkull then dangerSkull:SetTexCoord(0, 0, 0, 0) end
 		if highlightTexture and NotPlater.isWrathClient then
 			frame.defaultHighlightTexture = highlightTexture
 			highlightTexture:SetTexCoord(0, 0, 0, 0)
@@ -383,13 +388,11 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureHealthBar(frame, health)
 	self:ConfigureCastBar(frame)
 	self:ConfigureStacking(frame)
-	if self.db.profile.icons.bossIcon.general.usePlaterBossIcon then
-		frame.bossIcon:SetTexture("Interface\\AddOns\\" .. self.addonName .. "\\images\\glues-addon-icons.blp")
-		frame.bossIcon:SetTexCoord(0.75, 1, 0, 1)
-		frame.bossIcon:SetVertexColor(1, 0.8, 0, 1)
-	end
 	self:ConfigureGeneralisedIcon(frame.bossIcon, frame.healthBar, self.db.profile.icons.bossIcon)
 	self:ConfigureGeneralisedIcon(frame.raidIcon, frame.healthBar, self.db.profile.icons.raidIcon)
+	if self.isWrathClient then
+		self:ConfigureGeneralisedIcon(frame.eliteIcon, frame.healthBar, self.db.profile.icons.eliteIcon)
+	end
 	self:ConfigureClassIcon(frame)
 	self:ConfigureLevelText(frame.levelText, frame.healthBar)
 	self:ConfigureNameText(frame.nameText, frame.healthBar)

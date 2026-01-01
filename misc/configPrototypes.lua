@@ -648,11 +648,6 @@ function ConfigPrototypes:LoadConfigPrototypes()
         type = "toggle",
         name = L["Enable"],
     }
-    ConfigPrototypes.BossIcon.general.args.usePlaterBossIcon = {
-        order = 2,
-        type = "toggle",
-        name = L["Use Plater Boss Icon"],
-    }
     ConfigPrototypes.CastBarIcon = ConfigPrototypes:GetGeneralisedIconConfig()
     ConfigPrototypes.CastBarIcon.border = ConfigPrototypes:GetGeneralisedBorderConfig()
     ConfigPrototypes.CastBarIcon.background = ConfigPrototypes:GetGeneralisedBackgroundConfig()
@@ -704,13 +699,18 @@ function ConfigPrototypes:LoadConfigPrototypes()
                     type = "toggle",
                     name = L["Boss Icon"],
                 },
-                classIcon = {
+                eliteIcon = {
                     order = 8,
+                    type = "toggle",
+                    name = L["Elite Icon"],
+                },
+                classIcon = {
+                    order = 9,
                     type = "toggle",
                     name = L["Class Icon"],
                 },
                 targetTargetText = {
-                    order = 9,
+                    order = 10,
                     type = "toggle",
                     name = L["Target-Target Text"],
                 },

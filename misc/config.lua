@@ -949,6 +949,34 @@ local function LoadOptions()
 		set = SetValue,
 		args = NotPlater.ConfigPrototypes.LevelText
 	}
+	local iconsArgs = {
+		raidIcon = {
+			order = 0,
+			type = "group",
+			name = L["Raid Icon"],
+			args = NotPlater.ConfigPrototypes.Icon,
+		},
+		bossIcon = {
+			order = 1,
+			type = "group",
+			name = L["Boss Icon"],
+			args = NotPlater.ConfigPrototypes.BossIcon,
+		},
+		classIcon = {
+			order = 3,
+			type = "group",
+			name = L["Class Icon"],
+			args = NotPlater.ConfigPrototypes.Icon,
+		},
+	}
+	if NotPlater.isWrathClient then
+		iconsArgs.eliteIcon = {
+			order = 2,
+			type = "group",
+			name = L["Elite Icon"],
+			args = NotPlater.ConfigPrototypes.Icon,
+		}
+	end
 	options.args.icons = {
 		order = 5,
 		type = "group",
@@ -956,26 +984,7 @@ local function LoadOptions()
 		get = GetValue,
 		set = SetValue,
 		childGroups = "tab",
-		args = {
-			raidIcon = {
-				order = 0,
-				type = "group",
-				name = L["Raid Icon"],
-				args = NotPlater.ConfigPrototypes.Icon,
-			},
-			bossIcon = {
-				order = 1,
-				type = "group",
-				name = L["Boss Icon"],
-				args = NotPlater.ConfigPrototypes.BossIcon,
-			},
-			classIcon = {
-				order = 2,
-				type = "group",
-				name = L["Class Icon"],
-				args = NotPlater.ConfigPrototypes.Icon,
-			},
-		},
+		args = iconsArgs,
 	}
 	options.args.target = {
 		order = 6,

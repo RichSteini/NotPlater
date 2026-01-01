@@ -36,6 +36,7 @@ NotPlaterLocals = {
 	["Border"] = "Border",
 	["Border Thickness"] = "Border Thickness",
 	["Boss Icon"] = "Boss Icon",
+	["Elite Icon"] = "Elite Icon",
 	["Class Icon"] = "Class Icon",
 	["Both"] = "Both",
 	["Bottom"] = "Bottom",

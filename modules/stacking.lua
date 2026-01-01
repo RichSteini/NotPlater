@@ -149,6 +149,12 @@ local stackingComponentDefinitions = {
 			return EnsureRegionContainer(frame, "bossIcon", frame and frame.bossIcon, frame and frame.healthBar)
 		end,
 	},
+	eliteIcon = {
+		label = L["Elite Icon"],
+		get = function(frame)
+			return EnsureRegionContainer(frame, "eliteIcon", frame and frame.eliteIcon, frame and frame.healthBar)
+		end,
+	},
 	raidIcon = {
 		label = L["Raid Icon"],
 		get = function(frame)

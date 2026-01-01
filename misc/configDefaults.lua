@@ -12,6 +12,7 @@ local DEFAULT_STACKING_COMPONENTS = NotPlater.defaultStackingComponents or {
 	"targetOverlay",
 	"bossIcon",
 	"raidIcon",
+	"eliteIcon",
 	"classIcon",
 	"threatPercentBar",
 	"threatPercentText",
@@ -473,7 +474,21 @@ function NotPlater:LoadDefaultConfig()
                     general = {
 						enable = true,
                         opacity = 1,
-                        usePlaterBossIcon = true,
+                    },
+                    size = {
+                        width = 16,
+                        height = 16,
+                    },
+                    position = {
+                        anchor = "LEFT",
+                        xOffset = -20,
+                        yOffset = 0,
+                    }
+                },
+                eliteIcon = {
+                    general = {
+						enable = true,
+                        opacity = 1,
                     },
                     size = {
                         width = 12,
@@ -511,6 +526,7 @@ function NotPlater:LoadDefaultConfig()
                     levelText = false,
                     raidIcon = false,
                     bossIcon = false,
+                    eliteIcon = false,
                     classIcon = false,
                     targetTargetText = false
                 },
