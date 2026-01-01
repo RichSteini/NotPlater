@@ -66,8 +66,12 @@ local function CacheUnitClass(unitId)
 	local classToken = select(2, UnitClass(unitId))
 	if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
 		local classCache = NotPlater and NotPlater.classCache
+		local classTokenCache = NotPlater and NotPlater.classTokenCache
 		if classCache then
 			classCache[unitName] = RAID_CLASS_COLORS[classToken]
+		end
+		if classTokenCache then
+			classTokenCache[unitName] = classToken
 		end
 	end
 end

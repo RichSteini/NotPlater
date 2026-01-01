@@ -704,8 +704,13 @@ function ConfigPrototypes:LoadConfigPrototypes()
                     type = "toggle",
                     name = L["Boss Icon"],
                 },
-                targetTargetText = {
+                classIcon = {
                     order = 8,
+                    type = "toggle",
+                    name = L["Class Icon"],
+                },
+                targetTargetText = {
+                    order = 9,
                     type = "toggle",
                     name = L["Target-Target Text"],
                 },

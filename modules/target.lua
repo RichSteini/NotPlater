@@ -263,6 +263,7 @@ function NotPlater:TargetCheck(frame)
     NotPlater:ScaleLevelText(frame.levelText, isTarget)
     NotPlater:ScaleBossIcon(frame.bossIcon, isTarget)
     NotPlater:ScaleRaidIcon(frame.raidIcon, isTarget)
+    NotPlater:ScaleClassIcon(frame.classIcon, isTarget)
     NotPlater:ScaleThreatComponents(frame.healthBar,isTarget)
 end
 

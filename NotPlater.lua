@@ -27,8 +27,29 @@ local LEGACY_NAMEPLATE_TEXTURE = "Interface\\Tooltips\\Nameplate-Border"
 
 local frames = {}
 local classCache = {}
+local classTokenCache = {}
 NotPlater.classCache = classCache
+NotPlater.classTokenCache = classTokenCache
 NotPlater.frames = frames
+
+function NotPlater:GetClassTokenFromColor(classColor)
+	if not classColor or not RAID_CLASS_COLORS then
+		return nil
+	end
+	for classToken, color in pairs(RAID_CLASS_COLORS) do
+		if color == classColor then
+			return classToken
+		end
+	end
+	for classToken, color in pairs(RAID_CLASS_COLORS) do
+		if math.abs(color.r - classColor.r) <= 0.01
+			and math.abs(color.g - classColor.g) <= 0.01
+			and math.abs(color.b - classColor.b) <= 0.01 then
+			return classToken
+		end
+	end
+	return nil
+end
 
 local function SetFrameClassColorFromUnit(frame, unit)
 	if not frame or not unit or not UnitExists(unit) then
@@ -38,10 +59,12 @@ local function SetFrameClassColorFromUnit(frame, unit)
 		local classToken = select(2, UnitClass(unit))
 		if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
 			frame.unitClass = RAID_CLASS_COLORS[classToken]
+			frame.unitClassToken = classToken
 			local nameText = frame.defaultNameText
 			local unitName = nameText:GetText()
 			if unitName and unitName ~= "" then
 				classCache[unitName] = frame.unitClass
+				classTokenCache[unitName] = classToken
 			end
 			return true
 		end
@@ -251,14 +274,17 @@ function NotPlater:PrepareFrame(frame)
 		self:ConstructCastBar(frame)
 		self:ConstructTarget(frame)
 		self:ConstructRange(frame)
+		self:ConstructClassIcon(frame)
 		self.Auras:AttachToFrame(frame)
 
 		-- Hide old healthbar
 		health:Hide()
     
-		self:HookScript(frame, "OnShow", function(self)
-			local cachedClass = classCache[self.defaultNameText:GetText()]
+	self:HookScript(frame, "OnShow", function(self)
+			local unitName = self.defaultNameText:GetText()
+			local cachedClass = classCache[unitName]
 			self.unitClass = cachedClass
+			self.unitClassToken = classTokenCache[unitName]
 			NotPlater:CastBarOnShow(self)
 			NotPlater:HealthBarOnShow(health)
 			NotPlater:StackingCheck(self)
@@ -268,6 +294,7 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:NameTextOnShow(self)
 			NotPlater:MatchTrackerOnShow(self)
 			NotPlater.Auras:OnPlateShow(self)
+			NotPlater:UpdateClassIcon(self)
 			self.targetChanged = true
 		end)
 
@@ -292,8 +319,16 @@ function NotPlater:PrepareFrame(frame)
 						NotPlater:ClassCheck(self)
 					end
 					if self.unitClass then
-						self.nameText:SetTextColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
+						if NotPlater.db.profile.nameText.general.useClassColor then
+							self.nameText:SetTextColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
+						end
 					end
+				end
+				if NotPlater.db.profile.icons.classIcon.general.enable then
+					if not self.unitClass then
+						NotPlater:ClassCheck(self)
+					end
+					NotPlater:UpdateClassIcon(self)
 				end
 				NotPlater:SetTargetTargetText(self)
 				NotPlater:RangeCheck(self, self.targetCheckElapsed)
@@ -335,6 +370,10 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:MatchTrackerOnHide(self)
 			NotPlater.Auras:OnPlateHide(self)
 			self.unitClass = nil
+			self.unitClassToken = nil
+			if self.classIcon then
+				self.classIcon:SetAlpha(0)
+			end
 			self.highlightTexture:Hide()
 		end)
 	end
@@ -351,6 +390,7 @@ function NotPlater:PrepareFrame(frame)
 	end
 	self:ConfigureGeneralisedIcon(frame.bossIcon, frame.healthBar, self.db.profile.icons.bossIcon)
 	self:ConfigureGeneralisedIcon(frame.raidIcon, frame.healthBar, self.db.profile.icons.raidIcon)
+	self:ConfigureClassIcon(frame)
 	self:ConfigureLevelText(frame.levelText, frame.healthBar)
 	self:ConfigureNameText(frame.nameText, frame.healthBar)
 	self:ConfigureTarget(frame)
@@ -409,7 +449,13 @@ function NotPlater:ClassCheck(frame)
 	local classColor = NotPlater:GetClassColorFromRGB(r, g, b)
 	if classColor then
 		frame.unitClass = classColor
-		classCache[frame.defaultNameText:GetText()] = classColor
+		local unitName = frame.defaultNameText:GetText()
+		classCache[unitName] = classColor
+		local classToken = self:GetClassTokenFromColor(classColor)
+		if classToken then
+			frame.unitClassToken = classToken
+			classTokenCache[unitName] = classToken
+		end
 		return
 	end
 

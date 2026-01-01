@@ -12,6 +12,7 @@ local DEFAULT_STACKING_COMPONENTS = NotPlater.defaultStackingComponents or {
 	"targetOverlay",
 	"bossIcon",
 	"raidIcon",
+	"classIcon",
 	"threatPercentBar",
 	"threatPercentText",
 	"threatDifferentialText",
@@ -484,6 +485,21 @@ function NotPlater:LoadDefaultConfig()
                         yOffset = 0,
                     }
                 },
+                classIcon = {
+                    general = {
+						enable = false,
+                        opacity = 1,
+                    },
+                    size = {
+                        width = 16,
+                        height = 16,
+                    },
+                    position = {
+                        anchor = "LEFT",
+                        xOffset = 16,
+                        yOffset = 0,
+                    }
+                },
             },
             target = {
                 scale = {
@@ -495,6 +511,7 @@ function NotPlater:LoadDefaultConfig()
                     levelText = false,
                     raidIcon = false,
                     bossIcon = false,
+                    classIcon = false,
                     targetTargetText = false
                 },
 				border = {

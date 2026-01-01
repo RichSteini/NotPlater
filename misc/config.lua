@@ -969,6 +969,12 @@ local function LoadOptions()
 				name = L["Boss Icon"],
 				args = NotPlater.ConfigPrototypes.BossIcon,
 			},
+			classIcon = {
+				order = 2,
+				type = "group",
+				name = L["Class Icon"],
+				args = NotPlater.ConfigPrototypes.Icon,
+			},
 		},
 	}
 	options.args.target = {
