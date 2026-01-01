@@ -702,7 +702,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
                 eliteIcon = {
                     order = 8,
                     type = "toggle",
-                    name = L["Elite Icon"],
+                    name = L["Elite / Rare Icon"],
                 },
                 classIcon = {
                     order = 9,

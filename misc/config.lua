@@ -965,7 +965,7 @@ local function LoadOptions()
 		eliteIcon = {
 			order = 2,
 			type = "group",
-			name = L["Elite Icon"],
+			name = L["Elite / Rare Icon"],
 			args = NotPlater.ConfigPrototypes.Icon,
 		},
 		classIcon = {
