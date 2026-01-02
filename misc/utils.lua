@@ -280,6 +280,31 @@ function NotPlater:GetClassTokenFromColor(classColor)
 	return nil
 end
 
+local function SetFrameClassColorFromUnit(frame, unit)
+	if not frame or not unit or not UnitExists(unit) then
+		return false
+	end
+	if UnitIsPlayer(unit) then
+		local classToken = select(2, UnitClass(unit))
+		local faction = UnitFactionGroup(unit)
+		if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
+			frame.unitClass = RAID_CLASS_COLORS[classToken]
+			frame.unitClassToken = classToken
+			frame.unitFaction = faction
+			local nameText = frame.defaultNameText
+			local unitName = nameText:GetText()
+			if unitName and unitName ~= "" then
+				NotPlater.classCache[unitName] = frame.unitClass
+				NotPlater.classTokenCache[unitName] = classToken
+				NotPlater.factionCache[unitName] = faction
+			end
+			return true
+		end
+	end
+	return false
+end
+
+
 function NotPlater:ClassCheck(frame)
 	if frame.unitClass then return end
 

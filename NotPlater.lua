@@ -35,30 +35,6 @@ NotPlater.classTokenCache = classTokenCache
 NotPlater.factionCache = factionCache
 NotPlater.frames = frames
 
-local function SetFrameClassColorFromUnit(frame, unit)
-	if not frame or not unit or not UnitExists(unit) then
-		return false
-	end
-	if UnitIsPlayer(unit) then
-		local classToken = select(2, UnitClass(unit))
-		local faction = UnitFactionGroup(unit)
-		if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
-			frame.unitClass = RAID_CLASS_COLORS[classToken]
-			frame.unitClassToken = classToken
-			frame.unitFaction = faction
-			local nameText = frame.defaultNameText
-			local unitName = nameText:GetText()
-			if unitName and unitName ~= "" then
-				classCache[unitName] = frame.unitClass
-				classTokenCache[unitName] = classToken
-				factionCache[unitName] = faction
-			end
-			return true
-		end
-	end
-	return false
-end
-
 local function GetOrderedFrameRegions(frame)
 	if IS_WRATH_CLIENT then
 		return frame:GetRegions()
