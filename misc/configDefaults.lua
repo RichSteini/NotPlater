@@ -4,6 +4,7 @@ local DEFAULT_STACKING_COMPONENTS = NotPlater.defaultStackingComponents or {
 	"healthBar",
 	"healthText",
 	"nameText",
+	"npcIcons",
 	"castBar",
 	"castSpellIcon",
 	"castSpellNameText",
@@ -531,6 +532,32 @@ function NotPlater:LoadDefaultConfig()
                         yOffset = -6,
                     }
                 },
+                npcIcons = {
+                    general = {
+                        enable = true,
+                        opacity = 1,
+                        iconSpacing = 1,
+                        rowSpacing = 1,
+                    },
+                    layout = {
+                        growDirection = "RIGHT",
+                        anchor = "RIGHT",
+                        xOffset = 4,
+                        yOffset = -1,
+                        iconsPerRow = 7,
+                        width = 10,
+                        height = 10,
+                    },
+				icons = {
+					vendor = true,
+					banker = true,
+					repair = true,
+					innkeeper = true,
+					flightMaster = true,
+					auctioneer = true,
+					classTrainer = true,
+                    },
+                },
             },
             target = {
                 scale = {
@@ -545,6 +572,7 @@ function NotPlater:LoadDefaultConfig()
                     eliteIcon = false,
                     classIcon = false,
                     factionIcon = false,
+                    npcIcons = false,
                     targetTargetText = false
                 },
 				border = {

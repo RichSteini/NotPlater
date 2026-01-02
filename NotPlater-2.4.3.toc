@@ -33,6 +33,7 @@ modules\healthBar.lua
 modules\icon.lua
 modules\levelText.lua
 modules\nameText.lua
+modules\npcIcons.lua
 modules\stacking.lua
 modules\matchTracker.lua
 modules\target.lua

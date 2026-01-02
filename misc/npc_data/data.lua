@@ -4,7 +4,7 @@ NotPlater.NPCData = {}
 local D = NotPlater.NPCData
 
 NotPlater.NPCEnums = {
-  Flags = { Vendor=1, Repair=2, Innkeeper=4, FlightMaster=8, Auctioneer=16 },
+  Flags = { Vendor=1, Repair=2, Innkeeper=4, FlightMaster=8, Auctioneer=16, Banker=32 },
   Trainer = {
     None = 0,
     Alchemy = 1,
@@ -1483,7 +1483,7 @@ D[L["Argent Sentry"]] = { entry=16378, faction=0, class=1, level=70, health=1215
 D[L["Argent Shieldman"]] = { entry=28028, faction=0, class=1, level=76, health=9901, rank=0, flags=0, trainer=0 }
 D[L["Argent Skytalon"]] = { entry=30228, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Argent Soldier"]] = { entry=28041, faction=0, class=1, level=76, health=9901, rank=0, flags=0, trainer=0 }
-D[L["Argent Squire"]] = { entry=33238, faction=0, class=1, level=1, health=42, rank=0, flags=1, trainer=0 }
+D[L["Argent Squire"]] = { entry=33238, faction=0, class=1, level=1, health=42, rank=0, flags=33, trainer=0 }
 D[L["Argent Stand Defender"]] = { entry=28801, faction=0, class=2, level=77, health=45516, rank=1, flags=0, trainer=0 }
 D[L["Argent Stand Dummy"]] = { entry=29416, faction=0, class=1, level=70, health=8982, rank=0, flags=0, trainer=0 }
 D[L["Argent Tome"]] = { entry=29401, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
@@ -1675,7 +1675,7 @@ D[L["Atal'ai Totem"]] = { entry=8510, faction=1, class=1, level=49, health=50, r
 D[L["Atal'ai Warrior"]] = { entry=5256, faction=1, class=1, level=48, health=6186, rank=1, flags=0, trainer=0 }
 D[L["Atal'ai Witch Doctor"]] = { entry=5259, faction=1, class=2, level=48, health=4950, rank=1, flags=0, trainer=0 }
 D[L["Atal'alarion"]] = { entry=8580, faction=1, class=1, level=49, health=16035, rank=1, flags=0, trainer=0 }
-D[L["Atepa"]] = { entry=8357, faction=1, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Atepa"]] = { entry=8357, faction=1, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Athan"]] = { entry=31798, faction=1, class=2, level=80, health=12600, rank=0, flags=0, trainer=0 }
 D[L["Athramanis"]] = { entry=14187, faction=2, class=1, level=60, health=7500, rank=0, flags=0, trainer=0 }
 D[L["Athramanis (1)"]] = { entry=22528, faction=2, class=1, level=70, health=6986, rank=0, flags=0, trainer=0 }
@@ -1932,7 +1932,7 @@ D[L["Baelog"]] = { entry=6906, faction=2, class=1, level=41, health=4800, rank=1
 D[L["Baelok"]] = { entry=30953, faction=1, class=1, level=80, health=126000, rank=1, flags=0, trainer=0 }
 D[L["Bahat"]] = { entry=22026, faction=0, class=1, level=68, health=8200, rank=0, flags=0, trainer=0 }
 D[L["Bailey"]] = { entry=29643, faction=0, class=1, level=78, health=11770, rank=0, flags=0, trainer=0 }
-D[L["Bailey Stonemantle"]] = { entry=2461, faction=2, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Bailey Stonemantle"]] = { entry=2461, faction=2, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Bailiff Conacher"]] = { entry=900, faction=2, class=1, level=30, health=1003, rank=0, flags=0, trainer=0 }
 D[L["Bailor Stonehand"]] = { entry=6241, faction=2, class=1, level=20, health=484, rank=0, flags=0, trainer=0 }
 D[L["Baine Bloodhoof"]] = { entry=2993, faction=1, class=1, level=10, health=198, rank=0, flags=0, trainer=0 }
@@ -2016,7 +2016,7 @@ D[L["Barnes"]] = { entry=16812, faction=0, class=1, level=70, health=4890, rank=
 D[L["Barnes (Tuxedo)"]] = { entry=18643, faction=0, class=1, level=1, health=5000, rank=1, flags=0, trainer=0 }
 D[L["Barnil Stonepot"]] = { entry=716, faction=0, class=1, level=40, health=1753, rank=0, flags=0, trainer=0 }
 D[L["Barnu Cragcrush"]] = { entry=19325, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
-D[L["Barnum Stonemantle"]] = { entry=2460, faction=2, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Barnum Stonemantle"]] = { entry=2460, faction=2, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Baron Aquanis"]] = { entry=12876, faction=1, class=2, level=24, health=2196, rank=1, flags=0, trainer=0 }
 D[L["Baron Bloodbane"]] = { entry=10819, faction=0, class=1, level=59, health=3198, rank=4, flags=0, trainer=0 }
 D[L["Baron Charr"]] = { entry=14461, faction=1, class=1, level=58, health=14355, rank=1, flags=0, trainer=0 }
@@ -2190,7 +2190,7 @@ D[L["Berte"]] = { entry=1880, faction=0, class=1, level=1, health=64, rank=0, fl
 D[L["Bertelm"]] = { entry=18387, faction=2, class=1, level=64, health=5715, rank=0, flags=0, trainer=0 }
 D[L["Berthold"]] = { entry=16153, faction=0, class=1, level=70, health=4890, rank=1, flags=0, trainer=0 }
 D[L["Bertran Keldrake"]] = { entry=2290, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
-D[L["Berudan Keysworn"]] = { entry=19246, faction=0, class=2, level=60, health=3984, rank=0, flags=0, trainer=0 }
+D[L["Berudan Keysworn"]] = { entry=19246, faction=0, class=2, level=60, health=3984, rank=0, flags=32, trainer=0 }
 D[L["Beryl Hound"]] = { entry=25355, faction=1, class=2, level=70, health=8982, rank=0, flags=0, trainer=0 }
 D[L["Beryl Mage Hunter"]] = { entry=25585, faction=1, class=2, level=70, health=8982, rank=0, flags=0, trainer=0 }
 D[L["Beryl Point InvisMan"]] = { entry=25594, faction=0, class=1, level=60, health=4979, rank=0, flags=0, trainer=0 }
@@ -2261,7 +2261,7 @@ D[L["Binjy Featherwhistle"]] = { entry=7954, faction=2, class=1, level=50, healt
 D[L["Bink"]] = { entry=5144, faction=2, class=1, level=40, health=1753, rank=0, flags=0, trainer=25 }
 D[L["Binkie Brightgear"]] = { entry=33586, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=4 }
 D[L["Binny Springblade"]] = { entry=10455, faction=2, class=1, level=40, health=1753, rank=0, flags=0, trainer=0 }
-D[L["Binzik Goldbook"]] = { entry=29530, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
+D[L["Binzik Goldbook"]] = { entry=29530, faction=0, class=1, level=75, health=10635, rank=0, flags=32, trainer=0 }
 D[L["Bip Nigstrom"]] = { entry=19861, faction=0, class=1, level=70, health=6986, rank=0, flags=0, trainer=0 }
 D[L["Bipp Glizzitor"]] = { entry=19923, faction=0, class=1, level=70, health=1700, rank=0, flags=0, trainer=0 }
 D[L["Birana Stormhoof"]] = { entry=34451, faction=1, class=2, level=80, health=403200, rank=3, flags=0, trainer=0 }
@@ -3947,7 +3947,7 @@ D[L["Cazul"]] = { entry=5909, faction=1, class=1, level=40, health=1753, rank=0,
 D[L["Cecil Meyers"]] = { entry=19056, faction=2, class=1, level=60, health=6104, rank=0, flags=3, trainer=0 }
 D[L["Cedric Stumpel"]] = { entry=5744, faction=1, class=8, level=20, health=405, rank=0, flags=0, trainer=0 }
 D[L["Cedrik Prose"]] = { entry=2835, faction=2, class=1, level=65, health=4053, rank=0, flags=8, trainer=0 }
-D[L["Ceera"]] = { entry=17631, faction=1, class=8, level=30, health=737, rank=0, flags=0, trainer=0 }
+D[L["Ceera"]] = { entry=17631, faction=1, class=8, level=30, health=737, rank=0, flags=32, trainer=0 }
 D[L["Cel"]] = { entry=25312, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Celana"]] = { entry=16619, faction=1, class=8, level=30, health=737, rank=0, flags=3, trainer=0 }
 D[L["Celea Frozenmane"]] = { entry=24032, faction=1, class=2, level=75, health=31905, rank=1, flags=8, trainer=0 }
@@ -4187,7 +4187,7 @@ D[L["Chemist Fuely"]] = { entry=10136, faction=1, class=8, level=30, health=774,
 D[L["Chen Stormstout"]] = { entry=36912, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Cheneta"]] = { entry=18187, faction=1, class=1, level=60, health=3052, rank=0, flags=0, trainer=0 }
 D[L["Chepi"]] = { entry=8361, faction=1, class=1, level=30, health=1003, rank=0, flags=1, trainer=0 }
-D[L["Chesmu"]] = { entry=8356, faction=1, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Chesmu"]] = { entry=8356, faction=1, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Chess - Sound Bunny"]] = { entry=21921, faction=0, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
 D[L["Chess Chest Bunny"]] = { entry=25213, faction=0, class=1, level=1, health=29, rank=0, flags=0, trainer=0 }
 D[L["Chess Piece: Karazhan Invisible Stalker"]] = { entry=22519, faction=0, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
@@ -5357,7 +5357,7 @@ D[L["Dadanga"]] = { entry=9274, faction=0, class=1, level=45, health=2218, rank=
 D[L["Daedal"]] = { entry=17215, faction=2, class=1, level=10, health=198, rank=0, flags=0, trainer=1 }
 D[L["Daegarn"]] = { entry=24151, faction=2, class=2, level=71, health=9291, rank=0, flags=0, trainer=0 }
 D[L["Daelyshia"]] = { entry=4267, faction=2, class=1, level=65, health=10572, rank=1, flags=8, trainer=0 }
-D[L["Daenice"]] = { entry=16617, faction=1, class=8, level=30, health=737, rank=0, flags=0, trainer=0 }
+D[L["Daenice"]] = { entry=16617, faction=1, class=8, level=30, health=737, rank=0, flags=32, trainer=0 }
 D[L["Daenril"]] = { entry=33635, faction=0, class=1, level=62, health=3237, rank=0, flags=1, trainer=8 }
 D[L["Daeolyn Summerleaf"]] = { entry=12021, faction=0, class=1, level=51, health=2980, rank=0, flags=1, trainer=0 }
 D[L["Daera Brightspear"]] = { entry=5115, faction=2, class=1, level=60, health=4120, rank=0, flags=0, trainer=21 }
@@ -7364,7 +7364,7 @@ D[L["Elaando"]] = { entry=19777, faction=1, class=1, level=30, health=381, rank=
 D[L["Eladriel"]] = { entry=6292, faction=2, class=1, level=35, health=1342, rank=0, flags=0, trainer=11 }
 D[L["Elaine Carevin"]] = { entry=633, faction=2, class=1, level=18, health=417, rank=0, flags=0, trainer=0 }
 D[L["Elaine Trias"]] = { entry=483, faction=2, class=1, level=30, health=1003, rank=0, flags=1, trainer=0 }
-D[L["Elana"]] = { entry=17632, faction=1, class=8, level=30, health=737, rank=0, flags=0, trainer=0 }
+D[L["Elana"]] = { entry=17632, faction=1, class=8, level=30, health=737, rank=0, flags=32, trainer=0 }
 D[L["Elanaria"]] = { entry=4088, faction=2, class=1, level=62, health=4370, rank=0, flags=0, trainer=0 }
 D[L["Elara"]] = { entry=16685, faction=1, class=1, level=50, health=2215, rank=0, flags=0, trainer=18 }
 D[L["Eldara Dawnrunner"]] = { entry=25032, faction=0, class=1, level=70, health=6986, rank=0, flags=1, trainer=0 }
@@ -8797,7 +8797,7 @@ D[L["Flickin Gearspanner"]] = { entry=33649, faction=2, class=1, level=80, healt
 D[L["Flightmaster Krill Bitterhue"]] = { entry=16822, faction=2, class=1, level=65, health=10572, rank=1, flags=8, trainer=0 }
 D[L["Flik"]] = { entry=14860, faction=0, class=1, level=4, health=86, rank=0, flags=1, trainer=0 }
 D[L["Flik's Frog"]] = { entry=14866, faction=0, class=1, level=5, health=102, rank=0, flags=0, trainer=0 }
-D[L["Flint Ironstag"]] = { entry=36284, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
+D[L["Flint Ironstag"]] = { entry=36284, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
 D[L["Flint Shadowmore"]] = { entry=12425, faction=2, class=1, level=60, health=9156, rank=1, flags=0, trainer=0 }
 D[L["Floating Skull"]] = { entry=21365, faction=0, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
 D[L["Floaty Flavor Eye"]] = { entry=21659, faction=0, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
@@ -9370,7 +9370,7 @@ D[L["Fury"]] = { entry=28446, faction=0, class=1, level=80, health=53420, rank=1
 D[L["Fury Shelda"]] = { entry=14431, faction=1, class=1, level=8, health=156, rank=4, flags=0, trainer=0 }
 D[L["Furywing"]] = { entry=23261, faction=1, class=1, level=72, health=184500, rank=1, flags=0, trainer=0 }
 D[L["Future You"]] = { entry=27899, faction=0, class=1, level=80, health=8190, rank=0, flags=0, trainer=0 }
-D[L["Fuzruckle"]] = { entry=3496, faction=0, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Fuzruckle"]] = { entry=3496, faction=0, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Fuzz"]] = { entry=25058, faction=0, class=1, level=1, health=4, rank=0, flags=0, trainer=0 }
 D[L["Fyldan"]] = { entry=4223, faction=2, class=1, level=30, health=1003, rank=0, flags=1, trainer=0 }
 D[L["Fyldren Moonfeather"]] = { entry=8019, faction=2, class=1, level=65, health=10572, rank=1, flags=8, trainer=0 }
@@ -9530,7 +9530,7 @@ D[L["Garridel"]] = { entry=16269, faction=1, class=8, level=12, health=219, rank
 D[L["Garrosh"]] = { entry=18063, faction=1, class=1, level=70, health=4050, rank=3, flags=0, trainer=0 }
 D[L["Garrosh Hellscream"]] = { entry=25237, faction=1, class=1, level=70, health=898200, rank=3, flags=0, trainer=0 }
 D[L["Garrosh's Buff Bots"]] = { entry=19660, faction=1, class=1, level=70, health=4050, rank=0, flags=0, trainer=0 }
-D[L["Garryeth"]] = { entry=4209, faction=2, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Garryeth"]] = { entry=4209, faction=2, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Gart Mistrunner"]] = { entry=3060, faction=1, class=1, level=9, health=176, rank=0, flags=0, trainer=17 }
 D[L["Garul"]] = { entry=19050, faction=0, class=1, level=70, health=6986, rank=1, flags=1, trainer=0 }
 D[L["Garwal"]] = { entry=24277, faction=0, class=1, level=71, health=13936, rank=0, flags=0, trainer=0 }
@@ -9786,7 +9786,7 @@ D[L["Gilshalan Windwalker"]] = { entry=2082, faction=2, class=1, level=9, health
 D[L["Gilthares Firebough"]] = { entry=3465, faction=0, class=1, level=17, health=430, rank=0, flags=0, trainer=0 }
 D[L["Gilveradin Sunchaser"]] = { entry=7801, faction=0, class=1, level=45, health=2218, rank=0, flags=0, trainer=0 }
 D[L["Gimble Thistlefuzz"]] = { entry=5157, faction=2, class=1, level=35, health=1342, rank=0, flags=0, trainer=3 }
-D[L["Gimblethorn"]] = { entry=7799, faction=0, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Gimblethorn"]] = { entry=7799, faction=0, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Gimlok Rumdnul"]] = { entry=1447, faction=2, class=1, level=2, health=55, rank=0, flags=0, trainer=0 }
 D[L["Gimorak"]] = { entry=30167, faction=1, class=1, level=80, health=12600, rank=0, flags=0, trainer=0 }
 D[L["Gimrizz Shadowcog"]] = { entry=5612, faction=2, class=1, level=15, health=328, rank=0, flags=0, trainer=26 }
@@ -10534,7 +10534,7 @@ D[L["Grom Hellscream"]] = { entry=17026, faction=0, class=1, level=1, health=500
 D[L["Grom'gol Grunt"]] = { entry=1064, faction=1, class=1, level=65, health=11828, rank=0, flags=0, trainer=0 }
 D[L["Grom'thar the Thunderbringer"]] = { entry=27002, faction=1, class=1, level=74, health=123384, rank=1, flags=0, trainer=0 }
 D[L["Grom'tor, Son of Oronok"]] = { entry=21291, faction=0, class=1, level=70, health=25000, rank=0, flags=0, trainer=0 }
-D[L["Gromden"]] = { entry=19318, faction=0, class=1, level=70, health=6986, rank=0, flags=0, trainer=0 }
+D[L["Gromden"]] = { entry=19318, faction=0, class=1, level=70, health=6986, rank=0, flags=32, trainer=0 }
 D[L["Grondal Moonbreeze"]] = { entry=4193, faction=2, class=1, level=29, health=950, rank=0, flags=0, trainer=9 }
 D[L["Gronn Showdown Bunny"]] = { entry=22918, faction=0, class=1, level=1, health=8, rank=0, flags=0, trainer=0 }
 D[L["Gronn Smoke Image"]] = { entry=23121, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
@@ -10675,7 +10675,7 @@ D[L["Guerrero"]] = { entry=28163, faction=0, class=1, level=68, health=19626, ra
 D[L["Guerrero (1)"]] = { entry=28168, faction=0, class=1, level=72, health=33210, rank=1, flags=0, trainer=0 }
 D[L["Gug"]] = { entry=23144, faction=1, class=1, level=68, health=6542, rank=0, flags=3, trainer=0 }
 D[L["Gug Fatcandle"]] = { entry=62, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
-D[L["Guild Banker"]] = { entry=2424, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
+D[L["Guild Banker"]] = { entry=2424, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
 D[L["Guillaume Sorouy"]] = { entry=3557, faction=1, class=1, level=28, health=896, rank=0, flags=0, trainer=2 }
 D[L["Gul'bor"]] = { entry=20786, faction=1, class=1, level=71, health=7181, rank=0, flags=0, trainer=0 }
 D[L["Gul'dan"]] = { entry=17008, faction=0, class=1, level=70, health=4050, rank=3, flags=0, trainer=0 }
@@ -10998,7 +10998,7 @@ D[L["Hatescreamer"]] = { entry=19741, faction=0, class=1, level=69, health=6761,
 D[L["Hath'ar Broodmaster"]] = { entry=28412, faction=1, class=2, level=76, health=11001, rank=0, flags=0, trainer=0 }
 D[L["Hath'ar Necromagus"]] = { entry=28257, faction=1, class=8, level=76, health=8800, rank=0, flags=0, trainer=0 }
 D[L["Hath'ar Skimmer"]] = { entry=28258, faction=1, class=1, level=76, health=11001, rank=0, flags=0, trainer=0 }
-D[L["Hatheon"]] = { entry=17633, faction=1, class=8, level=30, health=737, rank=0, flags=0, trainer=0 }
+D[L["Hatheon"]] = { entry=17633, faction=1, class=8, level=30, health=737, rank=0, flags=32, trainer=0 }
 D[L["Hathvelion Sungaze"]] = { entry=15920, faction=1, class=1, level=12, health=140, rank=0, flags=0, trainer=0 }
 D[L["Hathyss the Wicked"]] = { entry=22381, faction=1, class=2, level=65, health=5677, rank=0, flags=0, trainer=0 }
 D[L["Haughty Modiste"]] = { entry=15165, faction=0, class=1, level=51, health=2980, rank=0, flags=1, trainer=0 }
@@ -11792,7 +11792,7 @@ D[L["Icy Ghoul"]] = { entry=31142, faction=1, class=1, level=80, health=12600, r
 D[L["Icy Ghoul KC Bunny"]] = { entry=31743, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Idol Oven Fire Target"]] = { entry=8662, faction=0, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
 D[L["Idol Room Spawner"]] = { entry=8611, faction=0, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
-D[L["Idriana"]] = { entry=4155, faction=2, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Idriana"]] = { entry=4155, faction=2, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Iggy \"Tailspin\" Cogtoggle"]] = { entry=25807, faction=2, class=2, level=70, health=44910, rank=1, flags=0, trainer=0 }
 D[L["Iggy Darktusk"]] = { entry=29073, faction=0, class=1, level=53, health=10, rank=0, flags=0, trainer=0 }
 D[L["Ignis the Furnace Master"]] = { entry=33118, faction=1, class=1, level=83, health=5578000, rank=3, flags=0, trainer=0 }
@@ -12541,7 +12541,7 @@ D[L["Ivy Leafrunner"]] = { entry=10924, faction=0, class=1, level=63, health=449
 D[L["Iydallus"]] = { entry=30378, faction=0, class=1, level=80, health=534200, rank=1, flags=0, trainer=0 }
 D[L["Iz'zard"]] = { entry=18622, faction=0, class=2, level=65, health=14193, rank=0, flags=0, trainer=0 }
 D[L["Izmir"]] = { entry=17510, faction=2, class=8, level=40, health=1077, rank=0, flags=0, trainer=22 }
-D[L["Izzy Coppergrab"]] = { entry=13917, faction=0, class=1, level=55, health=7842, rank=0, flags=0, trainer=0 }
+D[L["Izzy Coppergrab"]] = { entry=13917, faction=0, class=1, level=55, health=7842, rank=0, flags=32, trainer=0 }
 D[L["J'eevee"]] = { entry=14500, faction=0, class=1, level=58, health=5500, rank=0, flags=0, trainer=0 }
 D[L["J.D. Collie"]] = { entry=9117, faction=0, class=1, level=60, health=4120, rank=0, flags=0, trainer=0 }
 D[L["J.D. Shadesong"]] = { entry=15614, faction=0, class=2, level=61, health=2515, rank=1, flags=0, trainer=0 }
@@ -12595,7 +12595,7 @@ D[L["Jaedenar Mana Leech"]] = { entry=7128, faction=0, class=1, level=1, health=
 D[L["Jaedenar Stalker"]] = { entry=7127, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
 D[L["Jaedenar Summoner"]] = { entry=7119, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
 D[L["Jaedenar Warlock"]] = { entry=7120, faction=1, class=2, level=54, health=2634, rank=0, flags=0, trainer=0 }
-D[L["Jaela"]] = { entry=18350, faction=2, class=1, level=30, health=955, rank=0, flags=0, trainer=0 }
+D[L["Jaela"]] = { entry=18350, faction=2, class=1, level=30, health=955, rank=0, flags=32, trainer=0 }
 D[L["Jaeleil"]] = { entry=16476, faction=2, class=1, level=3, health=71, rank=0, flags=0, trainer=0 }
 D[L["Jaelyne Evensong"]] = { entry=33592, faction=2, class=1, level=80, health=25200, rank=0, flags=0, trainer=0 }
 D[L["Jaelyne Evensong (1)"]] = { entry=36086, faction=2, class=2, level=80, health=315000, rank=1, flags=0, trainer=0 }
@@ -12699,7 +12699,7 @@ D[L["Jeeda"]] = { entry=4083, faction=1, class=1, level=24, health=664, rank=0, 
 D[L["Jeen'ra Nightrunner"]] = { entry=4138, faction=2, class=8, level=60, health=2884, rank=0, flags=0, trainer=21 }
 D[L["Jeena Featherbow"]] = { entry=3610, faction=2, class=1, level=19, health=449, rank=0, flags=3, trainer=0 }
 D[L["Jeer Sparksocket"]] = { entry=29431, faction=0, class=1, level=80, health=12600, rank=0, flags=0, trainer=0 }
-D[L["Jeeves"]] = { entry=35642, faction=0, class=1, level=80, health=16026, rank=0, flags=3, trainer=0 }
+D[L["Jeeves"]] = { entry=35642, faction=0, class=1, level=80, health=16026, rank=0, flags=35, trainer=0 }
 D[L["Jekyll Flandring"]] = { entry=13219, faction=1, class=1, level=58, health=57420, rank=1, flags=3, trainer=0 }
 D[L["Jekyll Flandring (1)"]] = { entry=22682, faction=1, class=1, level=58, health=5000, rank=1, flags=3, trainer=0 }
 D[L["Jekyll Flandring (2)"]] = { entry=32022, faction=0, class=1, level=1, health=1, rank=1, flags=0, trainer=0 }
@@ -12813,7 +12813,7 @@ D[L["Johan"]] = { entry=27944, faction=2, class=1, level=2, health=55, rank=0, f
 D[L["Johan Barnes"]] = { entry=18773, faction=2, class=2, level=60, health=2442, rank=0, flags=1, trainer=3 }
 D[L["Johan Focht"]] = { entry=3555, faction=1, class=1, level=19, health=449, rank=0, flags=0, trainer=10 }
 D[L["John"]] = { entry=806, faction=2, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
-D[L["John Burnside"]] = { entry=2457, faction=2, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["John Burnside"]] = { entry=2457, faction=2, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["John Rigsdale"]] = { entry=34787, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["John Turner"]] = { entry=6175, faction=2, class=1, level=8, health=156, rank=0, flags=0, trainer=0 }
 D[L["Johnny"]] = { entry=5627, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
@@ -13052,12 +13052,12 @@ D[L["Kartosh"]] = { entry=988, faction=1, class=1, level=50, health=2769, rank=0
 D[L["Kartra Bloodsnarl"]] = { entry=14942, faction=1, class=1, level=61, health=7500, rank=1, flags=0, trainer=0 }
 D[L["Karu"]] = { entry=14874, faction=1, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
 D[L["Karuk"]] = { entry=25435, faction=0, class=1, level=73, health=9940, rank=0, flags=0, trainer=0 }
-D[L["Karus"]] = { entry=3309, faction=1, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Karus"]] = { entry=3309, faction=1, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Kary Thunderhorn"]] = { entry=3038, faction=1, class=1, level=50, health=2769, rank=0, flags=0, trainer=21 }
 D[L["Karynaku"]] = { entry=22112, faction=0, class=1, level=72, health=110700, rank=1, flags=0, trainer=0 }
 D[L["Karynaku Taxi"]] = { entry=22360, faction=0, class=1, level=1, health=27, rank=1, flags=0, trainer=0 }
 D[L["Karynna"]] = { entry=26090, faction=0, class=8, level=70, health=4890, rank=1, flags=1, trainer=0 }
-D[L["Karzo"]] = { entry=21733, faction=0, class=2, level=66, health=4892, rank=0, flags=0, trainer=0 }
+D[L["Karzo"]] = { entry=21733, faction=0, class=2, level=66, health=4892, rank=0, flags=32, trainer=0 }
 D[L["Kashoch the Reaver"]] = { entry=10198, faction=1, class=1, level=60, health=9156, rank=2, flags=0, trainer=0 }
 D[L["Kaskala Ancestor"]] = { entry=25431, faction=0, class=2, level=70, health=8982, rank=0, flags=0, trainer=0 }
 D[L["Kaskala Craftsman"]] = { entry=25321, faction=0, class=1, level=72, health=9610, rank=0, flags=0, trainer=0 }
@@ -13147,7 +13147,7 @@ D[L["Kelgruk Bloodaxe"]] = { entry=7231, faction=1, class=1, level=60, health=41
 D[L["Keli'dan the Breaker"]] = { entry=17377, faction=1, class=8, level=63, health=34830, rank=1, flags=0, trainer=0 }
 D[L["Keli'dan the Breaker (1)"]] = { entry=18607, faction=1, class=8, level=72, health=103320, rank=1, flags=0, trainer=0 }
 D[L["Keli'dan the Breaker Image"]] = { entry=24413, faction=0, class=8, level=72, health=5166, rank=1, flags=0, trainer=0 }
-D[L["Kellag"]] = { entry=16710, faction=2, class=8, level=30, health=737, rank=0, flags=0, trainer=0 }
+D[L["Kellag"]] = { entry=16710, faction=2, class=8, level=30, health=737, rank=0, flags=32, trainer=0 }
 D[L["Kelly Grant"]] = { entry=11828, faction=2, class=1, level=40, health=1753, rank=0, flags=0, trainer=0 }
 D[L["Kelm Hargunth"]] = { entry=14754, faction=1, class=1, level=55, health=1900, rank=1, flags=3, trainer=0 }
 D[L["Kelomir Ironhand"]] = { entry=5121, faction=2, class=1, level=30, health=1003, rank=0, flags=3, trainer=0 }
@@ -13223,7 +13223,7 @@ D[L["Kickoff Kicker"]] = { entry=24907, faction=0, class=1, level=1, health=1, r
 D[L["Kieran"]] = { entry=4231, faction=2, class=1, level=30, health=1003, rank=0, flags=3, trainer=0 }
 D[L["Kieupid"]] = { entry=40405, faction=1, class=2, level=80, health=12600, rank=0, flags=0, trainer=0 }
 D[L["Kiggler the Crazed"]] = { entry=18835, faction=1, class=2, level=73, health=212450, rank=3, flags=0, trainer=0 }
-D[L["Kiknikle"]] = { entry=3683, faction=0, class=1, level=32, health=1163, rank=0, flags=3, trainer=0 }
+D[L["Kiknikle"]] = { entry=3683, faction=0, class=1, level=32, health=1163, rank=0, flags=35, trainer=0 }
 D[L["Kil'Hiwana"]] = { entry=12961, faction=1, class=1, level=30, health=1003, rank=0, flags=0, trainer=14 }
 D[L["Kil'Jaeden Reaver (non-interactable)"]] = { entry=22389, faction=1, class=1, level=72, health=1113, rank=1, flags=0, trainer=0 }
 D[L["Kil'Jaeden Target"]] = { entry=22320, faction=1, class=1, level=60, health=881, rank=0, flags=0, trainer=0 }
@@ -13409,7 +13409,7 @@ D[L["Koloth"]] = { entry=29253, faction=1, class=1, level=74, health=10282, rank
 D[L["Kolphis Darkscale"]] = { entry=22019, faction=1, class=1, level=68, health=9813, rank=0, flags=0, trainer=0 }
 D[L["Kolramas Slime"]] = { entry=29026, faction=0, class=1, level=76, health=11001, rank=0, flags=0, trainer=0 }
 D[L["Koltira Deathweaver"]] = { entry=26581, faction=1, class=2, level=80, health=252000, rank=1, flags=0, trainer=0 }
-D[L["Koma"]] = { entry=3318, faction=1, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Koma"]] = { entry=3318, faction=1, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Komin Winterhoof"]] = { entry=3013, faction=1, class=1, level=35, health=1342, rank=0, flags=0, trainer=5 }
 D[L["Kon Yelloweyes"]] = { entry=5599, faction=1, class=1, level=25, health=713, rank=0, flags=0, trainer=0 }
 D[L["Konda"]] = { entry=1516, faction=1, class=1, level=43, health=2059, rank=0, flags=0, trainer=0 }
@@ -13678,7 +13678,7 @@ D[L["Kysandia"]] = { entry=4153, faction=0, class=1, level=1, health=5000, rank=
 D[L["Kyunghee"]] = { entry=32253, faction=1, class=1, level=75, health=10635, rank=0, flags=3, trainer=0 }
 D[L["Kzan Thornslash"]] = { entry=3159, faction=1, class=1, level=34, health=1279, rank=0, flags=3, trainer=0 }
 D[L["Kzixx"]] = { entry=3134, faction=0, class=1, level=25, health=713, rank=0, flags=1, trainer=0 }
-D[L["L'lura Goldspun"]] = { entry=19338, faction=0, class=2, level=60, health=3984, rank=0, flags=0, trainer=0 }
+D[L["L'lura Goldspun"]] = { entry=19338, faction=0, class=2, level=60, health=3984, rank=0, flags=32, trainer=0 }
 D[L["Laando"]] = { entry=17554, faction=2, class=2, level=65, health=8457, rank=1, flags=8, trainer=0 }
 D[L["Labor Captain Grabbit"]] = { entry=35086, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Lady"]] = { entry=15065, faction=0, class=1, level=5, health=5900, rank=0, flags=0, trainer=0 }
@@ -13740,7 +13740,7 @@ D[L["Laha Farplain"]] = { entry=34684, faction=0, class=1, level=1, health=1, ra
 D[L["Lair Brute"]] = { entry=19389, faction=1, class=1, level=72, health=206640, rank=1, flags=0, trainer=0 }
 D[L["Laird"]] = { entry=4200, faction=2, class=1, level=14, health=300, rank=0, flags=1, trainer=0 }
 D[L["Laire Brewgold"]] = { entry=32424, faction=2, class=1, level=75, health=10635, rank=0, flags=1, trainer=0 }
-D[L["Lairn"]] = { entry=4208, faction=2, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Lairn"]] = { entry=4208, faction=2, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Laj"]] = { entry=17980, faction=1, class=1, level=72, health=121770, rank=1, flags=0, trainer=0 }
 D[L["Laj (1)"]] = { entry=21559, faction=1, class=1, level=73, health=164389, rank=1, flags=0, trainer=0 }
 D[L["Laj (Arcane)"]] = { entry=19928, faction=0, class=1, level=1, health=5000, rank=1, flags=0, trainer=0 }
@@ -15356,7 +15356,7 @@ D[L["Medic Hawthorn"]] = { entry=25825, faction=2, class=1, level=71, health=832
 D[L["Medic Helaina"]] = { entry=5200, faction=2, class=1, level=51, health=2980, rank=0, flags=0, trainer=0 }
 D[L["Medic Tamberlyn"]] = { entry=5199, faction=2, class=1, level=51, health=2980, rank=0, flags=0, trainer=0 }
 D[L["Medivh"]] = { entry=15608, faction=0, class=1, level=73, health=6070400, rank=3, flags=0, trainer=0 }
-D[L["Meeda"]] = { entry=28343, faction=0, class=2, level=67, health=5060, rank=0, flags=0, trainer=0 }
+D[L["Meeda"]] = { entry=28343, faction=0, class=2, level=67, health=5060, rank=0, flags=32, trainer=0 }
 D[L["Meefi Farthrottle"]] = { entry=26539, faction=1, class=1, level=45, health=2218, rank=0, flags=0, trainer=0 }
 D[L["Meela Dawnstrider"]] = { entry=3062, faction=1, class=1, level=10, health=198, rank=0, flags=0, trainer=24 }
 D[L["Mega Rabbit"]] = { entry=1757, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
@@ -15456,7 +15456,7 @@ D[L["Memory of Vezax"]] = { entry=35051, faction=1, class=1, level=82, health=48
 D[L["Memory of Vezax (1)"]] = { entry=35544, faction=1, class=1, level=1, health=1, rank=1, flags=0, trainer=0 }
 D[L["Menara Voidrender"]] = { entry=6266, faction=0, class=1, level=50, health=2769, rank=0, flags=0, trainer=0 }
 D[L["Mendez Nightshadow"]] = { entry=32747, faction=0, class=1, level=78, health=5052, rank=0, flags=0, trainer=0 }
-D[L["Mendorn"]] = { entry=19034, faction=0, class=1, level=70, health=6986, rank=1, flags=0, trainer=0 }
+D[L["Mendorn"]] = { entry=19034, faction=0, class=1, level=70, health=6986, rank=1, flags=32, trainer=0 }
 D[L["Menethil Elite"]] = { entry=15137, faction=2, class=1, level=65, health=7700, rank=0, flags=0, trainer=0 }
 D[L["Menethil Guard"]] = { entry=1475, faction=2, class=1, level=47, health=3184, rank=0, flags=0, trainer=0 }
 D[L["Menethil Sentry"]] = { entry=1434, faction=2, class=1, level=42, health=3302, rank=0, flags=0, trainer=0 }
@@ -15937,7 +15937,7 @@ D[L["Mortar Targetting Device"]] = { entry=33377, faction=0, class=1, level=80, 
 D[L["Mortar Team Advanced Target Dummy"]] = { entry=12385, faction=2, class=1, level=6, health=120, rank=0, flags=0, trainer=0 }
 D[L["Mortar Team Target Dummy"]] = { entry=11875, faction=2, class=1, level=6, health=120, rank=0, flags=0, trainer=0 }
 D[L["Morthis Whisperwing"]] = { entry=22832, faction=0, class=1, level=71, health=7181, rank=1, flags=0, trainer=0 }
-D[L["Mortimer Montague"]] = { entry=2459, faction=1, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Mortimer Montague"]] = { entry=2459, faction=1, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Mortog Steamhead"]] = { entry=23373, faction=0, class=1, level=70, health=6986, rank=0, flags=3, trainer=0 }
 D[L["Morula"]] = { entry=20893, faction=0, class=2, level=60, health=4884, rank=0, flags=1, trainer=0 }
 D[L["Mosarn"]] = { entry=4943, faction=1, class=1, level=30, health=1003, rank=0, flags=0, trainer=0 }
@@ -16350,7 +16350,7 @@ D[L["Nan Mistrunner"]] = { entry=3017, faction=1, class=1, level=30, health=1003
 D[L["Nancila"]] = { entry=19021, faction=2, class=2, level=63, health=2665, rank=0, flags=1, trainer=0 }
 D[L["Nancy Vishas"]] = { entry=3984, faction=1, class=1, level=33, health=3330, rank=1, flags=0, trainer=0 }
 D[L["Nandar Branson"]] = { entry=2380, faction=2, class=1, level=34, health=1279, rank=0, flags=1, trainer=0 }
-D[L["Nandirx"]] = { entry=21732, faction=0, class=2, level=67, health=5060, rank=0, flags=0, trainer=0 }
+D[L["Nandirx"]] = { entry=21732, faction=0, class=2, level=67, health=5060, rank=0, flags=32, trainer=0 }
 D[L["Nanomah"]] = { entry=19528, faction=0, class=2, level=70, health=5589, rank=1, flags=1, trainer=0 }
 D[L["Nantar"]] = { entry=3959, faction=2, class=1, level=21, health=531, rank=0, flags=1, trainer=0 }
 D[L["Naohain"]] = { entry=27052, faction=2, class=1, level=70, health=8982, rank=0, flags=5, trainer=0 }
@@ -16705,7 +16705,7 @@ D[L["New Avalon Forge"]] = { entry=28525, faction=0, class=1, level=70, health=8
 D[L["New Avalon Town Hall"]] = { entry=28543, faction=0, class=1, level=70, health=8982, rank=0, flags=0, trainer=0 }
 D[L["New Horse Riding Trainer"]] = { entry=19054, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
 D[L["Newly Crafted Infernal"]] = { entry=19759, faction=1, class=1, level=69, health=6761, rank=0, flags=0, trainer=0 }
-D[L["Newton Burnside"]] = { entry=2456, faction=2, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Newton Burnside"]] = { entry=2456, faction=2, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Nexus 70 - Buying Time - Kill Credit"]] = { entry=26193, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Nexus 70 - Buying Time Bunny"]] = { entry=27837, faction=0, class=1, level=60, health=4979, rank=0, flags=0, trainer=0 }
 D[L["Nexus Drake Hatchling"]] = { entry=26127, faction=1, class=1, level=72, health=9610, rank=0, flags=0, trainer=0 }
@@ -16912,7 +16912,7 @@ D[L["Noth the Plaguebringer (1)"]] = { entry=29615, faction=1, class=2, level=83
 D[L["Noth the Plaguebringer Image"]] = { entry=37851, faction=0, class=1, level=82, health=13481, rank=0, flags=0, trainer=0 }
 D[L["Nova"]] = { entry=20244, faction=1, class=1, level=1, health=8, rank=0, flags=0, trainer=0 }
 D[L["Nova Terra"]] = { entry=20297, faction=0, class=1, level=70, health=5589, rank=0, flags=0, trainer=0 }
-D[L["Novia"]] = { entry=16615, faction=1, class=8, level=30, health=737, rank=0, flags=0, trainer=0 }
+D[L["Novia"]] = { entry=16615, faction=1, class=8, level=30, health=737, rank=0, flags=32, trainer=0 }
 D[L["Novice Astromancer"]] = { entry=20044, faction=1, class=2, level=70, health=26000, rank=1, flags=0, trainer=0 }
 D[L["Novice Elreth"]] = { entry=1661, faction=1, class=1, level=3, health=71, rank=0, flags=0, trainer=0 }
 D[L["Novice Ranger"]] = { entry=16923, faction=1, class=2, level=7, health=138, rank=0, flags=0, trainer=0 }
@@ -17102,7 +17102,7 @@ D[L["Olirea"]] = { entry=18347, faction=1, class=1, level=40, health=1753, rank=
 D[L["Olisarra the Kind"]] = { entry=28706, faction=0, class=8, level=75, health=8508, rank=0, flags=0, trainer=13 }
 D[L["Olive Snapjaw"]] = { entry=14631, faction=0, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
 D[L["Oliver Dwor"]] = { entry=2136, faction=1, class=1, level=13, health=273, rank=0, flags=3, trainer=0 }
-D[L["Olivia Burnside"]] = { entry=2455, faction=2, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Olivia Burnside"]] = { entry=2455, faction=2, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Olivia Zenith"]] = { entry=31020, faction=0, class=1, level=70, health=8982, rank=0, flags=0, trainer=0 }
 D[L["Ollanus"]] = { entry=3317, faction=1, class=1, level=30, health=1003, rank=0, flags=3, trainer=0 }
 D[L["Olm the Summoner"]] = { entry=18834, faction=1, class=2, level=73, health=212450, rank=3, flags=0, trainer=0 }
@@ -17201,7 +17201,7 @@ D[L["Oozeworm"]] = { entry=14237, faction=1, class=1, level=38, health=1981, ran
 D[L["Open Portal Target"]] = { entry=17965, faction=1, class=1, level=60, health=4120, rank=0, flags=0, trainer=0 }
 D[L["Operations Officer"]] = { entry=19446, faction=0, class=1, level=55, health=5228, rank=0, flags=0, trainer=0 }
 D[L["Ophek"]] = { entry=3294, faction=1, class=1, level=10, health=198, rank=0, flags=0, trainer=0 }
-D[L["Ophelia Montague"]] = { entry=4550, faction=1, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Ophelia Montague"]] = { entry=4550, faction=1, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Opus"]] = { entry=10262, faction=0, class=1, level=40, health=1753, rank=0, flags=0, trainer=0 }
 D[L["Or'Kalar"]] = { entry=2773, faction=1, class=1, level=40, health=1524, rank=0, flags=0, trainer=0 }
 D[L["Or'kaos the Insane"]] = { entry=23168, faction=1, class=1, level=72, health=110700, rank=1, flags=0, trainer=0 }
@@ -17368,7 +17368,7 @@ D[L["Oscillating Frequency Scanner Top Bunny (Target)"]] = { entry=21781, factio
 D[L["Osric Strang"]] = { entry=1323, faction=2, class=1, level=30, health=1003, rank=0, flags=3, trainer=0 }
 D[L["Osrok the Immovable"]] = { entry=19011, faction=1, class=1, level=64, health=3425, rank=0, flags=3, trainer=0 }
 D[L["Oss"]] = { entry=16632, faction=2, class=8, level=30, health=737, rank=0, flags=3, trainer=0 }
-D[L["Ossco"]] = { entry=17773, faction=2, class=8, level=30, health=737, rank=0, flags=0, trainer=0 }
+D[L["Ossco"]] = { entry=17773, faction=2, class=8, level=30, health=737, rank=0, flags=32, trainer=0 }
 D[L["Osselan"]] = { entry=16679, faction=1, class=2, level=40, health=1226, rank=0, flags=0, trainer=20 }
 D[L["Ossirian Crystal Trigger"]] = { entry=15590, faction=1, class=1, level=60, health=4120, rank=0, flags=0, trainer=0 }
 D[L["Ossirian the Unscarred"]] = { entry=15339, faction=1, class=1, level=63, health=499650, rank=3, flags=0, trainer=0 }
@@ -17766,10 +17766,10 @@ D[L["Paval Reethe"]] = { entry=4980, faction=0, class=2, level=35, health=1110, 
 D[L["Pawe Mistrunner"]] = { entry=3447, faction=1, class=1, level=24, health=664, rank=0, flags=0, trainer=0 }
 D[L["Paxton Ganter"]] = { entry=1700, faction=2, class=1, level=10, health=198, rank=0, flags=0, trainer=14 }
 D[L["Paymaster"]] = { entry=26075, faction=0, class=8, level=70, health=1, rank=0, flags=0, trainer=0 }
-D[L["Paymaster Alstein"]] = { entry=29282, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
-D[L["Paymaster Amadi"]] = { entry=30608, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
-D[L["Paymaster Chang"]] = { entry=30606, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
-D[L["Paymaster Habert"]] = { entry=29283, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
+D[L["Paymaster Alstein"]] = { entry=29282, faction=0, class=1, level=75, health=10635, rank=0, flags=32, trainer=0 }
+D[L["Paymaster Amadi"]] = { entry=30608, faction=0, class=1, level=75, health=10635, rank=0, flags=32, trainer=0 }
+D[L["Paymaster Chang"]] = { entry=30606, faction=0, class=1, level=75, health=10635, rank=0, flags=32, trainer=0 }
+D[L["Paymaster Habert"]] = { entry=29283, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
 D[L["Pazik \"The Pick\" Prylock"]] = { entry=29665, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
 D[L["Peacekeeper Jadaar"]] = { entry=23079, faction=0, class=1, level=70, health=9250, rank=0, flags=0, trainer=0 }
 D[L["Peacekeeper Security Suit"]] = { entry=6230, faction=1, class=1, level=27, health=2400, rank=1, flags=0, trainer=0 }
@@ -17804,7 +17804,7 @@ D[L["Perascamin"]] = { entry=16280, faction=1, class=2, level=15, health=174, ra
 D[L["Perch Guardian"]] = { entry=29013, faction=1, class=1, level=78, health=11770, rank=0, flags=0, trainer=0 }
 D[L["Perfidious Dreadlord"]] = { entry=31531, faction=0, class=2, level=1, health=1, rank=1, flags=0, trainer=0 }
 D[L["Peria Lamenur"]] = { entry=2878, faction=2, class=1, level=40, health=1753, rank=0, flags=0, trainer=0 }
-D[L["Periel"]] = { entry=16616, faction=1, class=8, level=30, health=737, rank=0, flags=0, trainer=0 }
+D[L["Periel"]] = { entry=16616, faction=1, class=8, level=30, health=737, rank=0, flags=32, trainer=0 }
 D[L["Perky Pug"]] = { entry=37865, faction=0, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
 D[L["Perobas the Bloodthirster"]] = { entry=32377, faction=1, class=1, level=71, health=13936, rank=2, flags=0, trainer=0 }
 D[L["Perry Gatner"]] = { entry=19228, faction=0, class=1, level=60, health=3662, rank=0, flags=0, trainer=0 }
@@ -18483,7 +18483,7 @@ D[L["Qiraji Warrior"]] = { entry=15387, faction=1, class=1, level=61, health=314
 D[L["Qiraji Wasp"]] = { entry=15414, faction=0, class=1, level=60, health=5200, rank=1, flags=0, trainer=0 }
 D[L["Qirot"]] = { entry=5350, faction=1, class=1, level=47, health=2488, rank=4, flags=0, trainer=0 }
 D[L["Qixdi Goodstitch"]] = { entry=2849, faction=0, class=1, level=44, health=2138, rank=0, flags=3, trainer=0 }
-D[L["Qizzik"]] = { entry=8124, faction=0, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Qizzik"]] = { entry=8124, faction=0, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Quae"]] = { entry=2712, faction=2, class=1, level=38, health=1604, rank=0, flags=0, trainer=0 }
 D[L["Quagmirran"]] = { entry=17942, faction=1, class=1, level=64, health=102870, rank=1, flags=0, trainer=0 }
 D[L["Quagmirran (1)"]] = { entry=19894, faction=1, class=1, level=72, health=179334, rank=1, flags=0, trainer=0 }
@@ -18716,7 +18716,7 @@ D[L["Rancid Mushroom"]] = { entry=22250, faction=0, class=1, level=1, health=27,
 D[L["Rand Rhobart"]] = { entry=6289, faction=1, class=1, level=13, health=273, rank=0, flags=0, trainer=11 }
 D[L["Randal Hunter"]] = { entry=4732, faction=2, class=1, level=10, health=198, rank=0, flags=0, trainer=16 }
 D[L["Randal Worth"]] = { entry=11096, faction=2, class=1, level=24, health=664, rank=0, flags=0, trainer=0 }
-D[L["Randolph Montague"]] = { entry=2458, faction=1, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Randolph Montague"]] = { entry=2458, faction=1, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Randy Whizzlesprocket"]] = { entry=17288, faction=2, class=1, level=60, health=6400, rank=0, flags=0, trainer=0 }
 D[L["Rane Yorick"]] = { entry=1950, faction=1, class=1, level=15, health=328, rank=0, flags=0, trainer=0 }
 D[L["Ranged Skills Trainer"]] = { entry=2886, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
@@ -19160,7 +19160,7 @@ D[L["Ribchaser"]] = { entry=14271, faction=1, class=1, level=17, health=386, ran
 D[L["Richard Kerwin"]] = { entry=4565, faction=1, class=1, level=40, health=1753, rank=0, flags=0, trainer=26 }
 D[L["Richard Van Brunt"]] = { entry=5656, faction=1, class=1, level=20, health=484, rank=0, flags=0, trainer=0 }
 D[L["Ricket"]] = { entry=29428, faction=0, class=1, level=80, health=12600, rank=0, flags=0, trainer=0 }
-D[L["Rickle Goldgrubber"]] = { entry=8123, faction=0, class=1, level=55, health=7842, rank=0, flags=0, trainer=0 }
+D[L["Rickle Goldgrubber"]] = { entry=8123, faction=0, class=1, level=55, health=7842, rank=0, flags=32, trainer=0 }
 D[L["Ricole Nichie"]] = { entry=19719, faction=0, class=2, level=61, health=4126, rank=0, flags=0, trainer=0 }
 D[L["Ricter"]] = { entry=2411, faction=0, class=1, level=33, health=1221, rank=0, flags=0, trainer=0 }
 D[L["Ride the Lightning Kill Credit Trigger"]] = { entry=21910, faction=0, class=1, level=60, health=6500, rank=0, flags=0, trainer=0 }
@@ -21698,7 +21698,7 @@ D[L["Skytalon Explosion Bunny"]] = { entry=31630, faction=0, class=1, level=60, 
 D[L["Skyway Worker"]] = { entry=23194, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Skywing"]] = { entry=22424, faction=0, class=1, level=64, health=5715, rank=0, flags=0, trainer=0 }
 D[L["Slaag"]] = { entry=22199, faction=1, class=1, level=70, health=139720, rank=1, flags=0, trainer=0 }
-D[L["Slab Bulkhead"]] = { entry=36351, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
+D[L["Slab Bulkhead"]] = { entry=36351, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
 D[L["Slad'ran"]] = { entry=29304, faction=1, class=1, level=78, health=176550, rank=1, flags=0, trainer=0 }
 D[L["Slad'ran (1)"]] = { entry=31370, faction=1, class=1, level=82, health=323544, rank=1, flags=0, trainer=0 }
 D[L["Slad'ran Constrictor"]] = { entry=29713, faction=1, class=1, level=78, health=5885, rank=0, flags=0, trainer=0 }
@@ -21929,7 +21929,7 @@ D[L["Soldier of Terror"]] = { entry=18770, faction=0, class=1, level=70, health=
 D[L["Soldier of the Frozen Wastes"]] = { entry=16427, faction=1, class=1, level=80, health=1600, rank=1, flags=0, trainer=0 }
 D[L["Soldier of the Frozen Wastes (1)"]] = { entry=30015, faction=1, class=1, level=80, health=4400, rank=1, flags=0, trainer=0 }
 D[L["Soldier of the Horde"]] = { entry=17030, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
-D[L["Soleil Stonemantle"]] = { entry=5099, faction=2, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Soleil Stonemantle"]] = { entry=5099, faction=2, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Solenor the Slayer"]] = { entry=14530, faction=1, class=1, level=60, health=19536, rank=1, flags=0, trainer=0 }
 D[L["Solid Stone Statue"]] = { entry=18736, faction=0, class=1, level=35, health=122, rank=0, flags=0, trainer=0 }
 D[L["Solitary Mammoth"]] = { entry=24615, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
@@ -21954,7 +21954,7 @@ D[L["Soolie Berryfizz"]] = { entry=5178, faction=2, class=1, level=30, health=10
 D[L["Soot"]] = { entry=19154, faction=2, class=1, level=60, health=4979, rank=0, flags=0, trainer=0 }
 D[L["Sophia"]] = { entry=11906, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
 D[L["Sophie Aaren"]] = { entry=31021, faction=0, class=1, level=70, health=8982, rank=0, flags=1, trainer=0 }
-D[L["Soran"]] = { entry=3320, faction=1, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Soran"]] = { entry=3320, faction=1, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Sorcerer Ashcrombe"]] = { entry=3850, faction=2, class=8, level=18, health=1062, rank=1, flags=0, trainer=0 }
 D[L["Sorceress Kaylana"]] = { entry=31051, faction=2, class=8, level=80, health=60480, rank=1, flags=1, trainer=0 }
 D[L["Sorcerous Shade"]] = { entry=16526, faction=1, class=2, level=72, health=33057, rank=1, flags=0, trainer=0 }
@@ -23614,15 +23614,15 @@ D[L["Teleporter Explosion Trigger"]] = { entry=20296, faction=1, class=1, level=
 D[L["Telf Joolam"]] = { entry=5900, faction=1, class=1, level=35, health=1342, rank=0, flags=0, trainer=0 }
 D[L["Telhamat Protector"]] = { entry=18758, faction=2, class=1, level=60, health=6104, rank=0, flags=0, trainer=0 }
 D[L["Telia"]] = { entry=16702, faction=0, class=1, level=1, health=10, rank=0, flags=0, trainer=7 }
-D[L["Teller Almeida"]] = { entry=30604, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
-D[L["Teller Althiellis"]] = { entry=28676, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
-D[L["Teller Banning"]] = { entry=28680, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
-D[L["Teller Duta"]] = { entry=28679, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
-D[L["Teller Gee"]] = { entry=30605, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
-D[L["Teller Halder"]] = { entry=28678, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
-D[L["Teller Hanners"]] = { entry=28677, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
-D[L["Teller Plushner"]] = { entry=30607, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
-D[L["Teller Rames"]] = { entry=28675, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
+D[L["Teller Almeida"]] = { entry=30604, faction=0, class=1, level=75, health=10635, rank=0, flags=32, trainer=0 }
+D[L["Teller Althiellis"]] = { entry=28676, faction=0, class=1, level=75, health=10635, rank=0, flags=32, trainer=0 }
+D[L["Teller Banning"]] = { entry=28680, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
+D[L["Teller Duta"]] = { entry=28679, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
+D[L["Teller Gee"]] = { entry=30605, faction=0, class=1, level=75, health=10635, rank=0, flags=32, trainer=0 }
+D[L["Teller Halder"]] = { entry=28678, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
+D[L["Teller Hanners"]] = { entry=28677, faction=0, class=1, level=75, health=10635, rank=0, flags=32, trainer=0 }
+D[L["Teller Plushner"]] = { entry=30607, faction=0, class=1, level=75, health=10635, rank=0, flags=32, trainer=0 }
+D[L["Teller Rames"]] = { entry=28675, faction=0, class=1, level=75, health=10635, rank=0, flags=32, trainer=0 }
 D[L["Telonis"]] = { entry=4212, faction=2, class=1, level=46, health=2399, rank=0, flags=0, trainer=8 }
 D[L["Teloren"]] = { entry=4407, faction=2, class=1, level=65, health=10572, rank=1, flags=8, trainer=0 }
 D[L["Telredor Guard"]] = { entry=18922, faction=2, class=1, level=65, health=59140, rank=1, flags=0, trainer=0 }
@@ -24422,7 +24422,7 @@ D[L["Tormented Soul"]] = { entry=20512, faction=1, class=1, level=68, health=785
 D[L["Tormented Spirit"]] = { entry=1533, faction=1, class=1, level=9, health=210, rank=4, flags=0, trainer=0 }
 D[L["Tormun's Shield"]] = { entry=40141, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Tormus Deepforge"]] = { entry=6031, faction=2, class=1, level=30, health=1003, rank=0, flags=0, trainer=0 }
-D[L["Torn"]] = { entry=2996, faction=1, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Torn"]] = { entry=2996, faction=1, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Torn Fin Coastrunner"]] = { entry=2375, faction=1, class=1, level=30, health=1003, rank=0, flags=0, trainer=0 }
 D[L["Torn Fin Muckdweller"]] = { entry=2374, faction=1, class=1, level=29, health=950, rank=0, flags=0, trainer=0 }
 D[L["Torn Fin Oracle"]] = { entry=2376, faction=1, class=8, level=31, health=935, rank=0, flags=0, trainer=0 }
@@ -24666,7 +24666,7 @@ D[L["Truetusk Wayfinder"]] = { entry=24590, faction=0, class=1, level=1, health=
 D[L["Truetusk Whaler"]] = { entry=24587, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Truk Wildbeard"]] = { entry=4782, faction=2, class=1, level=50, health=2769, rank=0, flags=1, trainer=0 }
 D[L["Trull Failbane"]] = { entry=10306, faction=1, class=1, level=55, health=2700, rank=0, flags=0, trainer=0 }
-D[L["Trunk Slamchest"]] = { entry=36352, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
+D[L["Trunk Slamchest"]] = { entry=36352, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
 D[L["Trusty Copper Racer"]] = { entry=32233, faction=0, class=1, level=1, health=42, rank=0, flags=0, trainer=0 }
 D[L["Trusty Stormwind Charger [PH]"]] = { entry=33551, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Tsu'zee"]] = { entry=11467, faction=1, class=1, level=59, health=17766, rank=2, flags=0, trainer=0 }
@@ -25769,7 +25769,7 @@ D[L["Vivienne Blackwhisper (2)"]] = { entry=34443, faction=1, class=8, level=80,
 D[L["Vivienne Blackwhisper (3)"]] = { entry=35749, faction=1, class=8, level=80, health=2580480, rank=3, flags=0, trainer=0 }
 D[L["Vix Chromeblaster"]] = { entry=26947, faction=0, class=1, level=1, health=1, rank=0, flags=1, trainer=0 }
 D[L["Vixton Pinchwhistle"]] = { entry=20278, faction=0, class=1, level=70, health=6986, rank=0, flags=1, trainer=0 }
-D[L["Viznik Goldgrubber"]] = { entry=2625, faction=0, class=1, level=55, health=7842, rank=0, flags=0, trainer=0 }
+D[L["Viznik Goldgrubber"]] = { entry=2625, faction=0, class=1, level=55, health=7842, rank=0, flags=32, trainer=0 }
 D[L["Vizzklick"]] = { entry=6568, faction=0, class=1, level=50, health=2769, rank=0, flags=1, trainer=0 }
 D[L["Vladek"]] = { entry=27547, faction=1, class=1, level=74, health=10282, rank=0, flags=0, trainer=0 }
 D[L["Vladof the Butcher"]] = { entry=30022, faction=1, class=1, level=77, health=250338, rank=1, flags=0, trainer=0 }
@@ -26520,7 +26520,7 @@ D[L["William Allerton"]] = { entry=25385, faction=2, class=1, level=72, health=4
 D[L["William Dunadaire"]] = { entry=24737, faction=2, class=1, level=60, health=4120, rank=0, flags=0, trainer=0 }
 D[L["William Kielar"]] = { entry=17209, faction=0, class=1, level=60, health=9156, rank=1, flags=0, trainer=0 }
 D[L["William MacGregor"]] = { entry=1668, faction=2, class=1, level=15, health=328, rank=0, flags=3, trainer=0 }
-D[L["William Montague"]] = { entry=4549, faction=1, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["William Montague"]] = { entry=4549, faction=1, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["William Mullins"]] = { entry=34768, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["William Pestle"]] = { entry=253, faction=2, class=1, level=6, health=120, rank=0, flags=0, trainer=0 }
 D[L["William Saldean"]] = { entry=33996, faction=1, class=1, level=5, health=102, rank=0, flags=1, trainer=0 }
@@ -26856,7 +26856,7 @@ D[L["Worker"]] = { entry=18800, faction=2, class=1, level=65, health=11828, rank
 D[L["Worker Mo'rrisroe"]] = { entry=20087, faction=1, class=2, level=70, health=3240, rank=0, flags=0, trainer=0 }
 D[L["World Alchemy Trainer"]] = { entry=5032, faction=0, class=1, level=1, health=198, rank=0, flags=0, trainer=1 }
 D[L["World Armorsmithing Trainer"]] = { entry=7174, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
-D[L["World Banker"]] = { entry=5060, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
+D[L["World Banker"]] = { entry=5060, faction=0, class=1, level=1, health=5000, rank=0, flags=32, trainer=0 }
 D[L["World Bird Trainer"]] = { entry=5001, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
 D[L["World Blacksmith Trainer"]] = { entry=5033, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
 D[L["World Boar Trainer"]] = { entry=5002, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
@@ -27505,7 +27505,7 @@ D[L["Zidormi"]] = { entry=31848, faction=0, class=1, level=80, health=12600, ran
 D[L["Ziggle Sparks"]] = { entry=8116, faction=0, class=1, level=46, health=2399, rank=0, flags=1, trainer=0 }
 D[L["Ziggurat Defender"]] = { entry=26202, faction=1, class=1, level=71, health=9291, rank=0, flags=0, trainer=0 }
 D[L["Ziggurat Protector"]] = { entry=12262, faction=1, class=1, level=58, health=3589, rank=0, flags=0, trainer=0 }
-D[L["Zikkel"]] = { entry=8119, faction=0, class=1, level=45, health=5544, rank=0, flags=0, trainer=0 }
+D[L["Zikkel"]] = { entry=8119, faction=0, class=1, level=45, health=5544, rank=0, flags=32, trainer=0 }
 D[L["Zild'jian"]] = { entry=40492, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["Zilzibin Drumlore"]] = { entry=7010, faction=1, class=8, level=35, health=992, rank=0, flags=0, trainer=0 }
 D[L["Zim'Torga Defender"]] = { entry=28387, faction=0, class=1, level=77, health=17068, rank=0, flags=0, trainer=0 }
@@ -27517,7 +27517,7 @@ D[L["Zippy Copper Racer"]] = { entry=32247, faction=0, class=1, level=1, health=
 D[L["Zivlix"]] = { entry=26661, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
 D[L["Zivlix's Destruction Machine"]] = { entry=26677, faction=0, class=1, level=75, health=10635, rank=0, flags=0, trainer=0 }
 D[L["Zixil"]] = { entry=3537, faction=0, class=1, level=32, health=1163, rank=0, flags=3, trainer=0 }
-D[L["Zixxy"]] = { entry=21734, faction=0, class=2, level=65, health=4731, rank=0, flags=0, trainer=0 }
+D[L["Zixxy"]] = { entry=21734, faction=0, class=2, level=65, health=4731, rank=0, flags=32, trainer=0 }
 D[L["Ziz"]] = { entry=17486, faction=2, class=1, level=13, health=273, rank=0, flags=1, trainer=0 }
 D[L["Ziz Fizziks"]] = { entry=4201, faction=0, class=1, level=20, health=484, rank=0, flags=0, trainer=0 }
 D[L["Zizzek"]] = { entry=3572, faction=0, class=1, level=22, health=573, rank=0, flags=1, trainer=0 }
@@ -27960,9 +27960,9 @@ D[L["[PH] Gossip NPC, Troll Male"]] = { entry=19124, faction=0, class=1, level=1
 D[L["[PH] Gossip NPC, Undead Female"]] = { entry=19110, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["[PH] Gossip NPC, Undead Male"]] = { entry=19119, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["[PH] Graveyard Herald"]] = { entry=14181, faction=0, class=1, level=1, health=5000, rank=0, flags=0, trainer=0 }
-D[L["[PH] Grimtotem Banker"]] = { entry=38919, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
-D[L["[PH] Grimtotem Banker 2"]] = { entry=38920, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
-D[L["[PH] Grimtotem Banker 3"]] = { entry=38921, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
+D[L["[PH] Grimtotem Banker"]] = { entry=38919, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
+D[L["[PH] Grimtotem Banker 2"]] = { entry=38920, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
+D[L["[PH] Grimtotem Banker 3"]] = { entry=38921, faction=0, class=1, level=1, health=1, rank=0, flags=32, trainer=0 }
 D[L["[PH] Grimtotem Collector"]] = { entry=38843, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["[PH] Grimtotem Protector"]] = { entry=38830, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }
 D[L["[PH] Grimtotem Vendor"]] = { entry=38905, faction=0, class=1, level=1, health=1, rank=0, flags=0, trainer=0 }

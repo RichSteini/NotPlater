@@ -240,6 +240,7 @@ function NotPlater:PrepareFrame(frame)
 		self:ConstructEliteIcon(frame)
 		self:ConstructClassIcon(frame)
 		self:ConstructFactionIcon(frame)
+		self:ConstructNpcIcons(frame)
 		self.Auras:AttachToFrame(frame)
 
 		-- Hide old healthbar
@@ -263,6 +264,7 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:UpdateClassIcon(self)
 			NotPlater:UpdateEliteIcon(self)
 			NotPlater:UpdateFactionIcon(self)
+			NotPlater:UpdateNpcIcons(self)
 			self.targetChanged = true
 		end)
 
@@ -360,6 +362,7 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureEliteIcon(frame)
 	self:ConfigureClassIcon(frame)
 	self:ConfigureFactionIcon(frame)
+	self:ConfigureNpcIcons(frame)
 	self:ConfigureLevelText(frame.levelText, frame.healthBar)
 	self:ConfigureNameText(frame.nameText, frame.healthBar)
 	self:ConfigureTarget(frame)

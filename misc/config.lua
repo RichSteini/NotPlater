@@ -980,6 +980,12 @@ local function LoadOptions()
 			name = L["Faction Icon"],
 			args = NotPlater.ConfigPrototypes.Icon,
 		},
+		npcIcons = {
+			order = 5,
+			type = "group",
+			name = L["NPC Icons"],
+			args = NotPlater.ConfigPrototypes.NpcIcons,
+		},
 	}
 	options.args.icons = {
 		order = 5,

@@ -101,6 +101,12 @@ local stackingComponentDefinitions = {
 			return EnsureRegionContainer(frame, "healthText", frame and frame.healthBar and frame.healthBar.healthText, frame and frame.healthBar)
 		end,
 	},
+	npcIcons = {
+		label = L["NPC Icons"],
+		get = function(frame)
+			return EnsureRegionContainer(frame, "npcIcons", frame and frame.npcIcons, frame and frame.healthBar)
+		end,
+	},
 	castBar = {
 		label = L["Cast Bar"],
 		get = function(frame)
@@ -150,7 +156,7 @@ local stackingComponentDefinitions = {
 		end,
 	},
 	eliteIcon = {
-		label = L["Elite Icon"],
+		label = L["Elite / Rare Icon"],
 		get = function(frame)
 			return EnsureRegionContainer(frame, "eliteIcon", frame and frame.eliteIcon, frame and frame.healthBar)
 		end,

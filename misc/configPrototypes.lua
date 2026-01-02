@@ -651,6 +651,50 @@ function ConfigPrototypes:LoadConfigPrototypes()
     ConfigPrototypes.CastBarIcon = ConfigPrototypes:GetGeneralisedIconConfig()
     ConfigPrototypes.CastBarIcon.border = ConfigPrototypes:GetGeneralisedBorderConfig()
     ConfigPrototypes.CastBarIcon.background = ConfigPrototypes:GetGeneralisedBackgroundConfig()
+    ConfigPrototypes.NpcIcons = {
+        general = {
+            order = 0,
+            type = "group",
+            inline = true,
+            name = L["General"],
+            args = {
+                enable = { order = 0, type = "toggle", name = L["Enable"] },
+                opacity = { order = 1, type = "range", name = L["Opacity"], min = 0, max = 1, step = 0.01 },
+                iconSpacing = { order = 2, type = "range", name = L["Icon Spacing"], min = 0, max = 20, step = 1 },
+                rowSpacing = { order = 3, type = "range", name = L["Row Spacing"], min = 0, max = 20, step = 1 },
+            },
+        },
+        layout = {
+            order = 1,
+            type = "group",
+            inline = true,
+            name = L["Frames"],
+            args = {
+                growDirection = { order = 0, type = "select", name = L["Grow Direction"], values = auraGrowthDirections },
+                anchor = { order = 1, type = "select", name = L["Anchor"], values = anchors },
+                xOffset = { order = 2, type = "range", name = L["X Offset"], min = -100, max = 100, step = 1 },
+                yOffset = { order = 3, type = "range", name = L["Y Offset"], min = -100, max = 100, step = 1 },
+                iconsPerRow = { order = 4, type = "range", name = L["Icons per Row"], min = 1, max = 12, step = 1 },
+                width = { order = 5, type = "range", name = L["Width"], min = 8, max = 40, step = 1 },
+                height = { order = 6, type = "range", name = L["Height"], min = 8, max = 40, step = 1 },
+            },
+        },
+        icons = {
+            order = 2,
+            type = "group",
+            inline = true,
+            name = L["Icons"],
+            args = {
+                vendor = { order = 0, type = "toggle", name = L["Vendor Icon"] },
+                banker = { order = 1, type = "toggle", name = L["Banker Icon"] },
+                repair = { order = 2, type = "toggle", name = L["Repair Icon"] },
+                innkeeper = { order = 3, type = "toggle", name = L["Innkeeper Icon"] },
+                flightMaster = { order = 4, type = "toggle", name = L["Flight Master Icon"] },
+                auctioneer = { order = 5, type = "toggle", name = L["Auctioneer Icon"] },
+                classTrainer = { order = 6, type = "toggle", name = L["Trainer Icon"] },
+            },
+        },
+    }
     ConfigPrototypes.Target = {
         scale = {
             order = 0,
@@ -714,8 +758,13 @@ function ConfigPrototypes:LoadConfigPrototypes()
                     type = "toggle",
                     name = L["Faction Icon"],
                 },
-                targetTargetText = {
+                npcIcons = {
                     order = 11,
+                    type = "toggle",
+                    name = L["NPC Icons"],
+                },
+                targetTargetText = {
+                    order = 12,
                     type = "toggle",
                     name = L["Target-Target Text"],
                 },
