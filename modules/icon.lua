@@ -206,6 +206,17 @@ function NotPlater:UpdateClassIcon(frame)
 	frame.classIcon:SetAlpha(classIconConfig.general.opacity or 1)
 end
 
+function NotPlater:SetEliteIcon(frame)
+	local eliteIconConfig = self.db.profile.icons.eliteIcon
+	local opacity = eliteIconConfig.general.opacity or 1
+	frame.eliteIcon:SetTexture(GetEliteIconTexture())
+	frame.eliteIcon:SetTexCoord(ELITE_ICON_TCOORDS[1], ELITE_ICON_TCOORDS[2], ELITE_ICON_TCOORDS[3], ELITE_ICON_TCOORDS[4])
+	frame.eliteIcon:SetVertexColor(1, 0.8, 0, 1)
+	frame.eliteIcon:SetDesaturated(false)
+	frame.eliteIcon:SetAlpha(opacity)
+	frame.eliteIcon:Show()
+end
+
 function NotPlater:UpdateEliteIcon(frame)
 	if not frame or not frame.eliteIcon then
 		return
@@ -234,8 +245,8 @@ function NotPlater:UpdateEliteIcon(frame)
 		return
 	end
 
-	local opacity = eliteIconConfig.general.opacity or 1
 	if rank == rankEnums.Rare or rank == rankEnums.RareElite then
+		local opacity = eliteIconConfig.general.opacity or 1
 		frame.eliteIcon:SetTexture(GetEliteIconTexture())
 		frame.eliteIcon:SetTexCoord(ELITE_ICON_TCOORDS[1], ELITE_ICON_TCOORDS[2], ELITE_ICON_TCOORDS[3], ELITE_ICON_TCOORDS[4])
 		frame.eliteIcon:SetVertexColor(1, 1, 1, 1)
@@ -243,12 +254,7 @@ function NotPlater:UpdateEliteIcon(frame)
 		frame.eliteIcon:SetAlpha(opacity)
 		frame.eliteIcon:Show()
 	elseif rank == rankEnums.Elite or rank == rankEnums.WorldBoss then
-		frame.eliteIcon:SetTexture(GetEliteIconTexture())
-		frame.eliteIcon:SetTexCoord(ELITE_ICON_TCOORDS[1], ELITE_ICON_TCOORDS[2], ELITE_ICON_TCOORDS[3], ELITE_ICON_TCOORDS[4])
-		frame.eliteIcon:SetVertexColor(1, 0.8, 0, 1)
-		frame.eliteIcon:SetDesaturated(false)
-		frame.eliteIcon:SetAlpha(opacity)
-		frame.eliteIcon:Show()
+		self:SetEliteIcon(frame)
 	else
 		frame.eliteIcon:SetAlpha(0)
 	end

@@ -47,6 +47,7 @@ local BOSS_ICON_PATH = "Interface\\TargetingFrame\\UI-TargetingFrame-Skull"
 local currentRaidIconNum = 1
 local raidIconInterval = 5
 local raidIconElapsed = raidIconInterval
+local playerFaction = UnitFactionGroup("player")
 
 local ThreatTypes = {TANK = L["Tank"], DPS = L["DPS"], HEALER = L["Healer"]}
 local ROLE_ICON_PATH = [[Interface\AddOns\]]..addonName..[[\images\UI-LFG-ICON-PORTRAITROLES]]
@@ -277,6 +278,7 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
 	if threatUpdateElapsed > 1 then
 		ThreatSimulator:Step(self.defaultFrame.defaultHealthFrame)
 		self.defaultFrame.lastUnitMatch = "target"
+        self.defaultFrame.unitFaction = playerFaction 
 		local simAuras = NotPlater.SimulatorAuras
 		if simAuras and simAuras.guid then
 			self.defaultFrame.lastGuidMatch = simAuras.guid
@@ -366,6 +368,15 @@ function NotPlater:SimulatorFrameOnShow()
 		end
 		return NotPlater.oldGetEstimatedRange(name, frame, ...)
 	end
+    NotPlater.oldUpdateEliteIcon = NotPlater.UpdateEliteIcon
+	NotPlater.UpdateEliteIcon = function(name, frame, ...)
+        if frame.isSimulatorFrame then
+            NotPlater:SetEliteIcon(frame)
+            return
+        end
+		return NotPlater.oldUpdateEliteIcon(name, frame, ...)
+	end
+
     NotPlater.oldReload = NotPlater.Reload
     NotPlater.Reload = function(...)
         NotPlater:SimulatorReload()
@@ -384,6 +395,7 @@ function NotPlater:SimulatorFrameOnHide()
     if NotPlater.oldSetNormalFrameStrata then NotPlater.SetNormalFrameStrata = NotPlater.oldSetNormalFrameStrata end
     if NotPlater.oldSetTargetFrameStrata then NotPlater.SetTargetFrameStrata = NotPlater.oldSetTargetFrameStrata end
 	if NotPlater.oldGetEstimatedRange then NotPlater.GetEstimatedRange = NotPlater.oldGetEstimatedRange end
+	if NotPlater.oldUpdateEliteIcon then NotPlater.UpdateEliteIcon = NotPlater.oldUpdateEliteIcon end
     if NotPlater.oldReload then NotPlater.Reload = NotPlater.oldReload end
     if NotPlater.SimulatorAuras and NotPlater.SimulatorAuras.OnHide then
         NotPlater.SimulatorAuras:OnHide()
@@ -480,7 +492,6 @@ function NotPlater:ConstructSimulatorFrame()
         simulatorFrame.defaultFrame.defaultBossIcon:SetTexture(BOSS_ICON_PATH)
         simulatorFrame.defaultFrame.defaultBossIcon:SetTexCoord(0, 1, 0, 1)
         simulatorFrame.defaultFrame.defaultRaidIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
-        --simulatorFrame.defaultFrame.dangerSkull = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
     end
 
     self:SetupFontString(simulatorFrame.defaultFrame.defaultLevelText, NotPlater.db.profile.levelText)
