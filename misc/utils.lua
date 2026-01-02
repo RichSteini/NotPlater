@@ -260,3 +260,87 @@ end
 function NotPlater:Print(msg)
 	DEFAULT_CHAT_FRAME:AddMessage("|cff33ff99NotPlater|r: " .. msg)
 end
+
+function NotPlater:GetClassTokenFromColor(classColor)
+	if not classColor or not RAID_CLASS_COLORS then
+		return nil
+	end
+	for classToken, color in pairs(RAID_CLASS_COLORS) do
+		if color == classColor then
+			return classToken
+		end
+	end
+	for classToken, color in pairs(RAID_CLASS_COLORS) do
+		if math.abs(color.r - classColor.r) <= 0.01
+			and math.abs(color.g - classColor.g) <= 0.01
+			and math.abs(color.b - classColor.b) <= 0.01 then
+			return classToken
+		end
+	end
+	return nil
+end
+
+function NotPlater:ClassCheck(frame)
+	if frame.unitClass then return end
+
+	local r, g, b = frame.healthBar:GetStatusBarColor()
+	local classColor = NotPlater:GetClassColorFromRGB(r, g, b)
+	if classColor then
+		frame.unitClass = classColor
+		local unitName = frame.defaultNameText:GetText()
+		self.classCache[unitName] = classColor
+		local classToken = self:GetClassTokenFromColor(classColor)
+		if classToken then
+			frame.unitClassToken = classToken
+			self.classTokenCache[unitName] = classToken
+		end
+		return
+	end
+
+	if self:IsTarget(frame) then
+		SetFrameClassColorFromUnit(frame, "target")
+		return
+	end
+
+	local matchedUnit = frame.lastUnitMatch
+	if matchedUnit and self:IsTrackedMatchUnit(matchedUnit) and UnitExists(matchedUnit) then
+		SetFrameClassColorFromUnit(frame, matchedUnit)
+	end
+end
+
+function NotPlater:FactionCheck(frame)
+	if frame.unitFaction then return end
+	local unitName = frame.defaultNameText and frame.defaultNameText:GetText()
+	if unitName and self.factionCache[unitName] then
+		frame.unitFaction = self.factionCache[unitName]
+		return
+	end
+	if unitName and NotPlater.NPCData and NotPlater.NPCEnums and NotPlater.NPCEnums.Faction then
+		local npcData = NotPlater.NPCData[unitName]
+		if npcData and npcData.faction then
+			if npcData.faction == NotPlater.NPCEnums.Faction.Horde then
+				frame.unitFaction = "Horde"
+			elseif npcData.faction == NotPlater.NPCEnums.Faction.Alliance then
+				frame.unitFaction = "Alliance"
+			end
+		end
+	end
+	if frame.unitFaction and unitName then
+		self.factionCache[unitName] = frame.unitFaction
+		return
+	end
+	local faction
+	if self:IsTarget(frame) then
+		faction = UnitFactionGroup("target")
+	end
+	local matchedUnit = frame.lastUnitMatch
+	if not faction and matchedUnit and self:IsTrackedMatchUnit(matchedUnit) and UnitExists(matchedUnit) then
+		faction = UnitFactionGroup(matchedUnit)
+	end
+	if faction then
+		frame.unitFaction = faction
+		if unitName then
+			self.factionCache[unitName] = faction
+		end
+	end
+end

@@ -265,6 +265,7 @@ function NotPlater:TargetCheck(frame)
     NotPlater:ScaleEliteIcon(frame.eliteIcon, isTarget)
     NotPlater:ScaleRaidIcon(frame.raidIcon, isTarget)
     NotPlater:ScaleClassIcon(frame.classIcon, isTarget)
+    NotPlater:ScaleFactionIcon(frame.factionIcon, isTarget)
     NotPlater:ScaleThreatComponents(frame.healthBar,isTarget)
 end
 

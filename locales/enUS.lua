@@ -38,6 +38,7 @@ NotPlaterLocals = {
 	["Boss Icon"] = "Boss Icon",
 	["Elite / Rare Icon"] = "Elite / Rare Icon",
 	["Class Icon"] = "Class Icon",
+	["Faction Icon"] = "Faction Icon",
 	["Both"] = "Both",
 	["Bottom"] = "Bottom",
 	["Bottom Left"] = "Bottom Left",

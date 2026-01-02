@@ -709,8 +709,13 @@ function ConfigPrototypes:LoadConfigPrototypes()
                     type = "toggle",
                     name = L["Class Icon"],
                 },
-                targetTargetText = {
+                factionIcon = {
                     order = 10,
+                    type = "toggle",
+                    name = L["Faction Icon"],
+                },
+                targetTargetText = {
+                    order = 11,
                     type = "toggle",
                     name = L["Target-Target Text"],
                 },

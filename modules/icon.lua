@@ -14,6 +14,9 @@ local CLASS_ICON_TCOORDS = {
 	DEATHKNIGHT = {0.25, 0.5, 0.5, 0.75},
 }
 local ELITE_ICON_TCOORDS = {0.75, 1, 0, 1}
+local FACTION_ICON_ALLIANCE = "Interface\\PVPFrame\\PVP-Currency-Alliance"
+local FACTION_ICON_HORDE = "Interface\\PVPFrame\\PVP-Currency-Horde"
+local FACTION_ICON_ALLIANCE_TCOORDS = {4/32, 29/32, 2/32, 30/32}
 
 local function GetEliteIconTexture()
 	local addonName = NotPlater and NotPlater.addonName or ""
@@ -109,6 +112,18 @@ function NotPlater:ScaleClassIcon(iconFrame, isTarget)
 	end
 end
 
+function NotPlater:ScaleFactionIcon(iconFrame, isTarget)
+	local factionIconConfig = self.db.profile.icons.factionIcon
+	if factionIconConfig.general.enable == false then
+		return
+	end
+	local scaleConfig = self.db.profile.target.scale
+	if scaleConfig.factionIcon then
+		local scalingFactor = isTarget and scaleConfig.scalingFactor or 1
+		self:ScaleIcon(iconFrame, scalingFactor, factionIconConfig)
+	end
+end
+
 function NotPlater:ConfigureIcon(iconFrame, anchorFrame, config)
     self:ConfigureGeneralisedIcon(iconFrame, anchorFrame, config)
 	-- Set border
@@ -155,6 +170,16 @@ function NotPlater:ConstructClassIcon(frame)
 	frame.classIcon:SetTexture(CLASS_ICON_TEXTURE)
 	frame.classIcon:SetTexCoord(0, 0, 0, 0)
 	frame.classIcon:SetAlpha(0)
+end
+
+function NotPlater:ConstructFactionIcon(frame)
+	if not frame or frame.factionIcon then
+		return
+	end
+	frame.factionIcon = frame:CreateTexture(nil, "ARTWORK")
+	frame.factionIcon:SetTexture(FACTION_ICON_ALLIANCE)
+	frame.factionIcon:SetTexCoord(0, 0, 0, 0)
+	frame.factionIcon:SetAlpha(0)
 end
 
 function NotPlater:UpdateClassIcon(frame)
@@ -229,6 +254,52 @@ function NotPlater:UpdateEliteIcon(frame)
 	end
 end
 
+function NotPlater:UpdateFactionIcon(frame)
+	if not frame or not frame.factionIcon then
+		return
+	end
+	local factionIconConfig = self.db.profile.icons.factionIcon
+	local enabled = factionIconConfig.general.enable
+	if enabled == nil then
+		enabled = true
+	end
+	if not enabled then
+		frame.factionIcon:SetAlpha(0)
+		return
+	end
+
+	local faction = frame.unitFaction
+	local unitName = frame.defaultNameText and frame.defaultNameText:GetText()
+	if not faction and unitName and NotPlater.factionCache then
+		faction = NotPlater.factionCache[unitName]
+	end
+	if not faction and unitName and NotPlater.NPCData and NotPlater.NPCEnums and NotPlater.NPCEnums.Faction then
+		local npcData = NotPlater.NPCData[unitName]
+		if npcData and npcData.faction then
+			if npcData.faction == NotPlater.NPCEnums.Faction.Horde then
+				faction = "Horde"
+			elseif npcData.faction == NotPlater.NPCEnums.Faction.Alliance then
+				faction = "Alliance"
+			end
+			if faction and NotPlater.factionCache then
+				NotPlater.factionCache[unitName] = faction
+			end
+		end
+	end
+
+	if faction == "Horde" then
+		frame.factionIcon:SetTexture(FACTION_ICON_HORDE)
+		frame.factionIcon:SetTexCoord(0, 1, 0, 1)
+		frame.factionIcon:SetAlpha(factionIconConfig.general.opacity or 1)
+	elseif faction == "Alliance" then
+		frame.factionIcon:SetTexture(FACTION_ICON_ALLIANCE)
+		frame.factionIcon:SetTexCoord(FACTION_ICON_ALLIANCE_TCOORDS[1], FACTION_ICON_ALLIANCE_TCOORDS[2], FACTION_ICON_ALLIANCE_TCOORDS[3], FACTION_ICON_ALLIANCE_TCOORDS[4])
+		frame.factionIcon:SetAlpha(factionIconConfig.general.opacity or 1)
+	else
+		frame.factionIcon:SetAlpha(0)
+	end
+end
+
 function NotPlater:ConfigureClassIcon(frame)
 	if not frame or not frame.classIcon then
 		return
@@ -245,4 +316,13 @@ function NotPlater:ConfigureEliteIcon(frame)
 	local eliteIconConfig = self.db.profile.icons.eliteIcon
 	self:ConfigureGeneralisedIcon(frame.eliteIcon, frame.healthBar, eliteIconConfig)
 	self:UpdateEliteIcon(frame)
+end
+
+function NotPlater:ConfigureFactionIcon(frame)
+	if not frame or not frame.factionIcon then
+		return
+	end
+	local factionIconConfig = self.db.profile.icons.factionIcon
+	self:ConfigureGeneralisedIcon(frame.factionIcon, frame.healthBar, factionIconConfig)
+	self:UpdateFactionIcon(frame)
 end

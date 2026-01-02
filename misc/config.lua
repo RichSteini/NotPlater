@@ -974,6 +974,12 @@ local function LoadOptions()
 			name = L["Class Icon"],
 			args = NotPlater.ConfigPrototypes.Icon,
 		},
+		factionIcon = {
+			order = 4,
+			type = "group",
+			name = L["Faction Icon"],
+			args = NotPlater.ConfigPrototypes.Icon,
+		},
 	}
 	options.args.icons = {
 		order = 5,

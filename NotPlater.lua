@@ -11,6 +11,7 @@ NotPlater.addonName = addonName or NotPlater.addonName or "NotPlater-2.4.3"
 local UnitName = UnitName
 local UnitGUID = UnitGUID
 local UnitClass = UnitClass
+local UnitFactionGroup = UnitFactionGroup
 local UnitIsPlayer = UnitIsPlayer
 local UnitExists = UnitExists
 local UnitCanAttack = UnitCanAttack
@@ -28,28 +29,11 @@ local LEGACY_NAMEPLATE_TEXTURE = "Interface\\Tooltips\\Nameplate-Border"
 local frames = {}
 local classCache = {}
 local classTokenCache = {}
+local factionCache = {}
 NotPlater.classCache = classCache
 NotPlater.classTokenCache = classTokenCache
+NotPlater.factionCache = factionCache
 NotPlater.frames = frames
-
-function NotPlater:GetClassTokenFromColor(classColor)
-	if not classColor or not RAID_CLASS_COLORS then
-		return nil
-	end
-	for classToken, color in pairs(RAID_CLASS_COLORS) do
-		if color == classColor then
-			return classToken
-		end
-	end
-	for classToken, color in pairs(RAID_CLASS_COLORS) do
-		if math.abs(color.r - classColor.r) <= 0.01
-			and math.abs(color.g - classColor.g) <= 0.01
-			and math.abs(color.b - classColor.b) <= 0.01 then
-			return classToken
-		end
-	end
-	return nil
-end
 
 local function SetFrameClassColorFromUnit(frame, unit)
 	if not frame or not unit or not UnitExists(unit) then
@@ -57,14 +41,17 @@ local function SetFrameClassColorFromUnit(frame, unit)
 	end
 	if UnitIsPlayer(unit) then
 		local classToken = select(2, UnitClass(unit))
+		local faction = UnitFactionGroup(unit)
 		if classToken and RAID_CLASS_COLORS and RAID_CLASS_COLORS[classToken] then
 			frame.unitClass = RAID_CLASS_COLORS[classToken]
 			frame.unitClassToken = classToken
+			frame.unitFaction = faction
 			local nameText = frame.defaultNameText
 			local unitName = nameText:GetText()
 			if unitName and unitName ~= "" then
 				classCache[unitName] = frame.unitClass
 				classTokenCache[unitName] = classToken
+				factionCache[unitName] = faction
 			end
 			return true
 		end
@@ -276,6 +263,7 @@ function NotPlater:PrepareFrame(frame)
 		self:ConstructRange(frame)
 		self:ConstructEliteIcon(frame)
 		self:ConstructClassIcon(frame)
+		self:ConstructFactionIcon(frame)
 		self.Auras:AttachToFrame(frame)
 
 		-- Hide old healthbar
@@ -286,6 +274,7 @@ function NotPlater:PrepareFrame(frame)
 			local cachedClass = classCache[unitName]
 			self.unitClass = cachedClass
 			self.unitClassToken = classTokenCache[unitName]
+			self.unitFaction = factionCache[unitName]
 			NotPlater:CastBarOnShow(self)
 			NotPlater:HealthBarOnShow(health)
 			NotPlater:StackingCheck(self)
@@ -297,6 +286,7 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater.Auras:OnPlateShow(self)
 			NotPlater:UpdateClassIcon(self)
 			NotPlater:UpdateEliteIcon(self)
+			NotPlater:UpdateFactionIcon(self)
 			self.targetChanged = true
 		end)
 
@@ -331,6 +321,12 @@ function NotPlater:PrepareFrame(frame)
 						NotPlater:ClassCheck(self)
 					end
 					NotPlater:UpdateClassIcon(self)
+				end
+				if NotPlater.db.profile.icons.factionIcon.general.enable then
+					if not self.unitFaction then
+						NotPlater:FactionCheck(self)
+					end
+					NotPlater:UpdateFactionIcon(self)
 				end
 				NotPlater:SetTargetTargetText(self)
 				NotPlater:RangeCheck(self, self.targetCheckElapsed)
@@ -373,6 +369,7 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater.Auras:OnPlateHide(self)
 			self.unitClass = nil
 			self.unitClassToken = nil
+			self.unitFaction = nil
 			self.highlightTexture:Hide()
 		end)
 	end
@@ -386,6 +383,7 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureGeneralisedIcon(frame.raidIcon, frame.healthBar, self.db.profile.icons.raidIcon)
 	self:ConfigureEliteIcon(frame)
 	self:ConfigureClassIcon(frame)
+	self:ConfigureFactionIcon(frame)
 	self:ConfigureLevelText(frame.levelText, frame.healthBar)
 	self:ConfigureNameText(frame.nameText, frame.healthBar)
 	self:ConfigureTarget(frame)
@@ -435,34 +433,6 @@ end
 
 function NotPlater:OnDisable()
 	self:RestoreDefaultNameplateCastBar()
-end
-
-function NotPlater:ClassCheck(frame)
-	if frame.unitClass then return end
-
-	local r, g, b = frame.healthBar:GetStatusBarColor()
-	local classColor = NotPlater:GetClassColorFromRGB(r, g, b)
-	if classColor then
-		frame.unitClass = classColor
-		local unitName = frame.defaultNameText:GetText()
-		classCache[unitName] = classColor
-		local classToken = self:GetClassTokenFromColor(classColor)
-		if classToken then
-			frame.unitClassToken = classToken
-			classTokenCache[unitName] = classToken
-		end
-		return
-	end
-
-	if self:IsTarget(frame) then
-		SetFrameClassColorFromUnit(frame, "target")
-		return
-	end
-
-	local matchedUnit = frame.lastUnitMatch
-	if matchedUnit and self:IsTrackedMatchUnit(matchedUnit) and UnitExists(matchedUnit) then
-		SetFrameClassColorFromUnit(frame, matchedUnit)
-	end
 end
 
 local numChildren = -1

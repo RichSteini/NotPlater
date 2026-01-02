@@ -167,6 +167,12 @@ local stackingComponentDefinitions = {
 			return EnsureRegionContainer(frame, "classIcon", frame and frame.classIcon, frame and frame.healthBar)
 		end,
 	},
+	factionIcon = {
+		label = L["Faction Icon"],
+		get = function(frame)
+			return EnsureRegionContainer(frame, "factionIcon", frame and frame.factionIcon, frame and frame.healthBar)
+		end,
+	},
 	threatPercentBar = {
 		label = L["Threat Percent Bar"],
 		get = function(frame)
