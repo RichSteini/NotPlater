@@ -343,4 +343,9 @@ NotPlaterLocals = {
 	["Target Indicator"] = "Target Indicator",
 	["Target Highlight"] = "Target Highlight",
 	["Note: Filters match only when all enabled criteria are met."] = "Note: Filters match only when all enabled criteria are met.",
+	["Templates"] = "Templates",
+	["Preview a template, then activate it to import as a new profile and set it active."] = "Preview a template, then activate it to import as a new profile and set it active.",
+	["Activate Selected Template"] = "Activate Selected Template",
+	["No templates are defined in template_data.lua."] = "No templates are defined in template_data.lua.",
+	["Select a template to activate."] = "Select a template to activate.",
 }

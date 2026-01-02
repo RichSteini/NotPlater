@@ -185,6 +185,12 @@ function NotPlater:OnInitialize()
 end
 
 function NotPlater:IsTarget(frame)
+	if frame and frame.isTemplatePreview then
+		if frame.simulatedTarget ~= nil then
+			return frame.simulatedTarget
+		end
+		return false
+	end
     local targetExists = UnitExists('target')
     if not targetExists then
         return false

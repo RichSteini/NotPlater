@@ -68,6 +68,7 @@ local textures = {"NotPlater Default", "NotPlater Background", "NotPlater Health
 
 local CATEGORY_ICON_SIZE = 18
 local CATEGORY_ICONS = {
+	templates = "Interface\\Icons\\INV_Scroll_05",
 	threat = "Interface\\Icons\\Ability_Warrior_DefensiveStance",
 	healthBar = "Interface\\Icons\\Spell_Holy_FlashHeal",
 	castBar = "Interface\\Icons\\Spell_Frost_Frostbolt02",
@@ -1217,8 +1218,14 @@ local function LoadOptions()
 	if whatsNewModule and whatsNewModule.GetConfigOptions then
 		options.args.whatsNew = whatsNewModule:GetConfigOptions()
 	end
-	options.args.threat = {
+	options.args.templates = {
 		order = 0,
+		type = "group",
+		name = WithCategoryIcon("templates", L["Templates"]),
+		args = {},
+	}
+	options.args.threat = {
+		order = 1,
 		type = "group",
 		name = WithCategoryIcon("threat", L["Threat"]),
 		get = GetValue,
@@ -1273,7 +1280,7 @@ local function LoadOptions()
 	}
 	options.args.healthBar = {
 		type = "group",
-		order = 1,
+		order = 2,
 		name = WithCategoryIcon("healthBar", L["Health Bar"]),
 		get = GetValue,
 		set = SetValue,
@@ -1295,7 +1302,7 @@ local function LoadOptions()
 	}
 	options.args.castBar = {
 		type = "group",
-		order = 2,
+		order = 3,
 		name = WithCategoryIcon("castBar", L["Cast Bar"]),
 		get = GetValue,
 		set = SetValue,
@@ -1328,7 +1335,7 @@ local function LoadOptions()
 		},
 	}
 	options.args.nameText = {
-		order = 3,
+		order = 4,
 		type = "group",
 		name = WithCategoryIcon("nameText", L["Name Text"]),
 		get = GetValue,
@@ -1336,7 +1343,7 @@ local function LoadOptions()
 		args = NotPlater.ConfigPrototypes.NameText
 	}
 	options.args.levelText = {
-		order = 4,
+		order = 5,
 		type = "group",
 		name = WithCategoryIcon("levelText", L["Level Text"]),
 		get = GetValue,
@@ -1382,7 +1389,7 @@ local function LoadOptions()
 		},
 	}
 	options.args.icons = {
-		order = 5,
+		order = 6,
 		type = "group",
 		name = WithCategoryIcon("icons", L["Icons"]),
 		get = GetValue,
@@ -1452,7 +1459,7 @@ local function LoadOptions()
 	end
 
 	options.args.filters = {
-		order = 6,
+		order = 7,
 		type = "group",
 		name = WithCategoryIcon("filters", L["Filters"]),
 		childGroups = "tab",
@@ -1840,7 +1847,7 @@ local function LoadOptions()
 		},
 	}
 	options.args.target = {
-		order = 7,
+		order = 8,
 		type = "group",
 		name = WithCategoryIcon("target", L["Target"]),
 		get = GetValue,
@@ -1862,7 +1869,7 @@ local function LoadOptions()
 		}
 	}
 	options.args.range = {
-		order = 8,
+		order = 9,
 		type = "group",
 		name = WithCategoryIcon("range", L["Range Indicator"]),
 		get = GetValue,
@@ -1875,7 +1882,7 @@ local function LoadOptions()
 		},
 	}
 	options.args.buffs = {
-		order = 9,
+		order = 10,
 		type = "group",
 		name = WithCategoryIcon("buffs", L["Buffs"]),
 		childGroups = "tab",
@@ -1884,7 +1891,7 @@ local function LoadOptions()
 		args = NotPlater.ConfigPrototypes.Buffs,
 	}
 	options.args.stacking = {
-		order = 10,
+		order = 11,
         type = "group",
         childGroups = "tab",
 		name = WithCategoryIcon("stacking", L["Stacking"]),
@@ -1893,7 +1900,7 @@ local function LoadOptions()
 		args = NotPlater.ConfigPrototypes.Stacking,
 	}
 	options.args.simulator = {
-		order = 11,
+		order = 12,
 		type = "group",
 		name = WithCategoryIcon("simulator", L["Simulator"]),
 		get = GetValue,
@@ -1907,7 +1914,7 @@ local function LoadOptions()
 
 	local profileLabel = L["Profiles"] or "Profiles"
 	options.args.profile = {
-		order = 12,
+		order = 13,
 		type = "group",
 		childGroups = "tab",
 		name = WithCategoryIcon("profile", profileLabel),
@@ -2146,11 +2153,14 @@ function Config:OpenConfig()
 
 	if frame and not frame.npCloseHooked then
 		frame.npCloseHooked = true
+		NotPlater:HookTemplateGalleryWatcher(frame)
 		frame.frame:HookScript("OnHide", function()
 			NotPlater:HideSimulatorFrame()
+			NotPlater:HideTemplateGallery()
 		end)
 	end
 
+	NotPlater:UpdateTemplateGalleryVisibility()
 end
 
 -- Slash commands

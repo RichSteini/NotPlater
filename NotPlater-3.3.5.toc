@@ -24,6 +24,7 @@ misc\profileSharing.lua
 misc\versionCheck.lua
 misc\config.lua
 misc\configDefaults.lua
+misc\template_data.lua
 misc\diminishingReturnsData-3.3.5.lua
 misc\utils.lua
 
@@ -31,6 +32,7 @@ misc\utils.lua
 modules\castBar.lua
 modules\healthBar.lua
 modules\filters.lua
+modules\templates.lua
 modules\icon.lua
 modules\levelText.lua
 modules\nameText.lua

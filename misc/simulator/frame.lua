@@ -279,9 +279,8 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
 		ThreatSimulator:Step(self.defaultFrame.defaultHealthFrame)
 		self.defaultFrame.lastUnitMatch = "target"
         self.defaultFrame.unitFaction = playerFaction 
-		local simAuras = NotPlater.SimulatorAuras
-		if simAuras and simAuras.guid then
-			self.defaultFrame.lastGuidMatch = simAuras.guid
+		if self.defaultFrame.npGUID then
+			self.defaultFrame.lastGuidMatch = self.defaultFrame.npGUID
 		else
 			self.defaultFrame.lastGuidMatch = ThreatSimulator.simulatedTargetGuid
 		end
@@ -299,7 +298,7 @@ function NotPlater:SimulatorFrameOnUpdate(elapsed)
         self.defaultFrame.simulatedRangeValue = SIM_RANGE_STEPS[simRangeIndex]
     end
     if NotPlater.SimulatorAuras and NotPlater.SimulatorAuras.OnUpdate then
-        NotPlater.SimulatorAuras:OnUpdate(elapsed)
+        NotPlater.SimulatorAuras:OnUpdate(elapsed, self.defaultFrame)
     end
 end
 
@@ -384,7 +383,7 @@ function NotPlater:SimulatorFrameOnShow()
     end
     NotPlater.simulatorFrame.defaultFrame:SetFrameStrata(NotPlater.simulatorFrame:GetFrameStrata())
     if NotPlater.SimulatorAuras and NotPlater.SimulatorAuras.OnShow then
-        NotPlater.SimulatorAuras:OnShow()
+        NotPlater.SimulatorAuras:OnShow(NotPlater.simulatorFrame.defaultFrame)
         NotPlater:SimulatorReload()
     end
 end
@@ -398,8 +397,64 @@ function NotPlater:SimulatorFrameOnHide()
 	if NotPlater.oldUpdateEliteIcon then NotPlater.UpdateEliteIcon = NotPlater.oldUpdateEliteIcon end
     if NotPlater.oldReload then NotPlater.Reload = NotPlater.oldReload end
     if NotPlater.SimulatorAuras and NotPlater.SimulatorAuras.OnHide then
-        NotPlater.SimulatorAuras:OnHide()
+        NotPlater.SimulatorAuras:OnHide(NotPlater.simulatorFrame.defaultFrame)
     end
+end
+
+function NotPlater:ConstructSimulatedPlate(parent, frameName)
+	local plate = CreateFrame("Button", frameName, parent)
+	plate.isSimulatorFrame = true
+	plate:EnableMouse(true)
+	self:SetSize(plate, 156.65, 39.16)
+
+	local healthFrameName = nil
+	if frameName == "NotPlaterSimulatorDefaultFrame" then
+		healthFrameName = "NotPlaterSimulatorHealthFrame"
+	elseif frameName then
+		healthFrameName = frameName .. "HealthFrame"
+	end
+	plate.defaultHealthFrame = CreateFrame("StatusBar", healthFrameName, plate)
+	plate.defaultHealthFrame:SetMinMaxValues(healthMin, healthMax)
+	plate.defaultHealthFrame:SetStatusBarColor(1, 0.109, 0, 1)
+
+	if IS_WRATH_CLIENT then
+		plate.defaultThreatGlow = plate:CreateTexture(nil, "ARTWORK")
+		plate.defaultHealthBorder = plate:CreateTexture(nil, "ARTWORK")
+		plate.defaultCastBorder = plate:CreateTexture(nil, "ARTWORK")
+		plate.defaultCastNoStop = plate:CreateTexture(nil, "ARTWORK")
+		plate.defaultSpellIcon = plate:CreateTexture(nil, "ARTWORK")
+		plate.defaultHighlightTexture = plate:CreateTexture(nil, "ARTWORK")
+		plate.defaultNameText = plate:CreateFontString(nil, "ARTWORK")
+		plate.defaultLevelText = plate:CreateFontString(nil, "ARTWORK")
+		plate.defaultBossIcon = plate:CreateTexture(nil, "BORDER")
+		plate.defaultBossIcon:SetTexture(BOSS_ICON_PATH)
+		plate.defaultBossIcon:SetTexCoord(0, 1, 0, 1)
+		plate.defaultRaidIcon = plate:CreateTexture(nil, "BORDER")
+		plate.defaultEliteIcon = plate:CreateTexture(nil, "BORDER")
+	else
+		plate.defaultHealthBorder = plate:CreateTexture(nil, "ARTWORK")
+		plate.defaultCastBorder = plate:CreateTexture(nil, "ARTWORK")
+		plate.defaultSpellIcon = plate:CreateTexture(nil, "ARTWORK")
+		plate.defaultHighlightTexture = plate:CreateTexture(nil, "ARTWORK")
+		plate.defaultNameText = plate:CreateFontString(nil, "ARTWORK")
+		plate.defaultLevelText = plate:CreateFontString(nil, "ARTWORK")
+		plate.defaultBossIcon = plate:CreateTexture(nil, "BORDER")
+		plate.defaultBossIcon:SetTexture(BOSS_ICON_PATH)
+		plate.defaultBossIcon:SetTexCoord(0, 1, 0, 1)
+		plate.defaultRaidIcon = plate:CreateTexture(nil, "BORDER")
+	end
+
+	self:SetupFontString(plate.defaultLevelText, NotPlater.db.profile.levelText)
+	plate.defaultLevelText:SetText(L["70"])
+	plate.defaultLevelText:SetTextColor(1, 1, 0, 1)
+	self:SetupFontString(plate.defaultNameText, NotPlater.db.profile.nameText)
+
+	plate.nameText = plate.defaultNameText
+	plate.levelText = plate.defaultLevelText
+	plate.bossIcon = plate.defaultBossIcon
+	plate.raidIcon = plate.defaultRaidIcon
+
+	return plate
 end
 
 function NotPlater:ConstructSimulatorFrame()
@@ -443,9 +498,7 @@ function NotPlater:ConstructSimulatorFrame()
     self:SetSize(simulatorFrame.dragMeTexture, 16, 16)
     simulatorFrame.dragMeTexture:SetPoint("TOPLEFT", simulatorFrame, 7, -7)
     simulatorFrame.dragMeTexture:SetAlpha(0.3)
-    simulatorFrame.defaultFrame = CreateFrame("Button", "NotPlaterSimulatorDefaultFrame", simulatorFrame)
-    simulatorFrame.defaultFrame.isSimulatorFrame = true
-    simulatorFrame.defaultFrame:EnableMouse(true)
+    simulatorFrame.defaultFrame = self:ConstructSimulatedPlate(simulatorFrame, "NotPlaterSimulatorDefaultFrame")
     simulatorFrame.defaultFrame:RegisterForClicks("AnyDown")
     simulatorFrame.defaultFrame:SetScript("OnClick", function (self, mouseButton)
         if mouseButton == "LeftButton" or mouseButton == "RightButton" then
@@ -457,52 +510,7 @@ function NotPlater:ConstructSimulatorFrame()
             self.targetChanged = true
         end
 	end)
-    self:SetSize(simulatorFrame.defaultFrame, 156.65, 39.16)
     simulatorFrame.defaultFrame:SetPoint("BOTTOM", simulatorFrame.outlineText, "TOP", 0, 5)
-
-    -- Frames
-    simulatorFrame.defaultFrame.defaultHealthFrame = CreateFrame("StatusBar", "NotPlaterSimulatorHealthFrame", simulatorFrame.defaultFrame)
-    simulatorFrame.defaultFrame.defaultHealthFrame:SetMinMaxValues(healthMin, healthMax)
-    simulatorFrame.defaultFrame.defaultHealthFrame:SetStatusBarColor({1, 0.109, 0, 1})
-    --simulatorFrame.defaultFrame.defaultCastFrame = CreateFrame("StatusBar", "NotPlaterSimulatorCastFrame", simulatorFrame.defaultFrame)
-
-    -- Regions
-    if IS_WRATH_CLIENT then
-        simulatorFrame.defaultFrame.defaultThreatGlow = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultHealthBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultCastBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultCastNoStop = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultSpellIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultHighlightTexture = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultNameText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultLevelText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultBossIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
-        simulatorFrame.defaultFrame.defaultBossIcon:SetTexture(BOSS_ICON_PATH)
-        simulatorFrame.defaultFrame.defaultBossIcon:SetTexCoord(0, 1, 0, 1)
-        simulatorFrame.defaultFrame.defaultRaidIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
-        simulatorFrame.defaultFrame.defaultEliteIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
-    else
-        simulatorFrame.defaultFrame.defaultHealthBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultCastBorder = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultSpellIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultHighlightTexture = simulatorFrame.defaultFrame:CreateTexture(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultNameText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultLevelText = simulatorFrame.defaultFrame:CreateFontString(nil, "ARTWORK")
-        simulatorFrame.defaultFrame.defaultBossIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
-        simulatorFrame.defaultFrame.defaultBossIcon:SetTexture(BOSS_ICON_PATH)
-        simulatorFrame.defaultFrame.defaultBossIcon:SetTexCoord(0, 1, 0, 1)
-        simulatorFrame.defaultFrame.defaultRaidIcon = simulatorFrame.defaultFrame:CreateTexture(nil, "BORDER")
-    end
-
-    self:SetupFontString(simulatorFrame.defaultFrame.defaultLevelText, NotPlater.db.profile.levelText)
-    simulatorFrame.defaultFrame.defaultLevelText:SetText(L["70"])
-    simulatorFrame.defaultFrame.defaultLevelText:SetTextColor(1, 1, 0, 1)
-    self:SetupFontString(simulatorFrame.defaultFrame.defaultNameText, NotPlater.db.profile.nameText)
-
-    simulatorFrame.defaultFrame.nameText = simulatorFrame.defaultFrame.defaultNameText
-    simulatorFrame.defaultFrame.levelText = simulatorFrame.defaultFrame.defaultLevelText
-    simulatorFrame.defaultFrame.bossIcon = simulatorFrame.defaultFrame.defaultBossIcon
-    simulatorFrame.defaultFrame.raidIcon = simulatorFrame.defaultFrame.defaultRaidIcon
 
     -- Prepare
     self:PrepareFrame(simulatorFrame.defaultFrame)

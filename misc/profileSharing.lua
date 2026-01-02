@@ -374,36 +374,47 @@ function ProfileSharing:GetLastImportSummary()
   return self.lastImportSummary
 end
 
+function ProfileSharing:DecodeImportString(value)
+	if type(value) ~= "string" or not value:match("^!NP:1!") then
+		return nil, L["Invalid import string"]
+	end
+	local data = StringToTable(value, true)
+	if type(data) == "string" then
+		return nil, data
+	end
+	return data, nil
+end
+
+function ProfileSharing:ImportProfileFromString(value, profileName, switchToImportedProfile)
+	local data, err = self:DecodeImportString(value)
+	if not data then
+		self.lastImportSummary = err
+		return false, err
+	end
+	local name = profileName
+	if not name or name == "" then
+		name = "Imported"
+	end
+	local baseName = name
+	local i = 2
+	while NotPlater.db.profiles[name] do
+		name = baseName .. " " .. i
+		i = i + 1
+	end
+	NotPlater.db.profiles[name] = data
+	self.lastImportSummary = L["Imported as "] .. name
+	if switchToImportedProfile then
+		NotPlater.db:SetProfile(name)
+		NotPlater:Reload()
+	end
+	if registry then
+		registry:NotifyChange("NotPlater")
+	end
+	return true, name
+end
+
 function ProfileSharing:ImportFromOptions()
-  local str = self.importString
-  if not str:match("^!NP:1!") then
-    self.lastImportSummary = L["Invalid import string"]
-    return
-  end
-  local data = StringToTable(str, true)
-  if type(data) == "string" then
-    self.lastImportSummary = data
-    return
-  end
-  local name = self.importProfileName
-  if name == "" then
-    name = "Imported"
-  end
-  local baseName = name
-  local i = 2
-  while NotPlater.db.profiles[name] do
-    name = baseName .. " " .. i
-    i = i + 1
-  end
-  NotPlater.db.profiles[name] = data
-  self.lastImportSummary = L["Imported as "] .. name
-  if self.switchToImportedProfile then
-    NotPlater.db:SetProfile(name)
-    NotPlater:Reload()
-  end
-  if registry then
-    registry:NotifyChange("NotPlater")
-  end
+	self:ImportProfileFromString(self.importString, self.importProfileName, self.switchToImportedProfile)
 end
 
 function ProfileSharing:RequestProfile(characterName, profileName)

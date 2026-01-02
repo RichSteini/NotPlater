@@ -141,6 +141,22 @@ local function GenerateGuid()
 	return GUID_PREFIX .. tostring(90000 + guidCounter)
 end
 
+local function GetState(self, frame)
+	if not frame then
+		return nil
+	end
+	self.states = self.states or {}
+	local state = self.states[frame]
+	if not state then
+		state = {frame = frame}
+		self.states[frame] = state
+	else
+		state.frame = frame
+	end
+	state.guid = state.guid or GenerateGuid()
+	return state
+end
+
 local function GetConfig()
 	if not NotPlater or not NotPlater.db or not NotPlater.db.profile then
 		return nil
@@ -204,33 +220,42 @@ function SimulatorAuras:AttachFrame(frame)
 	if not frame then
 		return
 	end
-	self.frame = frame
-	self.guid = self.guid or GenerateGuid()
+	local state = GetState(self, frame)
 	frame.npSimulatedAuras = true
 	local auraModule = NotPlater.Auras
 	if auraModule and auraModule.SetFrameGUID then
-		auraModule:SetFrameGUID(frame, self.guid)
+		auraModule:SetFrameGUID(frame, state.guid)
 	else
-		frame.npGUID = self.guid
+		frame.npGUID = state.guid
 	end
+	return state
 end
 
-function SimulatorAuras:UpdateTrackerRegistration(active)
-	if not self.guid then
-		return
-	end
+function SimulatorAuras:UpdateTrackerRegistration(active, state)
 	local tracker = NotPlater and NotPlater.AuraTracker
 	if not tracker then
 		return
 	end
-	if active then
-		if tracker.RegisterSimulatorGUID then
-			tracker:RegisterSimulatorGUID(self.guid)
+	if state then
+		if not state.guid then
+			return
 		end
-	else
-		if tracker.UnregisterSimulatorGUID then
-			tracker:UnregisterSimulatorGUID(self.guid)
+		if active then
+			if tracker.RegisterSimulatorGUID then
+				tracker:RegisterSimulatorGUID(state.guid)
+			end
+		else
+			if tracker.UnregisterSimulatorGUID then
+				tracker:UnregisterSimulatorGUID(state.guid)
+			end
 		end
+		return
+	end
+	if not self.states then
+		return
+	end
+	for _, entry in pairs(self.states) do
+		self:UpdateTrackerRegistration(active, entry)
 	end
 end
 
@@ -271,50 +296,70 @@ function SimulatorAuras:GetDesiredCounts()
 	return desiredBuffs, desiredDebuffs, MAX_TOTAL
 end
 
-function SimulatorAuras:OnShow()
-	if not self.frame then
+function SimulatorAuras:OnShow(frame)
+	if frame then
+		local state = GetState(self, frame)
+		state.playerGUID = UnitGUID and UnitGUID("player") or state.playerGUID
+		self:UpdateTrackerRegistration(true, state)
+		self:ClearAuras(state)
+		state.active = state.active or {}
+		wipe(state.active)
+		state.forceRefresh = true
 		return
 	end
-	self.playerGUID = UnitGUID and UnitGUID("player") or self.playerGUID
-	self:UpdateTrackerRegistration(true)
-	self:ClearAuras()
-	self.active = self.active or {}
-	wipe(self.active)
-	self.forceRefresh = true
-end
-
-function SimulatorAuras:OnHide()
-	self:ClearAuras()
-	self:UpdateTrackerRegistration(false)
-end
-
-function SimulatorAuras:ClearAuras()
-	if self.active then
-		wipe(self.active)
+	if not self.states then
+		return
 	end
-	self.waveTargets = nil
+	for frameKey in pairs(self.states) do
+		self:OnShow(frameKey)
+	end
+end
+
+function SimulatorAuras:OnHide(frame)
+	if frame then
+		local state = GetState(self, frame)
+		self:ClearAuras(state)
+		self:UpdateTrackerRegistration(false, state)
+		return
+	end
+	if not self.states then
+		return
+	end
+	for frameKey in pairs(self.states) do
+		self:OnHide(frameKey)
+	end
+end
+
+function SimulatorAuras:ClearAuras(state)
+	if not state then
+		return
+	end
+	if state.active then
+		wipe(state.active)
+	end
+	state.waveTargets = nil
 	local tracker = NotPlater and NotPlater.AuraTracker
-	if tracker and self.guid then
+	if tracker and state.guid then
 		if tracker.guidAuras then
-			tracker.guidAuras[self.guid] = nil
+			tracker.guidAuras[state.guid] = nil
 		end
 		if tracker.pendingDurations then
-			tracker.pendingDurations[self.guid] = nil
+			tracker.pendingDurations[state.guid] = nil
 		end
 		if tracker.NotifyListeners then
-			tracker:NotifyListeners(self.guid)
+			tracker:NotifyListeners(state.guid)
 		end
 	end
-	self.hasActive = false
+	state.hasActive = false
 end
 
-function SimulatorAuras:GetSourceGUID(source)
+function SimulatorAuras:GetSourceGUID(source, state)
 	if source == "player" then
-		return self.playerGUID or SOURCE_PLAYER_GUID
+		return (state and state.playerGUID) or SOURCE_PLAYER_GUID
 	elseif source == "pet" then
 		return SOURCE_PET_GUID
 	elseif source == "self" then
-		return self.guid
+		return state and state.guid
 	end
 	return SOURCE_NPC_GUID
 end
@@ -348,12 +393,18 @@ function SimulatorAuras:GetStackCount(def)
 	return random(minValue, maxValue)
 end
 
-function SimulatorAuras:NextKey(kind, spellID)
-	self.keyCounter = (self.keyCounter or 0) + 1
-	return string.format("%s:%d:%d", kind == "buff" and "B" or "D", spellID, self.keyCounter)
+function SimulatorAuras:NextKey(kind, spellID, state)
+	if not state then
+		return nil
+	end
+	state.keyCounter = (state.keyCounter or 0) + 1
+	return string.format("%s:%d:%d", kind == "buff" and "B" or "D", spellID, state.keyCounter)
 end
 
-function SimulatorAuras:SpawnAura(kind, now)
+function SimulatorAuras:SpawnAura(kind, now, state)
+	if not state then
+		return nil
+	end
 	local pool = auraPool[kind]
 	if not pool or #pool == 0 then
 		return nil
@@ -363,7 +414,10 @@ function SimulatorAuras:SpawnAura(kind, now)
 	if not duration or duration <= 0 then
 		duration = NO_DURATION_FALLBACK
 	end
-	local key = self:NextKey(kind, definition.spellID)
+	local key = self:NextKey(kind, definition.spellID, state)
+	if not key then
+		return nil
+	end
 	local aura = {
 		spellID = definition.spellID,
 		name = definition.name,
@@ -372,8 +426,8 @@ function SimulatorAuras:SpawnAura(kind, now)
 		dispelType = definition.dispelType,
 		isDebuff = kind == "debuff",
 		isBuff = kind == "buff",
-		casterGUID = self:GetSourceGUID(definition.source),
-		targetGUID = self.guid,
+		casterGUID = self:GetSourceGUID(definition.source, state),
+		targetGUID = state.guid,
 		duration = duration,
 		expirationTime = now + duration,
 		appliedAt = now,
@@ -384,29 +438,32 @@ function SimulatorAuras:SpawnAura(kind, now)
 		isCrowdControl = definition.crowdControl or false,
 		isEnrage = definition.enrage or false,
 	}
-	self.active = self.active or {}
-	self.active[key] = aura
+	state.active = state.active or {}
+	state.active[key] = aura
 	return aura
 end
 
-function SimulatorAuras:PushToTracker(skipNotify)
+function SimulatorAuras:PushToTracker(skipNotify, state)
+	if not state then
+		return
+	end
 	local tracker = NotPlater and NotPlater.AuraTracker
-	if not tracker or not self.guid then
+	if not tracker or not state.guid then
 		return
 	end
 	tracker.guidAuras = tracker.guidAuras or {}
-	local entries = tracker.guidAuras and tracker.guidAuras[self.guid]
+	local entries = tracker.guidAuras and tracker.guidAuras[state.guid]
 	if not entries then
 		if tracker.guidAuras then
-			tracker.guidAuras[self.guid] = {}
-			entries = tracker.guidAuras[self.guid]
+			tracker.guidAuras[state.guid] = {}
+			entries = tracker.guidAuras[state.guid]
 		else
 			return
 		end
 	end
 	local seen = {}
-	if self.active then
-		for key, aura in pairs(self.active) do
+	if state.active then
+		for key, aura in pairs(state.active) do
 			entries[key] = copyTable(aura)
 			seen[key] = true
 		end
@@ -417,92 +474,105 @@ function SimulatorAuras:PushToTracker(skipNotify)
 		end
 	end
 	if not next(entries) then
-		tracker.guidAuras[self.guid] = nil
+		tracker.guidAuras[state.guid] = nil
 	end
-	self.hasActive = self.active and next(self.active) ~= nil
+	state.hasActive = state.active and next(state.active) ~= nil
 	if tracker.NotifyListeners and not skipNotify then
-		tracker:NotifyListeners(self.guid)
+		tracker:NotifyListeners(state.guid)
 	end
 end
 
-function SimulatorAuras:OnUpdate(elapsed)
-	if not self.frame or not self.guid then
-		return
-	end
-	if not self:IsEnabled() then
-		if self.hasActive then
-			self:ClearAuras()
+function SimulatorAuras:OnUpdate(elapsed, frame)
+	if frame then
+		local state = GetState(self, frame)
+		if not state or not state.guid then
+			return
 		end
-		return
-	end
-	self.updateElapsed = (self.updateElapsed or 0) + elapsed
-	if self.updateElapsed < UPDATE_INTERVAL then
-		return
-	end
-	self.updateElapsed = 0
-	local now = GetTime()
-	local changed = false
-	local respawnQueue = {}
-	if self.active then
-		for key, aura in pairs(self.active) do
-			if aura.expirationTime and aura.expirationTime <= now then
-				respawnQueue[#respawnQueue + 1] = aura.isBuff and "buff" or "debuff"
-				self.active[key] = nil
+		if frame.IsShown and not frame:IsShown() then
+			return
+		end
+		if not self:IsEnabled() then
+			if state.hasActive then
+				self:ClearAuras(state)
+			end
+			return
+		end
+		state.updateElapsed = (state.updateElapsed or 0) + elapsed
+		if state.updateElapsed < UPDATE_INTERVAL then
+			return
+		end
+		state.updateElapsed = 0
+		local now = GetTime()
+		local changed = false
+		local respawnQueue = {}
+		if state.active then
+			for key, aura in pairs(state.active) do
+				if aura.expirationTime and aura.expirationTime <= now then
+					respawnQueue[#respawnQueue + 1] = aura.isBuff and "buff" or "debuff"
+					state.active[key] = nil
+					changed = true
+				end
+			end
+		end
+		local desiredBuffs, desiredDebuffs, totalLimit = self:GetDesiredCounts()
+		totalLimit = totalLimit or MAX_TOTAL
+		local buffCount, debuffCount = 0, 0
+		if state.active then
+			for _, aura in pairs(state.active) do
+				if aura.isBuff then
+					buffCount = buffCount + 1
+				else
+					debuffCount = debuffCount + 1
+				end
+			end
+		end
+		local function spawnKind(kind)
+			if (buffCount + debuffCount) >= totalLimit then
+				return false
+			end
+			local aura = self:SpawnAura(kind, now, state)
+			if aura then
+				if aura.isBuff then
+					buffCount = buffCount + 1
+				else
+					debuffCount = debuffCount + 1
+				end
 				changed = true
+				return true
 			end
-		end
-	end
-	local desiredBuffs, desiredDebuffs, totalLimit = self:GetDesiredCounts()
-	totalLimit = totalLimit or MAX_TOTAL
-	local buffCount, debuffCount = 0, 0
-	if self.active then
-		for _, aura in pairs(self.active) do
-			if aura.isBuff then
-				buffCount = buffCount + 1
-			else
-				debuffCount = debuffCount + 1
-			end
-		end
-	end
-	local function spawnKind(kind)
-		if (buffCount + debuffCount) >= totalLimit then
 			return false
 		end
-		local aura = self:SpawnAura(kind, now)
-		if aura then
-			if aura.isBuff then
-				buffCount = buffCount + 1
-			else
-				debuffCount = debuffCount + 1
-			end
-			changed = true
-			return true
-		end
-		return false
-	end
-	for _, kind in ipairs(respawnQueue) do
-		if (buffCount + debuffCount) < totalLimit and random() < 0.5 then
-			spawnKind(kind)
-		end
-	end
-	if (buffCount + debuffCount) == 0 then
-		local buffTarget, debuffTarget = self:GenerateWaveTargets(desiredBuffs, desiredDebuffs)
-		self.waveTargets = {buff = buffTarget, debuff = debuffTarget}
-		while buffCount < buffTarget and (buffCount + debuffCount) < totalLimit do
-			if not spawnKind("buff") then
-				break
+		for _, kind in ipairs(respawnQueue) do
+			if (buffCount + debuffCount) < totalLimit and random() < 0.5 then
+				spawnKind(kind)
 			end
 		end
-		while debuffCount < debuffTarget and (buffCount + debuffCount) < totalLimit do
-			if not spawnKind("debuff") then
-				break
+		if (buffCount + debuffCount) == 0 then
+			local buffTarget, debuffTarget = self:GenerateWaveTargets(desiredBuffs, desiredDebuffs)
+			state.waveTargets = {buff = buffTarget, debuff = debuffTarget}
+			while buffCount < buffTarget and (buffCount + debuffCount) < totalLimit do
+				if not spawnKind("buff") then
+					break
+				end
 			end
+			while debuffCount < debuffTarget and (buffCount + debuffCount) < totalLimit do
+				if not spawnKind("debuff") then
+					break
+				end
+			end
+		else
+			state.waveTargets = state.waveTargets or {buff = desiredBuffs, debuff = desiredDebuffs}
 		end
-	else
-		self.waveTargets = self.waveTargets or {buff = desiredBuffs, debuff = desiredDebuffs}
+		if changed or state.forceRefresh then
+			state.forceRefresh = nil
+			self:PushToTracker(false, state)
+		end
+		return
 	end
-	if changed or self.forceRefresh then
-		self.forceRefresh = nil
-		self:PushToTracker()
+	if not self.states then
+		return
+	end
+	for frameKey in pairs(self.states) do
+		self:OnUpdate(elapsed, frameKey)
 	end
 end
