@@ -22,6 +22,22 @@ local function GetSafeStrata(frame, fallback)
 end
 
 local function SetContainerVisibility(container, shouldShow)
+	if container.npFilterHidden then
+		container:Hide()
+		return
+	end
+	if container.npVisibilityOverride then
+		local overrideShown = container.npVisibilityOverrideShown
+		if overrideShown == nil then
+			overrideShown = shouldShow
+		end
+		if overrideShown then
+			container:Show()
+		else
+			container:Hide()
+		end
+		return
+	end
 	if shouldShow then
 		container:Show()
 	else
@@ -88,6 +104,40 @@ local function EnsureRegionContainer(frame, key, region, anchorFrame)
 	return container
 end
 
+local function EnsureCompositeContainer(frame, key, regions, anchorFrame)
+	if not frame or not regions then
+		return nil
+	end
+	local hasRegion = false
+	for index = 1, #regions do
+		if regions[index] then
+			hasRegion = true
+			break
+		end
+	end
+	if not hasRegion then
+		return nil
+	end
+	frame.stackingContainers = frame.stackingContainers or {}
+	local container = frame.stackingContainers[key]
+	if not container then
+		container = CreateFrame("Frame", nil, frame)
+		frame.stackingContainers[key] = container
+	end
+	container:ClearAllPoints()
+	container:SetAllPoints(anchorFrame or frame)
+	container:SetFrameStrata(GetSafeStrata(anchorFrame or frame, "LOW"))
+	container:SetFrameLevel((anchorFrame and anchorFrame:GetFrameLevel()) or frame:GetFrameLevel())
+	for index = 1, #regions do
+		local region = regions[index]
+		if region then
+			region:SetParent(container)
+		end
+	end
+	SyncContainerVisibility(container, anchorFrame)
+	return container
+end
+
 local stackingComponentDefinitions = {
 	healthBar = {
 		label = L["Health Bar"],
@@ -149,6 +199,50 @@ local stackingComponentDefinitions = {
 			return EnsureRegionContainer(frame, "targetOverlay", frame and frame.targetOverlay, frame and frame.healthBar)
 		end,
 	},
+	targetIndicator = {
+		label = L["Target Indicator"],
+		get = function(frame)
+			if not frame then
+				return nil
+			end
+			local regions = {}
+			if frame.targetTextures2Sides then
+				for index = 1, #frame.targetTextures2Sides do
+					regions[#regions + 1] = frame.targetTextures2Sides[index]
+				end
+			end
+			if frame.targetTextures4Sides then
+				for index = 1, #frame.targetTextures4Sides do
+					regions[#regions + 1] = frame.targetTextures4Sides[index]
+				end
+			end
+			return EnsureCompositeContainer(frame, "targetIndicator", regions, frame.healthBar)
+		end,
+	},
+	targetHighlight = {
+		label = L["Target Highlight"],
+		get = function(frame)
+			if not frame then
+				return nil
+			end
+			return EnsureCompositeContainer(frame, "targetHighlight", {frame.targetNeonUp, frame.targetNeonDown}, frame.healthBar)
+		end,
+	},
+	targetBorder = {
+		label = L["Target Border"],
+		get = function(frame)
+			return EnsureRegionContainer(frame, "targetBorder", frame and frame.targetBorderFrame, frame and frame.healthBar)
+		end,
+	},
+	mouseoverHighlight = {
+		label = L["Mouseover Highlight"],
+		get = function(frame)
+			if not frame then
+				return nil
+			end
+			return EnsureCompositeContainer(frame, "mouseoverHighlight", {frame.highlightTexture, frame.mouseoverBorderFrame}, frame.healthBar)
+		end,
+	},
 	bossIcon = {
 		label = L["Boss Icon"],
 		get = function(frame)
@@ -182,7 +276,7 @@ local stackingComponentDefinitions = {
 	threatPercentBar = {
 		label = L["Threat Percent Bar"],
 		get = function(frame)
-			return frame and frame.healthBar and frame.healthBar.threatPercentBar
+			return EnsureRegionContainer(frame, "threatPercentBar", frame and frame.healthBar and frame.healthBar.threatPercentBar, frame and frame.healthBar)
 		end,
 	},
 	threatPercentText = {
@@ -380,6 +474,15 @@ function NotPlater:GetStackingComponentFrame(frame, key)
 		return nil
 	end
 	return definition.get(frame)
+end
+
+function NotPlater:GetStackingComponentOrder()
+	self:EnsureStackingComponentOrder()
+	return self.db.profile.stacking.componentOrdering.components or {}
+end
+
+function NotPlater:GetStackingComponentRegion(frame, key)
+	return self:GetStackingComponentFrame(frame, key)
 end
 
 function NotPlater:ApplyStackingOrder(frame)

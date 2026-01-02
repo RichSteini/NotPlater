@@ -30,6 +30,7 @@ misc\utils.lua
 # Modules
 modules\castBar.lua
 modules\healthBar.lua
+modules\filters.lua
 modules\icon.lua
 modules\levelText.lua
 modules\nameText.lua

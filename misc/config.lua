@@ -76,6 +76,7 @@ local CATEGORY_ICONS = {
 	icons = "Interface\\Icons\\INV_Misc_Gear_01",
 	raidIcon = "Interface\\TargetingFrame\\UI-RaidTargetingIcon_1",
 	bossIcon = "Interface\\TargetingFrame\\UI-TargetingFrame-Skull",
+	filters = "Interface\\Icons\\INV_Misc_Book_11",
 	target = "Interface\\Icons\\Ability_Hunter_SniperShot",
 	range = "Interface\\Icons\\Ability_Hunter_MarkedForDeath",
 	buffs = "Interface\\Icons\\Spell_Holy_WordFortitude",
@@ -814,6 +815,399 @@ local function GetValue(...)
 	end
 end
 
+local filterEditingIndex
+
+local CLASS_TOKENS = {"WARRIOR", "PALADIN", "HUNTER", "ROGUE", "PRIEST", "DEATHKNIGHT", "SHAMAN", "MAGE", "WARLOCK", "DRUID"}
+
+local function DeepCopyTable(source, seen)
+	if type(source) ~= "table" then
+		return source
+	end
+	seen = seen or {}
+	if seen[source] then
+		return seen[source]
+	end
+	local copy = {}
+	seen[source] = copy
+	for key, value in pairs(source) do
+		copy[DeepCopyTable(key, seen)] = DeepCopyTable(value, seen)
+	end
+	return copy
+end
+
+local function GetFilterList()
+	local profile = NotPlater.db.profile
+	profile.filters = profile.filters or {}
+	profile.filters.list = profile.filters.list or {}
+	return profile.filters.list
+end
+
+local function GetEditingFilter()
+	local list = GetFilterList()
+	if #list == 0 then
+		filterEditingIndex = nil
+		return nil
+	end
+	if not filterEditingIndex or not list[filterEditingIndex] then
+		filterEditingIndex = 1
+	end
+	return list[filterEditingIndex], filterEditingIndex
+end
+
+local function GetClassLabel(token)
+	local male = LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[token]
+	if male then
+		return male
+	end
+	local female = LOCALIZED_CLASS_NAMES_FEMALE and LOCALIZED_CLASS_NAMES_FEMALE[token]
+	if female then
+		return female
+	end
+	return token
+end
+
+local function BuildFilterDefaults(name)
+	local classValues = {}
+	for _, token in ipairs(CLASS_TOKENS) do
+		if LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[token] then
+			classValues[token] = false
+		elseif LOCALIZED_CLASS_NAMES_FEMALE and LOCALIZED_CLASS_NAMES_FEMALE[token] then
+			classValues[token] = false
+		end
+	end
+	local baseNameText = NotPlater.db.profile.nameText
+	local nameTextConfig = CopyTable and CopyTable(baseNameText) or DeepCopyTable(baseNameText)
+	if nameTextConfig and nameTextConfig.general then
+		nameTextConfig.general.size = 12
+		nameTextConfig.general.border = "OUTLINE"
+	end
+	local hideComponents = {}
+	local componentOrder = NotPlater:GetStackingComponentOrder()
+	for index = 1, #componentOrder do
+		local key = componentOrder[index]
+		hideComponents[key] = key ~= "nameText" and key ~= "npcIcons"
+	end
+	return {
+		name = name,
+		enabled = true,
+		criteria = {
+			faction = {
+				enable = false,
+				values = {Alliance = false, Horde = false, Neutral = false},
+			},
+			class = {
+				enable = false,
+				values = classValues,
+			},
+			level = {
+				enable = false,
+				min = nil,
+				max = nil,
+			},
+			name = {
+				enable = false,
+				value = "",
+			},
+			zone = {
+				enable = false,
+				value = "",
+			},
+			subzone = {
+				enable = false,
+				value = "",
+			},
+			healthColor = {
+				enable = false,
+				value = "hostile",
+			},
+		},
+	effects = {
+		hide = hideComponents,
+		nameText = {
+			config = nameTextConfig,
+		},
+	},
+	}
+end
+
+local function RefreshFilterListOptions()
+	if not options or not options.args or not options.args.filters then
+		return
+	end
+	local listGroup = options.args.filters.args.list
+	if not listGroup or not listGroup.args then
+		return
+	end
+	local entriesGroup = listGroup.args.entries
+	if not entriesGroup then
+		entriesGroup = {
+			order = 1,
+			type = "group",
+			name = "",
+			inline = true,
+			args = {},
+		}
+		listGroup.args.entries = entriesGroup
+	end
+
+	local entries = {}
+	local filters = GetFilterList()
+	if #filters == 0 then
+		entries.empty = {
+			order = 0,
+			type = "description",
+			fontSize = NotPlater.isWrathClient and "medium" or nil,
+			name = L["No filters have been created yet."],
+		}
+	else
+		for index, filter in ipairs(filters) do
+			local filterName = filter.name or sformat("%s %d", L["Filter"], index)
+			entries["filter" .. index] = {
+				order = index,
+				type = "group",
+				inline = true,
+				name = filterName,
+				args = {
+					enabled = {
+						order = 0,
+						type = "toggle",
+						name = L["Enable"],
+						get = function()
+							return filter.enabled
+						end,
+						set = function(_, value)
+							filter.enabled = value
+							NotPlater:ApplyFiltersAll()
+						end,
+					},
+					edit = {
+						order = 1,
+						type = "execute",
+						name = L["Edit"],
+						width = "half",
+						func = function()
+							filterEditingIndex = index
+							if dialog and dialog.SelectGroup then
+								dialog:SelectGroup("NotPlater", "filters", "editor")
+							end
+						end,
+					},
+					duplicate = {
+						order = 2,
+						type = "execute",
+						name = L["Duplicate"],
+						func = function()
+							local copy = CopyTable and CopyTable(filter) or DeepCopyTable(filter)
+							copy.name = sformat(L["Copy of %s"], filterName)
+							local insertIndex = index + 1
+							tinsert(filters, insertIndex, copy)
+							filterEditingIndex = insertIndex
+							RefreshFilterListOptions()
+							NotPlater:ApplyFiltersAll()
+							if dialog and dialog.SelectGroup then
+								dialog:SelectGroup("NotPlater", "filters", "editor")
+							end
+						end,
+					},
+					delete = {
+						order = 3,
+						type = "execute",
+						name = L["Delete"],
+						width = "half",
+						confirm = function()
+							return sformat(L["Delete filter '%s'?"], filterName)
+						end,
+						func = function()
+							tremove(filters, index)
+							if filterEditingIndex and filterEditingIndex > #filters then
+								filterEditingIndex = #filters
+							end
+							if #filters == 0 then
+								filterEditingIndex = nil
+							end
+							RefreshFilterListOptions()
+							NotPlater:ApplyFiltersAll()
+						end,
+					},
+				},
+			}
+		end
+	end
+	entriesGroup.args = entries
+	if registry and registry.NotifyChange then
+		registry:NotifyChange("NotPlater")
+	end
+end
+
+function Config:RefreshFilterOptions()
+	RefreshFilterListOptions()
+end
+
+local function GetFilterMetaValue(info)
+	local filter = GetEditingFilter()
+	if not filter then
+		return nil
+	end
+	return filter[info[#info]]
+end
+
+local function SetFilterMetaValue(info, value)
+	local filter = GetEditingFilter()
+	if not filter then
+		return
+	end
+	filter[info[#info]] = value
+	RefreshFilterListOptions()
+	NotPlater:ApplyFiltersAll()
+end
+
+local function GetCriteriaValue(info)
+	local filter = GetEditingFilter()
+	if not filter then
+		return nil
+	end
+	local criteria = filter.criteria
+	local startIndex
+	for index = 1, #info do
+		if info[index] == "criteria" then
+			startIndex = index + 1
+			break
+		end
+	end
+	if not startIndex then
+		return nil
+	end
+	local target = criteria
+	for index = startIndex, #info do
+		target = target and target[info[index]]
+	end
+	return target
+end
+
+local function SetCriteriaValue(info, value)
+	local filter = GetEditingFilter()
+	if not filter then
+		return
+	end
+	local criteria = filter.criteria
+	local startIndex
+	for index = 1, #info do
+		if info[index] == "criteria" then
+			startIndex = index + 1
+			break
+		end
+	end
+	if not startIndex then
+		return
+	end
+	local target = criteria
+	for index = startIndex, #info - 1 do
+		target = target[info[index]]
+	end
+	target[info[#info]] = value
+	NotPlater:ApplyFiltersAll()
+end
+
+local function GetEffectsValue(info)
+	local filter = GetEditingFilter()
+	if not filter then
+		return nil
+	end
+	local effects = filter.effects
+	local startIndex
+	for index = 1, #info do
+		if info[index] == "effects" then
+			startIndex = index + 1
+			break
+		end
+	end
+	if not startIndex then
+		return nil
+	end
+	local target = effects
+	for index = startIndex, #info do
+		target = target and target[info[index]]
+	end
+	return target
+end
+
+local function SetEffectsValue(info, value)
+	local filter = GetEditingFilter()
+	if not filter then
+		return
+	end
+	local effects = filter.effects
+	local startIndex
+	for index = 1, #info do
+		if info[index] == "effects" then
+			startIndex = index + 1
+			break
+		end
+	end
+	if not startIndex then
+		return
+	end
+	local target = effects
+	for index = startIndex, #info - 1 do
+		target = target[info[index]]
+	end
+	target[info[#info]] = value
+	NotPlater:ApplyFiltersAll()
+end
+
+local function GetNameTextConfigValue(info)
+	local filter = GetEditingFilter()
+	if not filter or not filter.effects or not filter.effects.nameText then
+		return nil
+	end
+	local config = filter.effects.nameText.config
+	if not config then
+		return nil
+	end
+	local startIndex
+	for index = 1, #info do
+		if info[index] == "config" then
+			startIndex = index + 1
+			break
+		end
+	end
+	if not startIndex then
+		return nil
+	end
+	local target = config
+	for index = startIndex, #info do
+		target = target and target[info[index]]
+	end
+	return target
+end
+
+local function SetNameTextConfigValue(info, value)
+	local filter = GetEditingFilter()
+	if not filter or not filter.effects or not filter.effects.nameText then
+		return
+	end
+	local config = filter.effects.nameText.config
+	if not config then
+		return
+	end
+	local startIndex
+	for index = 1, #info do
+		if info[index] == "config" then
+			startIndex = index + 1
+			break
+		end
+	end
+	if not startIndex then
+		return
+	end
+	local target = config
+	for index = startIndex, #info - 1 do
+		target = target[info[index]]
+	end
+	target[info[#info]] = value
+	NotPlater:ApplyFiltersAll()
+end
+
 local function LoadOptions()
 	options = {}
 	options.type = "group"
@@ -996,8 +1390,457 @@ local function LoadOptions()
 		childGroups = "tab",
 		args = iconsArgs,
 	}
-	options.args.target = {
+	local classCriteriaArgs = {
+		enable = {
+			order = 0,
+			type = "toggle",
+			name = L["Enable"],
+			get = GetCriteriaValue,
+			set = SetCriteriaValue,
+		},
+	}
+	local classOrder = 1
+	for _, token in ipairs(CLASS_TOKENS) do
+		local label = (LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[token]) or (LOCALIZED_CLASS_NAMES_FEMALE and LOCALIZED_CLASS_NAMES_FEMALE[token])
+		if label then
+			local classToken = token
+			classCriteriaArgs[classToken] = {
+				order = classOrder,
+				type = "toggle",
+				name = label,
+				width = "half",
+				get = function()
+					local filter = GetEditingFilter()
+					return filter and filter.criteria.class.values[classToken]
+				end,
+				set = function(_, value)
+					local filter = GetEditingFilter()
+					if filter then
+						filter.criteria.class.values[classToken] = value
+						NotPlater:ApplyFiltersAll()
+					end
+				end,
+				disabled = function()
+					local filter = GetEditingFilter()
+					return not (filter and filter.criteria.class.enable)
+				end,
+			}
+			classOrder = classOrder + 1
+		end
+	end
+
+	local hideComponentArgs = {}
+	local componentOrder = NotPlater:GetStackingComponentOrder()
+	for index, key in ipairs(componentOrder) do
+		local componentKey = key
+		hideComponentArgs[componentKey] = {
+			order = index,
+			type = "toggle",
+			name = NotPlater:GetStackingComponentLabel(componentKey),
+			get = function()
+				local filter = GetEditingFilter()
+				return filter and filter.effects.hide[componentKey]
+			end,
+			set = function(_, value)
+				local filter = GetEditingFilter()
+				if filter then
+					filter.effects.hide[componentKey] = value
+					NotPlater:ApplyFiltersAll()
+				end
+			end,
+		}
+	end
+
+	options.args.filters = {
 		order = 6,
+		type = "group",
+		name = WithCategoryIcon("filters", L["Filters"]),
+		childGroups = "tab",
+		args = {
+			list = {
+				order = 0,
+				type = "group",
+				name = L["Filter List"],
+				args = {
+					addFilter = {
+						order = 0,
+						type = "execute",
+						name = L["Add Filter"],
+						func = function()
+							local filters = GetFilterList()
+							local name = sformat("%s %d", L["Filter"], #filters + 1)
+							tinsert(filters, BuildFilterDefaults(name))
+							filterEditingIndex = #filters
+							RefreshFilterListOptions()
+							NotPlater:ApplyFiltersAll()
+							if dialog and dialog.SelectGroup then
+								dialog:SelectGroup("NotPlater", "filters", "editor")
+							end
+						end,
+					},
+					entries = {
+						order = 1,
+						type = "group",
+						name = "",
+						inline = true,
+						args = {},
+					},
+				},
+			},
+			editor = {
+				order = 1,
+				type = "group",
+				name = L["Filter Editor"],
+				childGroups = "tab",
+				args = {
+					empty = {
+						order = 0,
+						type = "description",
+						fontSize = NotPlater.isWrathClient and "medium" or nil,
+						name = L["Select a filter to edit or add a new one."],
+						hidden = function()
+							return GetEditingFilter() ~= nil
+						end,
+					},
+					meta = {
+						order = 1,
+						type = "group",
+						name = L["Filter"],
+						hidden = function()
+							return GetEditingFilter() == nil
+						end,
+						get = GetFilterMetaValue,
+						set = SetFilterMetaValue,
+						args = {
+							name = {
+								order = 0,
+								type = "input",
+								width = "full",
+								name = L["Filter Name"],
+							},
+							enabled = {
+								order = 1,
+								type = "toggle",
+								name = L["Enable"],
+							},
+						},
+					},
+					criteria = {
+						order = 2,
+						type = "group",
+						name = L["Criteria"],
+						childGroups = "tab",
+						hidden = function()
+							return GetEditingFilter() == nil
+						end,
+						args = {
+							hint = {
+								order = 0,
+								type = "header",
+								name = L["Note: Filters match only when all enabled criteria are met."],
+							},
+							faction = {
+								order = 1,
+								type = "group",
+								name = L["Faction"],
+								inline = true,
+								args = {
+									enable = {
+										order = 0,
+										type = "toggle",
+										name = L["Enable"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+									},
+									alliance = {
+										order = 1,
+										type = "toggle",
+										name = L["Alliance"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.faction.values.Alliance
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.faction.values.Alliance = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.faction.enable)
+										end,
+									},
+									horde = {
+										order = 2,
+										type = "toggle",
+										name = L["Horde"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.faction.values.Horde
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.faction.values.Horde = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.faction.enable)
+										end,
+									},
+									neutral = {
+										order = 3,
+										type = "toggle",
+										name = L["Neutral"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.faction.values.Neutral
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.faction.values.Neutral = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.faction.enable)
+										end,
+									},
+								},
+							},
+							class = {
+								order = 2,
+								type = "group",
+								name = L["Unit Class"],
+								inline = true,
+								args = classCriteriaArgs,
+							},
+							level = {
+								order = 3,
+								type = "group",
+								name = L["Level Range"],
+								inline = true,
+								args = {
+									enable = {
+										order = 0,
+										type = "toggle",
+										name = L["Enable"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+									},
+									min = {
+										order = 1,
+										type = "input",
+										name = L["Minimum Level"],
+										get = function()
+											local filter = GetEditingFilter()
+											local value = filter and filter.criteria.level.min
+											return value and tostring(value) or ""
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if not filter then
+												return
+											end
+											local numberValue = tonumber(value)
+											filter.criteria.level.min = numberValue
+											NotPlater:ApplyFiltersAll()
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.level.enable)
+										end,
+									},
+									max = {
+										order = 2,
+										type = "input",
+										name = L["Maximum Level"],
+										get = function()
+											local filter = GetEditingFilter()
+											local value = filter and filter.criteria.level.max
+											return value and tostring(value) or ""
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if not filter then
+												return
+											end
+											local numberValue = tonumber(value)
+											filter.criteria.level.max = numberValue
+											NotPlater:ApplyFiltersAll()
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.level.enable)
+										end,
+									},
+								},
+							},
+							name = {
+								order = 4,
+								type = "group",
+								name = L["Name"],
+								inline = true,
+								args = {
+									enable = {
+										order = 0,
+										type = "toggle",
+										name = L["Enable"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+									},
+									value = {
+										order = 1,
+										type = "input",
+										width = "full",
+										name = L["Name"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.name.enable)
+										end,
+									},
+								},
+							},
+							zone = {
+								order = 5,
+								type = "group",
+								name = L["Zone Name"],
+								inline = true,
+								args = {
+									enable = {
+										order = 0,
+										type = "toggle",
+										name = L["Enable"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+									},
+									value = {
+										order = 1,
+										type = "input",
+										width = "full",
+										name = L["Zone Name"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.zone.enable)
+										end,
+									},
+								},
+							},
+							subzone = {
+								order = 6,
+								type = "group",
+								name = L["Subzone Name"],
+								inline = true,
+								args = {
+									enable = {
+										order = 0,
+										type = "toggle",
+										name = L["Enable"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+									},
+									value = {
+										order = 1,
+										type = "input",
+										width = "full",
+										name = L["Subzone Name"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.subzone.enable)
+										end,
+									},
+								},
+							},
+							healthColor = {
+								order = 7,
+								type = "group",
+								name = L["Default Healthbar Color"],
+								inline = true,
+								args = {
+									enable = {
+										order = 0,
+										type = "toggle",
+										name = L["Enable"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+									},
+									value = {
+										order = 1,
+										type = "select",
+										name = L["Nameplate Color"],
+										values = function()
+											return NotPlater:GetNameplateColorOptions()
+										end,
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.healthColor.enable)
+										end,
+									},
+								},
+							},
+						},
+					},
+					effects = {
+						order = 3,
+						type = "group",
+						name = L["Effects"],
+						childGroups = "tab",
+						hidden = function()
+							return GetEditingFilter() == nil
+						end,
+						args = {
+							hide = {
+								order = 0,
+								type = "group",
+								name = L["Hide Components"],
+								args = hideComponentArgs,
+								get = GetEffectsValue,
+								set = SetEffectsValue,
+							},
+							nameText = {
+								order = 1,
+								type = "group",
+								name = L["Alternative Name Text"],
+								get = GetEffectsValue,
+								set = SetEffectsValue,
+								args = {
+									config = {
+										order = 0,
+										type = "group",
+										inline = true,
+										name = L["Name Text"],
+										disabled = function()
+											local filter = GetEditingFilter()
+											return filter and filter.effects.hide.nameText
+										end,
+										get = GetNameTextConfigValue,
+										set = SetNameTextConfigValue,
+										args = NotPlater.ConfigPrototypes.NameText,
+									},
+								},
+							},
+						},
+					},
+				},
+			},
+		},
+	}
+	options.args.target = {
+		order = 7,
 		type = "group",
 		name = WithCategoryIcon("target", L["Target"]),
 		get = GetValue,
@@ -1019,7 +1862,7 @@ local function LoadOptions()
 		}
 	}
 	options.args.range = {
-		order = 7,
+		order = 8,
 		type = "group",
 		name = WithCategoryIcon("range", L["Range Indicator"]),
 		get = GetValue,
@@ -1032,7 +1875,7 @@ local function LoadOptions()
 		},
 	}
 	options.args.buffs = {
-		order = 8,
+		order = 9,
 		type = "group",
 		name = WithCategoryIcon("buffs", L["Buffs"]),
 		childGroups = "tab",
@@ -1041,7 +1884,7 @@ local function LoadOptions()
 		args = NotPlater.ConfigPrototypes.Buffs,
 	}
 	options.args.stacking = {
-		order = 9,
+		order = 10,
         type = "group",
         childGroups = "tab",
 		name = WithCategoryIcon("stacking", L["Stacking"]),
@@ -1050,7 +1893,7 @@ local function LoadOptions()
 		args = NotPlater.ConfigPrototypes.Stacking,
 	}
 	options.args.simulator = {
-		order = 10,
+		order = 11,
 		type = "group",
 		name = WithCategoryIcon("simulator", L["Simulator"]),
 		get = GetValue,
@@ -1064,7 +1907,7 @@ local function LoadOptions()
 
 	local profileLabel = L["Profiles"] or "Profiles"
 	options.args.profile = {
-		order = 11,
+		order = 12,
 		type = "group",
 		childGroups = "tab",
 		name = WithCategoryIcon("profile", profileLabel),
@@ -1240,6 +2083,8 @@ local function LoadOptions()
 			},
 		},
 	}
+
+	RefreshFilterListOptions()
 end
 
 function Config:ToggleConfig()
@@ -1264,6 +2109,7 @@ function Config:OpenConfig()
 		dialog:SetDefaultSize("NotPlater", 850, 650)
 		registered = true
 	end
+	RefreshFilterListOptions()
 	local whatsNew = NotPlater:GetModule("WhatsNew", true)
 	if whatsNew and whatsNew.BeginConfigSession then
 		whatsNew:BeginConfigSession()

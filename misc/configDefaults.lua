@@ -11,6 +11,10 @@ local DEFAULT_STACKING_COMPONENTS = NotPlater.defaultStackingComponents or {
 	"castSpellTimeText",
 	"levelText",
 	"targetOverlay",
+	"targetIndicator",
+	"targetHighlight",
+	"targetBorder",
+	"mouseoverHighlight",
 	"bossIcon",
 	"raidIcon",
 	"eliteIcon",
@@ -558,6 +562,9 @@ function NotPlater:LoadDefaultConfig()
 					classTrainer = true,
                     },
                 },
+            },
+            filters = {
+                list = {},
             },
             target = {
                 scale = {

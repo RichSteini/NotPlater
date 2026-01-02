@@ -160,7 +160,7 @@ function NotPlater:OnInitialize()
 	if self.db and self.db.RegisterCallback then
 		self.db.RegisterCallback(self, "OnProfileChanged", "OnProfileUpdated")
 		self.db.RegisterCallback(self, "OnProfileCopied", "OnProfileUpdated")
-		self.db.RegisterCallback(self, "OnProfileReset", "OnProfileUpdated")
+		self.db.RegisterCallback(self, "OnProfileReset", "OnProfileReset")
 	end
 	self:SetTrackedMatchUnits()
 	self.SML = LibStub:GetLibrary("LibSharedMedia-3.0")
@@ -265,6 +265,7 @@ function NotPlater:PrepareFrame(frame)
 			NotPlater:UpdateEliteIcon(self)
 			NotPlater:UpdateFactionIcon(self)
 			NotPlater:UpdateNpcIcons(self)
+			NotPlater:ApplyFilters(self)
 			self.targetChanged = true
 		end)
 
@@ -284,14 +285,13 @@ function NotPlater:PrepareFrame(frame)
 						self.healthBar:SetStatusBarColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
 					end
 				end
-				if NotPlater.db.profile.nameText.general.useClassColor then
+				local nameTextConfig = NotPlater:GetActiveNameTextConfig(self)
+				if nameTextConfig.general.useClassColor and not self.filterHideNameText then
 					if not self.unitClass then
 						NotPlater:ClassCheck(self)
 					end
 					if self.unitClass then
-						if NotPlater.db.profile.nameText.general.useClassColor then
-							self.nameText:SetTextColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
-						end
+						self.nameText:SetTextColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
 					end
 				end
 				if NotPlater.db.profile.icons.classIcon.general.enable then
@@ -308,6 +308,7 @@ function NotPlater:PrepareFrame(frame)
 				end
 				NotPlater:SetTargetTargetText(self)
 				NotPlater:RangeCheck(self, self.targetCheckElapsed)
+				NotPlater:ApplyFilters(self)
 				self.targetCheckElapsed = 0
 			end
 			local isMouseOver = self:IsMouseOver()
@@ -369,6 +370,7 @@ function NotPlater:PrepareFrame(frame)
 	self:ConfigureRange(frame)
 	self:ApplyStackingOrder(frame)
 	self:TargetCheck(frame)
+	self:ApplyFilters(frame)
 end
 
 function NotPlater:HookFrames(...)
@@ -408,6 +410,17 @@ function NotPlater:OnProfileUpdated()
 	if self.simulatorFrame and self.simulatorFrame:IsShown() then
 		self:SimulatorReload()
 	end
+end
+
+function NotPlater:OnProfileReset()
+	if self.db and self.db.profile then
+		self.db.profile.filters = { list = {} }
+	end
+	local config = self:GetModule("Config", true)
+	if config and config.RefreshFilterOptions then
+		config:RefreshFilterOptions()
+	end
+	self:OnProfileUpdated()
 end
 
 function NotPlater:OnDisable()

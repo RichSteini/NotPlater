@@ -86,7 +86,17 @@ function NotPlater:ScaleHealthBar(healthFrame, isTarget)
 end
 
 function NotPlater:HealthBarOnShow(oldHealthBar)
-	oldHealthBar.healthBar:SetStatusBarColor(oldHealthBar:GetStatusBarColor())
+	local r, g, b = oldHealthBar:GetStatusBarColor()
+	local parent = oldHealthBar:GetParent()
+	if parent then
+		parent.defaultHealthColor = {r, g, b}
+		if self.GetNameplateColorKeyFromRGB then
+			parent.defaultHealthColorKey = self:GetNameplateColorKeyFromRGB(r, g, b)
+		else
+			parent.defaultHealthColorKey = nil
+		end
+	end
+	oldHealthBar.healthBar:SetStatusBarColor(r, g, b)
 	oldHealthBar.healthBar.highlightTexture:SetAllPoints(oldHealthBar.healthBar)
 end
 
