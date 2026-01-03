@@ -331,7 +331,10 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 				textColor = textColorConfig[mode].c3
 			end
 		else -- "tank"
-			local otherTankAggro = highestThreatUnitId and not UnitIsUnit(highestThreatUnitId, "player") and IsUnitTank(highestThreatUnitId)
+			local otherTankAggro = false
+			if type(highestThreatUnitId) == "string" then
+				otherTankAggro = not UnitIsUnit(highestThreatUnitId, "player") and IsUnitTank(highestThreatUnitId)
+			end
 			if highestThreat == playerThreat then
 				if previousThreat and (playerThreat - 3*(playerThreat - previousThreat) - secondHighestThreat) < 0 then
 					barColor = barColorConfig[mode].c2
