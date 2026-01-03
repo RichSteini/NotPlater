@@ -1044,14 +1044,17 @@ local function BuildFilterDefaults(name)
 			},
 			name = {
 				enable = false,
+				matchMode = "EXACT",
 				value = "",
 			},
 			zone = {
 				enable = false,
+				matchMode = "EXACT",
 				value = "",
 			},
 			subzone = {
 				enable = false,
+				matchMode = "EXACT",
 				value = "",
 			},
 			healthColor = {
@@ -2209,8 +2212,20 @@ local function LoadOptions()
 										get = GetCriteriaValue,
 										set = SetCriteriaValue,
 									},
-									value = {
+									matchMode = {
 										order = 1,
+										type = "select",
+										name = L["Match"],
+										values = {EXACT = L["Exact"], CONTAINS = L["Contains"]},
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.name.enable)
+										end,
+									},
+									value = {
+										order = 2,
 										type = "input",
 										width = "full",
 										name = L["Name"],
@@ -2236,8 +2251,20 @@ local function LoadOptions()
 										get = GetCriteriaValue,
 										set = SetCriteriaValue,
 									},
-									value = {
+									matchMode = {
 										order = 1,
+										type = "select",
+										name = L["Match"],
+										values = {EXACT = L["Exact"], CONTAINS = L["Contains"]},
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.zone.enable)
+										end,
+									},
+									value = {
+										order = 2,
 										type = "input",
 										width = "full",
 										name = L["Zone Name"],
@@ -2263,8 +2290,20 @@ local function LoadOptions()
 										get = GetCriteriaValue,
 										set = SetCriteriaValue,
 									},
-									value = {
+									matchMode = {
 										order = 1,
+										type = "select",
+										name = L["Match"],
+										values = {EXACT = L["Exact"], CONTAINS = L["Contains"]},
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.subzone.enable)
+										end,
+									},
+									value = {
+										order = 2,
 										type = "input",
 										width = "full",
 										name = L["Subzone Name"],

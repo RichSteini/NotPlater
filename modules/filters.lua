@@ -5,6 +5,8 @@ local L = NotPlaterLocals
 local UnitClass = UnitClass
 local UnitExists = UnitExists
 local UnitFactionGroup = UnitFactionGroup
+local sfind = string.find
+local slower = string.lower
 local GetZoneText = GetZoneText
 local GetSubZoneText = GetSubZoneText
 local abs = math.abs
@@ -160,41 +162,62 @@ function NotPlater:FilterMatches(frame, filter)
 		end
 	end
 
-	if criteria.level.enable then
-		local level = npcData and npcData.level
-		if not level then
-			level = GetFrameLevel(frame)
-		end
-		if not level then
-			return false
-		end
-		local minLevel = criteria.level.min
-		local maxLevel = criteria.level.max
-		if minLevel and level < minLevel then
-			return false
-		end
-		if maxLevel and level > maxLevel then
-			return false
-		end
-	end
-
 	if criteria.name.enable then
-		if not unitName or unitName ~= criteria.name.value then
+		local value = criteria.name.value
+		if not value or value == "" or not unitName then
 			return false
+		end
+		local mode = criteria.name.matchMode or "EXACT"
+		local haystack = slower(unitName)
+		local needle = slower(value)
+		if mode == "CONTAINS" then
+			if not sfind(haystack, needle, 1, true) then
+				return false
+			end
+		else
+			if haystack ~= needle then
+				return false
+			end
 		end
 	end
 
 	if criteria.zone.enable then
 		local zoneName = GetZoneText()
-		if zoneName ~= criteria.zone.value then
+		local value = criteria.zone.value
+		if not value or value == "" or not zoneName then
 			return false
+		end
+		local mode = criteria.zone.matchMode or "EXACT"
+		local haystack = slower(zoneName)
+		local needle = slower(value)
+		if mode == "CONTAINS" then
+			if not sfind(haystack, needle, 1, true) then
+				return false
+			end
+		else
+			if haystack ~= needle then
+				return false
+			end
 		end
 	end
 
 	if criteria.subzone.enable then
 		local subzoneName = GetSubZoneText()
-		if subzoneName ~= criteria.subzone.value then
+		local value = criteria.subzone.value
+		if not value or value == "" or not subzoneName then
 			return false
+		end
+		local mode = criteria.subzone.matchMode or "EXACT"
+		local haystack = slower(subzoneName)
+		local needle = slower(value)
+		if mode == "CONTAINS" then
+			if not sfind(haystack, needle, 1, true) then
+				return false
+			end
+		else
+			if haystack ~= needle then
+				return false
+			end
 		end
 	end
 
@@ -219,6 +242,24 @@ function NotPlater:FilterMatches(frame, filter)
 			if not key or key ~= value then
 				return false
 			end
+		end
+	end
+
+	if criteria.level.enable then
+		local level = npcData and npcData.level
+		if not level then
+			level = GetFrameLevel(frame)
+		end
+		if not level then
+			return false
+		end
+		local minLevel = criteria.level.min
+		local maxLevel = criteria.level.max
+		if minLevel and level < minLevel then
+			return false
+		end
+		if maxLevel and level > maxLevel then
+			return false
 		end
 	end
 
