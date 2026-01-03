@@ -998,37 +998,6 @@ local function DeepCopyTable(source, seen)
 	return copy
 end
 
-local function GetFilterList()
-	local profile = NotPlater.db.profile
-	profile.filters = profile.filters or {}
-	profile.filters.list = profile.filters.list or {}
-	return profile.filters.list
-end
-
-local function GetEditingFilter()
-	local list = GetFilterList()
-	if #list == 0 then
-		filterEditingIndex = nil
-		return nil
-	end
-	if not filterEditingIndex or not list[filterEditingIndex] then
-		filterEditingIndex = 1
-	end
-	return list[filterEditingIndex], filterEditingIndex
-end
-
-local function GetClassLabel(token)
-	local male = LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[token]
-	if male then
-		return male
-	end
-	local female = LOCALIZED_CLASS_NAMES_FEMALE and LOCALIZED_CLASS_NAMES_FEMALE[token]
-	if female then
-		return female
-	end
-	return token
-end
-
 local function BuildFilterDefaults(name)
 	local classValues = {}
 	for _, token in ipairs(CLASS_TOKENS) do
@@ -1103,6 +1072,65 @@ local function BuildFilterDefaults(name)
 		},
 	},
 	}
+end
+
+local function MergeTables(base, overlay)
+	if type(base) ~= "table" or type(overlay) ~= "table" then
+		return base
+	end
+	for key, value in pairs(overlay) do
+		if value ~= nil then
+			if type(value) == "table" and type(base[key]) == "table" then
+				MergeTables(base[key], value)
+			else
+				base[key] = value
+			end
+		end
+	end
+	return base
+end
+
+local function ApplyFilterDefaults(filter)
+	if type(filter) ~= "table" then
+		return filter
+	end
+	local name = filter.name or L["Filter"]
+	local defaults = BuildFilterDefaults(name)
+	return MergeTables(defaults, filter)
+end
+
+local function GetFilterList()
+	local profile = NotPlater.db.profile
+	profile.filters = profile.filters or {}
+	profile.filters.list = profile.filters.list or {}
+	for index = 1, #profile.filters.list do
+		profile.filters.list[index] = ApplyFilterDefaults(profile.filters.list[index])
+	end
+	return profile.filters.list
+end
+
+local function GetEditingFilter()
+	local list = GetFilterList()
+	if #list == 0 then
+		filterEditingIndex = nil
+		return nil
+	end
+	if not filterEditingIndex or not list[filterEditingIndex] then
+		filterEditingIndex = 1
+	end
+	return list[filterEditingIndex], filterEditingIndex
+end
+
+local function GetClassLabel(token)
+	local male = LOCALIZED_CLASS_NAMES_MALE and LOCALIZED_CLASS_NAMES_MALE[token]
+	if male then
+		return male
+	end
+	local female = LOCALIZED_CLASS_NAMES_FEMALE and LOCALIZED_CLASS_NAMES_FEMALE[token]
+	if female then
+		return female
+	end
+	return token
 end
 
 local function RefreshFilterListOptions()
