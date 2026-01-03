@@ -214,6 +214,12 @@ function NotPlater:ShowTemplateGallery()
 		gallery:ClearAllPoints()
 		gallery:SetAllPoints(parent)
 	end
+    if not gallery.npHideHooked then
+        gallery.npHideHooked = true
+        parent:HookScript("OnHide", function()
+            NotPlater:HideTemplateGallery()
+        end)
+    end
 	gallery:Show()
 	self:RefreshTemplateGallery()
 	if not self:GetSelectedTemplateName() and gallery.templates and #gallery.templates > 0 then
@@ -229,6 +235,7 @@ function NotPlater:HideTemplateGallery()
 			for _, card in ipairs(gallery.cards) do
 				if card.previewFrame then
 					simAuras:OnHide(card.previewFrame)
+                    card.previewFrame:Hide()
 				end
 			end
 		end
@@ -475,6 +482,9 @@ function NotPlater:TemplateGalleryPreviewUpdate(elapsed)
 	end
 end
 
+local worldHelper = CreateFrame("Frame", nil, WorldFrame)
+worldHelper:SetFrameStrata("TOOLTIP")
+
 function NotPlater:UpdateTemplatePreview(card, profileData, templateName)
 	local preview = card.previewFrame
 	if not preview then
@@ -484,6 +494,9 @@ function NotPlater:UpdateTemplatePreview(card, profileData, templateName)
 		preview:SetPoint("CENTER", card, "CENTER", 0, -14)
 		card.previewFrame = preview
 	end
+    preview:SetParent(worldHelper)
+    preview:ClearAllPoints()
+    preview:SetPoint("CENTER", card, "CENTER", 0, -14)
 	preview.npTemplateProfile = profileData
 	preview.npTemplateCard = card
 	if not preview.npTemplateClickHooked then
