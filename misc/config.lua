@@ -1056,7 +1056,7 @@ local function BuildFilterDefaults(name)
 		criteria = {
 			faction = {
 				enable = false,
-				values = {Alliance = false, Horde = false, Neutral = false},
+				values = {Alliance = false, Horde = false, Neutral = false, MyFaction = false},
 			},
 			class = {
 				enable = false,
@@ -1773,6 +1773,26 @@ local function LoadOptions()
 											local filter = GetEditingFilter()
 											if filter then
 												filter.criteria.faction.values.Neutral = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.faction.enable)
+										end,
+									},
+									myFaction = {
+										order = 4,
+										type = "toggle",
+										name = L["My Faction"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.faction.values.MyFaction
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.faction.values.MyFaction = value
 												NotPlater:ApplyFiltersAll()
 											end
 										end,

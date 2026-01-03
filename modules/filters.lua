@@ -4,9 +4,12 @@ local L = NotPlaterLocals
 
 local UnitClass = UnitClass
 local UnitExists = UnitExists
+local UnitFactionGroup = UnitFactionGroup
 local GetZoneText = GetZoneText
 local GetSubZoneText = GetSubZoneText
 local abs = math.abs
+
+local playerFaction = UnitFactionGroup("player")
 
 local NAMEPLATE_COLORS = {
 	hostile = {1, 0, 0},
@@ -83,7 +86,10 @@ function NotPlater:FilterMatches(frame, filter)
 				faction = "Neutral"
 			end
 		end
-		if not criteria.faction.values[faction] then
+		local values = criteria.faction.values or {}
+		local matchesDirect = values[faction]
+		local matchesMyFaction = values.MyFaction and playerFaction and faction == playerFaction
+		if not (matchesDirect or matchesMyFaction) then
 			return false
 		end
 	end

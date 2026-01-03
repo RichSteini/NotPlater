@@ -338,6 +338,7 @@ NotPlaterLocals = {
 	["Hide Components"] = "Hide Components",
 	["Alternative Name Text"] = "Alternative Name Text",
 	["Faction"] = "Faction",
+	["My Faction"] = "My Faction",
 	["Alliance"] = "Alliance",
 	["Horde"] = "Horde",
 	["Neutral"] = "Neutral",
