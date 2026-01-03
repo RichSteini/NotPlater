@@ -161,7 +161,7 @@ function NotPlater:TemplateGalleryOnUpdate(elapsed)
 		return
 	end
 	self.templateGalleryElapsed = (self.templateGalleryElapsed or 0) + elapsed
-	if self.templateGalleryElapsed < 0.15 then
+	if self.templateGalleryElapsed < 0.1 then
 		return
 	end
 	self.templateGalleryElapsed = 0
@@ -234,7 +234,6 @@ function NotPlater:HideTemplateGallery()
 		end
 		self:ResetTemplateGallerySimulation()
 		gallery:Hide()
-		self.templateGallery = nil
 	end
 end
 

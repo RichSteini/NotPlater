@@ -2159,8 +2159,6 @@ function Config:OpenConfig()
 			NotPlater:HideTemplateGallery()
 		end)
 	end
-
-	NotPlater:UpdateTemplateGalleryVisibility()
 end
 
 -- Slash commands
