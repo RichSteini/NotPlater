@@ -20,11 +20,20 @@ function NotPlater:GetClassColorFromRGB(r, g, b)
 end
 
 function NotPlater:GetColor(config)
-	return unpack(config)
+	if type(config) == "table" then
+		return unpack(config)
+	end
+	if type(config) == "number" then
+		return config, config, config, 1
+	end
+	return 1, 1, 1, 1
 end
 
 function NotPlater:GetAlpha(config)
-	return config[4]
+	if type(config) == "table" then
+		return config[4]
+	end
+	return 1
 end
 
 function NotPlater:SetupFontString(text, config)
