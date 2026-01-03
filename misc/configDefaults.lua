@@ -788,7 +788,6 @@ function NotPlater:LoadDefaultConfig()
 						mouseover = true,
 						arena = false,
 					},
-					learnedDurations = {},
 				},
                 blacklistDebuffs = {},
                 blacklistBuffs = {},

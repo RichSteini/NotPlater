@@ -258,8 +258,12 @@ function Base:ApplySettings()
 	self.generalConfig = buffs.general or {}
 	self.trackingConfig = buffs.tracking or {}
 	self.trackingConfig.units = self.trackingConfig.units or {}
-	self.trackingConfig.learnedDurations = self.trackingConfig.learnedDurations or {}
-	self.learnedDurations = self.trackingConfig.learnedDurations
+	if self.trackingConfig.learnedDurations ~= nil then
+		self.trackingConfig.learnedDurations = nil
+	end
+	if not self.learnedDurations then
+		self.learnedDurations = {}
+	end
 	self.enableCombatLogTracking = self.generalConfig.enableCombatLogTracking ~= false
 	self:SetTrackedUnits(self.trackingConfig.units)
 	if self.enableCombatLogTracking then
