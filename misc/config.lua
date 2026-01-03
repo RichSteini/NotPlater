@@ -1668,27 +1668,126 @@ local function LoadOptions()
 		end
 	end
 
-	local hideComponentArgs = {}
 	local componentOrder = NotPlater:GetStackingComponentOrder()
-	for index, key in ipairs(componentOrder) do
-		local componentKey = key
-		hideComponentArgs[componentKey] = {
-			order = index,
+	local componentLookup = {}
+	for _, key in ipairs(componentOrder) do
+		componentLookup[key] = true
+	end
+	local function MakeHideToggle(key, order)
+		if not componentLookup[key] then
+			return nil
+		end
+		return {
+			order = order,
 			type = "toggle",
-			name = NotPlater:GetStackingComponentLabel(componentKey),
+			name = NotPlater:GetStackingComponentLabel(key),
 			get = function()
 				local filter = GetEditingFilter()
-				return filter and filter.effects.hide[componentKey]
+				return filter and filter.effects.hide[key]
 			end,
 			set = function(_, value)
 				local filter = GetEditingFilter()
 				if filter then
-					filter.effects.hide[componentKey] = value
+					filter.effects.hide[key] = value
 					NotPlater:ApplyFiltersAll()
 				end
 			end,
 		}
 	end
+	local hideComponentArgs = {
+		health = {
+			order = 0,
+			type = "group",
+			inline = true,
+			name = L["Health Bar"],
+			args = {
+				healthBar = MakeHideToggle("healthBar", 1),
+				healthText = MakeHideToggle("healthText", 2),
+			},
+		},
+		name = {
+			order = 1,
+			type = "group",
+			inline = true,
+			name = L["Name Text"],
+			args = {
+				nameText = MakeHideToggle("nameText", 1),
+				levelText = MakeHideToggle("levelText", 2),
+			},
+		},
+		cast = {
+			order = 2,
+			type = "group",
+			inline = true,
+			name = L["Cast Bar"],
+			args = {
+				castBar = MakeHideToggle("castBar", 1),
+				castSpellIcon = MakeHideToggle("castSpellIcon", 2),
+				castSpellNameText = MakeHideToggle("castSpellNameText", 3),
+				castSpellTimeText = MakeHideToggle("castSpellTimeText", 4),
+			},
+		},
+		threat = {
+			order = 3,
+			type = "group",
+			inline = true,
+			name = L["Threat"],
+			args = {
+				threatPercentBar = MakeHideToggle("threatPercentBar", 1),
+				threatPercentText = MakeHideToggle("threatPercentText", 2),
+				threatDifferentialText = MakeHideToggle("threatDifferentialText", 3),
+				threatNumberText = MakeHideToggle("threatNumberText", 4),
+			},
+		},
+		target = {
+			order = 4,
+			type = "group",
+			inline = true,
+			name = L["Target"],
+			args = {
+				targetOverlay = MakeHideToggle("targetOverlay", 1),
+				targetIndicator = MakeHideToggle("targetIndicator", 2),
+				targetBorder = MakeHideToggle("targetBorder", 3),
+				targetHighlight = MakeHideToggle("targetHighlight", 4),
+				mouseoverHighlight = MakeHideToggle("mouseoverHighlight", 5),
+				targetTargetText = MakeHideToggle("targetTargetText", 6),
+			},
+		},
+		icons = {
+			order = 5,
+			type = "group",
+			inline = true,
+			name = L["Icons"],
+			args = {
+				raidIcon = MakeHideToggle("raidIcon", 1),
+				bossIcon = MakeHideToggle("bossIcon", 2),
+				eliteIcon = MakeHideToggle("eliteIcon", 3),
+				classIcon = MakeHideToggle("classIcon", 4),
+				factionIcon = MakeHideToggle("factionIcon", 5),
+				npcIcons = MakeHideToggle("npcIcons", 6),
+			},
+		},
+		range = {
+			order = 6,
+			type = "group",
+			inline = true,
+			name = L["Range Indicator"],
+			args = {
+				rangeStatusBar = MakeHideToggle("rangeStatusBar", 1),
+				rangeText = MakeHideToggle("rangeText", 2),
+			},
+		},
+		auras = {
+			order = 7,
+			type = "group",
+			inline = true,
+			name = L["Buffs"],
+			args = {
+				aurasDebuffs = MakeHideToggle("aurasDebuffs", 1),
+				aurasBuffs = MakeHideToggle("aurasBuffs", 2),
+			},
+		},
+	}
 
 	options.args.filters = {
 		order = 7,
