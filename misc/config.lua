@@ -311,6 +311,7 @@ local trackedUnitOptions = {
 }
 
 local auraPopupContext
+local auraListPopupContext
 
 local function TraverseBuffDB(info)
 	if not NotPlater.db or not NotPlater.db.profile then return end
@@ -559,6 +560,59 @@ local function AddAuraToList(listKey, token)
 	NotifyAuraOptions()
 end
 
+local function BuildAuraListIDString(listKey)
+	local list = GetAuraList(listKey)
+	local ids = {}
+	for _, entry in ipairs(list) do
+		local spellID = tonumber(entry.spellID)
+		if spellID and spellID > 0 then
+			ids[#ids + 1] = tostring(spellID)
+		end
+	end
+	return tconcat(ids, ",")
+end
+
+local function ImportAuraListIDs(listKey, text)
+	local list = GetAuraList(listKey)
+	for i = #list, 1, -1 do
+		list[i] = nil
+	end
+
+	local invalid = false
+	if text and text:match("%d") then
+		local seen = {}
+		for token in text:gmatch("%d+") do
+			local spellID = tonumber(token)
+			if spellID and spellID > 0 and not seen[spellID] then
+				seen[spellID] = true
+				local name, _, icon = GetSpellInfo(spellID)
+				if not name then
+					invalid = true
+				end
+				local matched = false
+				for _, entry in ipairs(list) do
+					if AuraEntriesMatch(entry, spellID, name) then
+						entry.spellID = spellID
+						entry.name = name or entry.name
+						entry.icon = icon or entry.icon
+						matched = true
+						break
+					end
+				end
+				if not matched then
+					tinsert(list, { spellID = spellID, name = name, icon = icon })
+				end
+			end
+		end
+	end
+
+	if invalid then
+		NotPlater:Print(L["Invalid spell name or ID"])
+	end
+	RefreshAuraModule()
+	NotifyAuraOptions()
+end
+
 local function IsAuraFrame2Disabled()
 	return not (NotPlater.db and NotPlater.db.profile and NotPlater.db.profile.buffs and NotPlater.db.profile.buffs.auraFrame2.enable)
 end
@@ -583,6 +637,19 @@ local function ShowAuraPrompt(listKey, inputType)
 		dialog.editBox:SetNumeric(inputType == "ID")
 		dialog.editBox:SetAutoFocus(true)
 		dialog.editBox:SetText("")
+		dialog.editBox:SetFocus()
+	end
+end
+
+local function ShowAuraListPrompt(listKey)
+	auraListPopupContext = { listKey = listKey }
+	local dialog = StaticPopup_Show("NOTPLATER_AURA_LIST_PROMPT")
+	if dialog then
+		dialog.text:SetText(L["Paste spell IDs separated by commas."])
+		dialog.editBox:SetNumeric(false)
+		dialog.editBox:SetAutoFocus(true)
+		dialog.editBox:SetText(BuildAuraListIDString(listKey))
+		dialog.editBox:HighlightText()
 		dialog.editBox:SetFocus()
 	end
 end
@@ -664,6 +731,82 @@ else
 end
 
 if NotPlater.isWrathClient then
+	StaticPopupDialogs["NOTPLATER_AURA_LIST_PROMPT"] = {
+		button1 = ACCEPT,
+		button2 = CANCEL,
+		hasEditBox = true,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		OnShow = function(self)
+			self:SetFrameStrata("FULLSCREEN_DIALOG")
+			self:Raise()
+		end,
+		OnAccept = function(self)
+			local text = self.editBox:GetText()
+			if auraListPopupContext then
+				ImportAuraListIDs(auraListPopupContext.listKey, text)
+			end
+			self.editBox:SetText("")
+		end,
+		OnHide = function(self)
+			self.editBox:SetText("")
+			auraListPopupContext = nil
+		end,
+		EditBoxOnEnterPressed = function(editBox)
+			local parent = editBox:GetParent()
+			if parent and parent.button1 and parent.button1.Click then
+				parent.button1:Click()
+			end
+		end,
+		EditBoxOnEscapePressed = function(editBox)
+			local parent = editBox:GetParent()
+			if parent then
+				parent:Hide()
+			end
+		end,
+		text = "",
+	}
+else
+	StaticPopupDialogs["NOTPLATER_AURA_LIST_PROMPT"] = {
+		button1 = ACCEPT,
+		button2 = CANCEL,
+		hasEditBox = true,
+		timeout = 0,
+		whileDead = true,
+		hideOnEscape = true,
+		OnShow = function()
+			this:SetFrameStrata("FULLSCREEN_DIALOG")
+			this:Raise()
+		end,
+		OnAccept = function()
+			local text = this.editBox:GetText()
+			if auraListPopupContext then
+				ImportAuraListIDs(auraListPopupContext.listKey, text)
+			end
+			this.editBox:SetText("")
+		end,
+		OnHide = function()
+			this.editBox:SetText("")
+			auraListPopupContext = nil
+		end,
+		EditBoxOnEnterPressed = function()
+			local parent = this:GetParent()
+			if parent and parent.button1 and parent.button1.Click then
+				parent.button1:Click()
+			end
+		end,
+		EditBoxOnEscapePressed = function()
+			local parent = this:GetParent()
+			if parent then
+				parent:Hide()
+			end
+		end,
+		text = "",
+	}
+end
+
+if NotPlater.isWrathClient then
 	StaticPopupDialogs["NOTPLATER_SWIRL_WARNING"] = {
 		button1 = OKAY,
 		timeout = 0,
@@ -707,6 +850,7 @@ NotPlater.ConfigPrototypes.Buffs = NotPlater.ConfigPrototypes:BuildBuffsArgs({
 	BuildAuraListValues = BuildAuraListValues,
 	RemoveAuraFromList = RemoveAuraFromList,
 	ShowAuraPrompt = ShowAuraPrompt,
+	ShowAuraListPrompt = ShowAuraListPrompt,
 })
 
 local function GetAnchors(frame)

@@ -1111,6 +1111,7 @@ local function ValidateBuffsConfigAPI(api)
 		"BuildAuraListValues",
 		"RemoveAuraFromList",
 		"ShowAuraPrompt",
+		"ShowAuraListPrompt",
 	}
 	for _, key in ipairs(required) do
 		if not api[key] then
@@ -1155,6 +1156,14 @@ local function BuildAuraListGroup(order, listKey, name, addNameLabel, addIDLabel
 				name = addIDLabel,
 				func = function()
 					api.ShowAuraPrompt(listKey, "ID")
+				end,
+			},
+			importExportIDs = {
+				order = 3,
+				type = "execute",
+				name = L["Export/Import IDs"],
+				func = function()
+					api.ShowAuraListPrompt(listKey)
 				end,
 			},
 		},
