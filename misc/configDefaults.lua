@@ -668,6 +668,7 @@ function NotPlater:LoadDefaultConfig()
                     width = 26,
                     height = 16,
                     borderThickness = 1,
+					iconZoom = 100,
                 },
                 auraFrame2 = {
                     enable = false,
@@ -679,6 +680,7 @@ function NotPlater:LoadDefaultConfig()
                     width = 26,
                     height = 16,
                     borderThickness = 1,
+					iconZoom = 100,
                 },
 				border = {
 					style = "SQUARE",

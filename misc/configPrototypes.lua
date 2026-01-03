@@ -1210,6 +1210,7 @@ function ConfigPrototypes:BuildBuffsArgs(api)
 			width = FrameDimension(frameKey, "width", 10, L["Width"], 10, 80, 1, 26, disabled),
 			height = FrameDimension(frameKey, "height", 11, L["Height"], 10, 80, 1, 16, disabled),
 			borderThickness = FrameDimension(frameKey, "borderThickness", 12, L["Border Thickness"], 0, 5, 0.1, 1, disabled),
+			iconZoom = FrameDimension(frameKey, "iconZoom", 13, L["Icon Zoom"], 0, 100, 1, 0, disabled),
 		}
 
 		if opts.includeEnable then

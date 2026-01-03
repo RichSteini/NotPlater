@@ -103,6 +103,7 @@ NotPlaterLocals = {
 	["High Threat"] = "High Threat",
 	["Highlight"] = "Highlight",
 	["Icon Spacing"] = "Icon Spacing",
+	["Icon Zoom"] = "Icon Zoom",
 	["NPC Icons"] = "NPC Icons",
 	["Vendor Icon"] = "Vendor Icon",
 	["Banker Icon"] = "Banker Icon",

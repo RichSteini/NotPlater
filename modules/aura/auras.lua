@@ -31,6 +31,7 @@ local floor = math.floor
 local huge = math.huge
 local DEFAULT_AURA_BORDER_STYLE = "SQUARE"
 local FALLBACK_AURA_BORDER_TEXTURE = "Interface\\Buttons\\WHITE8X8"
+local MAX_ICON_ZOOM = 0.1
 local math_max = math.max
 local math_min = math.min
 local math_ceil = math.ceil
@@ -691,6 +692,19 @@ function Auras:ApplyIconSize(icon, index)
 	end
 end
 
+function Auras:ApplyIconZoom(icon, size)
+	if not icon or not icon.icon then
+		return
+	end
+	local zoom = size and size.iconZoom or 0
+	if zoom <= 0 then
+		icon.icon:SetTexCoord(0, 1, 0, 1)
+		return
+	end
+	local inset = (zoom / 100) * MAX_ICON_ZOOM
+	icon.icon:SetTexCoord(inset, 1 - inset, inset, 1 - inset)
+end
+
 function Auras:GetAurasPerRow(index, defaultWidth)
 	local config = self.auraFrameConfig[index] or EMPTY_TABLE
 	local fallback = 10
@@ -1055,6 +1069,7 @@ function Auras:SetupIcon(icon, aura, size, index)
 	icon.currentSpellID = aura.spellID
 	icon.currentApplied = appliedTime
 	icon.icon:SetTexture(aura.icon or DEFAULT_ICON)
+	self:ApplyIconZoom(icon, size)
 	self:ApplyIconSize(icon, index)
 	self:SetIconBorder(icon, aura, size)
 	if aura.count and aura.count > 1 and self.stackCounter.general and self.stackCounter.general.enable then
