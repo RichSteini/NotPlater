@@ -1712,7 +1712,7 @@ local function LoadOptions()
 			order = 1,
 			type = "group",
 			inline = true,
-			name = L["Name Text"],
+			name = L["Text"],
 			args = {
 				nameText = MakeHideToggle("nameText", 1),
 				levelText = MakeHideToggle("levelText", 2),
