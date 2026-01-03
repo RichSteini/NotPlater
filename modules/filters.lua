@@ -198,6 +198,11 @@ function NotPlater:ApplyFilterEffects(frame, filter)
 					end
 					frame.filterHiddenComponents[key] = nil
 				end
+				if hideHealthBar and region.npVisibilityAnchor == frame.healthBar then
+					region.npVisibilityOverride = true
+					region.npVisibilityOverrideShown = true
+					region:Show()
+				end
 			end
 		end
 	end
