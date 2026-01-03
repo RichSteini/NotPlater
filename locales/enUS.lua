@@ -220,6 +220,7 @@ NotPlaterLocals = {
 	["Arena"] = "Arena",
 	["Tank"] = "Tank",
 	["Tank no Aggro"] = "Tank no Aggro",
+	["Other Tank Aggro"] = "Other Tank Aggro",
 	["Target"] = "Target",
 	["Target Frame"] = "Target Frame",
 	["Target Border"] = "Target Border",

@@ -266,6 +266,7 @@ L["Swirl animation warning message"] = "경고: 소용돌이 애니메이션은 
 L["Switch to the imported profile as soon as it is created."] = "가져온 프로필이 생성되면 즉시 전환합니다."
 L["Tank"] = "탱커"
 L["Tank no Aggro"] = "탱커 어그로 없음"
+L["Other Tank Aggro"] = "다른 탱커 어그로"
 L["Target"] = "대상"
 L["Target Frame"] = "대상 프레임"
 L["Target Border"] = "대상 테두리"

@@ -15,6 +15,7 @@ local GetPartyMember = GetPartyMember
 local UnitCanAttack = UnitCanAttack
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitDetailedThreatSituation = UnitDetailedThreatSituation
+local UnitIsUnit = UnitIsUnit
 local UnitBuff = UnitBuff
 local GetSpellInfo = GetSpellInfo
 local GetNumTalentTabs = GetNumTalentTabs
@@ -103,6 +104,22 @@ local function PlayerHasTankBuff()
 	return false
 end
 
+local function UnitHasTankBuff(unitId)
+	if not unitId then
+		return false
+	end
+	for i = 1, 40 do
+		local name = UnitBuff(unitId, i)
+		if not name then
+			break
+		end
+		if tankBuffNames[name] then
+			return true
+		end
+	end
+	return false
+end
+
 local function GetPrimaryTalentTabIndex()
 	if not GetNumTalentTabs or not GetTalentTabInfo then
 		return nil
@@ -135,6 +152,25 @@ local function IsTankByTalents(classToken)
 		return tabIndex == 1 or tabIndex == 2
 	end
 	return nil
+end
+
+local function IsUnitTank(unitId)
+	if not unitId then
+		return false
+	end
+	if UnitGroupRolesAssigned then
+		local role = UnitGroupRolesAssigned(unitId)
+		if role == "TANK" then
+			return true
+		end
+		if role == "HEALER" or role == "DAMAGER" then
+			return false
+		end
+	end
+	if UnitHasTankBuff(unitId) then
+		return true
+	end
+	return false
 end
 
 local function GetAutomaticThreatMode()
@@ -216,6 +252,7 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 	local highestThreat = 0
 	local secondHighestThreat = 0
 	local threatKey
+	local highestThreatUnitId
 
 	if USE_NATIVE_THREAT then
 		local threatProvider = ThreatLib or NativeThreat
@@ -223,17 +260,18 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 		if not unit or not group then return end
 		threatKey = unit
 		playerThreat = threatProvider:GetThreat("player", unit) or 0
-		highestThreat = threatProvider:GetMaxThreatOnTarget(unit, group)
-		if highestThreat and highestThreat > 0 then
-			for _, unitId in pairs(group) do
-				local gMemberThreat = threatProvider:GetThreat(unitId, unit)
-				if gMemberThreat then
-					if gMemberThreat ~= highestThreat and gMemberThreat > secondHighestThreat then
-						secondHighestThreat = gMemberThreat
-					end
-					if gMemberThreat > playerThreat then
-						playerThreatNumber = playerThreatNumber + 1
-					end
+		for _, unitId in pairs(group) do
+			local gMemberThreat = threatProvider:GetThreat(unitId, unit)
+			if gMemberThreat then
+				if gMemberThreat > highestThreat then
+					secondHighestThreat = highestThreat
+					highestThreat = gMemberThreat
+					highestThreatUnitId = unitId
+				elseif gMemberThreat > secondHighestThreat and gMemberThreat ~= highestThreat then
+					secondHighestThreat = gMemberThreat
+				end
+				if gMemberThreat > playerThreat then
+					playerThreatNumber = playerThreatNumber + 1
 				end
 			end
 		end
@@ -247,6 +285,7 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 		playerThreat = threatProvider:GetThreat(playerGuid, guid) or 0
 		local maxThreat, highestThreatMember = threatProvider:GetMaxThreatOnTarget(guid)
 		highestThreat = maxThreat
+		highestThreatUnitId = highestThreatMember and group[highestThreatMember] or nil
 		if highestThreat and highestThreat > 0 then
 			for gMemberGuid in pairs(group) do
 				local gMemberThreat = threatProvider:GetThreat(gMemberGuid, guid)
@@ -286,6 +325,7 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 				textColor = textColorConfig[mode].c3
 			end
 		else -- "tank"
+			local otherTankAggro = highestThreatUnitId and not UnitIsUnit(highestThreatUnitId, "player") and IsUnitTank(highestThreatUnitId)
 			if highestThreat == playerThreat then
 				if previousThreat and (playerThreat - 3*(playerThreat - previousThreat) - secondHighestThreat) < 0 then
 					barColor = barColorConfig[mode].c2
@@ -294,6 +334,9 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 					barColor = barColorConfig[mode].c1
 					textColor = textColorConfig[mode].c1
 				end
+			elseif otherTankAggro then
+				barColor = barColorConfig[mode].c4 or barColorConfig[mode].c3
+				textColor = textColorConfig[mode].c4 or textColorConfig[mode].c3
 			else
 				barColor = barColorConfig[mode].c3
 				textColor = textColorConfig[mode].c3

@@ -266,6 +266,7 @@ L["Swirl animation warning message"] = "Warnung: Die Wirbel-Abklingzeit nutzt Bl
 L["Switch to the imported profile as soon as it is created."] = "Zum importierten Profil wechseln, sobald es erstellt wurde."
 L["Tank"] = "Tank"
 L["Tank no Aggro"] = "Tank ohne Aggro"
+L["Other Tank Aggro"] = "Aggro bei anderem Tank"
 L["Target"] = "Ziel"
 L["Target Frame"] = "Ziel-Rahmen"
 L["Target Border"] = "Ziel-Umrandung"

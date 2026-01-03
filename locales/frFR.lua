@@ -266,6 +266,7 @@ L["Swirl animation warning message"] = "Avertissement : le tourbillon utilise de
 L["Switch to the imported profile as soon as it is created."] = "Basculer vers le profil importé dès sa création."
 L["Tank"] = "Tank"
 L["Tank no Aggro"] = "Tank sans aggro"
+L["Other Tank Aggro"] = "Aggro sur un autre tank"
 L["Target"] = "Cible"
 L["Target Frame"] = "Cadre de la cible"
 L["Target Border"] = "Bordure de la cible"

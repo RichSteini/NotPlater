@@ -44,7 +44,7 @@ local function GetIndicators()
 	return indicators
 end
 
-function ConfigPrototypes:GetGeneralisedThreatColorsConfig(tank1, tank2, tank3, hdps1, hdps2, hdps3)
+function ConfigPrototypes:GetGeneralisedThreatColorsConfig(tank1, tank2, tank3, hdps1, hdps2, hdps3, tank4)
     return {
         order = 1,
         type = "group",
@@ -75,6 +75,12 @@ function ConfigPrototypes:GetGeneralisedThreatColorsConfig(tank1, tank2, tank3, 
                         name = tank3,
                         hasAlpha = true,
                     },
+					c4 = tank4 and {
+						order = 6,
+						type = "color",
+						name = tank4,
+						hasAlpha = true,
+					} or nil,
                 },
             },
             hdps = {
@@ -530,7 +536,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
                 },
             }
         },
-        colors = ConfigPrototypes:GetGeneralisedThreatColorsConfig(L["Aggro on You"], L["Tank no Aggro"], L["DPS Close"], L["Aggro on You"], L["High Threat"], L["No Aggro"])
+        colors = ConfigPrototypes:GetGeneralisedThreatColorsConfig(L["Aggro on You"], L["Tank no Aggro"], L["DPS Close"], L["Aggro on You"], L["High Threat"], L["No Aggro"], L["Other Tank Aggro"])
     }
     ConfigPrototypes.ThreatNumberText = ConfigPrototypes:GetGeneralisedThreatFontConfig(L["Number 1 in Group"], L["Above 80% in Group"], L["Below 80% in Group"], L["Number 1 in Group"], L["Above 80% in Group"], L["Below 80% in Group"])
     ConfigPrototypes.ThreatDifferentialText = ConfigPrototypes:GetGeneralisedThreatFontConfig(L["Aggro on You"], L["Tank no Aggro"], L["DPS Close"], L["Aggro on You"], L["High Threat"], L["No Aggro"])

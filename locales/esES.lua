@@ -266,6 +266,7 @@ L["Swirl animation warning message"] = "Advertencia: la animación de torbellino
 L["Switch to the imported profile as soon as it is created."] = "Cambiar al perfil importado tan pronto como se cree."
 L["Tank"] = "Tanque"
 L["Tank no Aggro"] = "Tanque sin amenaza"
+L["Other Tank Aggro"] = "Amenaza en otro tanque"
 L["Target"] = "Objetivo"
 L["Target Frame"] = "Marco de objetivo"
 L["Target Border"] = "Borde del objetivo"

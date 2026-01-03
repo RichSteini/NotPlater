@@ -266,6 +266,7 @@ L["Swirl animation warning message"] = "Avviso: il recupero a vortice utilizza t
 L["Switch to the imported profile as soon as it is created."] = "Passa al profilo importato appena creato."
 L["Tank"] = "Difensore"
 L["Tank no Aggro"] = "Difensore senza aggro"
+L["Other Tank Aggro"] = "Aggro su un altro tank"
 L["Target"] = "Bersaglio"
 L["Target Frame"] = "Riquadro bersaglio"
 L["Target Border"] = "Bordo del bersaglio"

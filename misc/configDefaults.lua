@@ -45,7 +45,7 @@ function NotPlater:LoadDefaultConfig()
 		profile = {
             threat = {
                 general = {
-                    mode = "hdps"
+                    mode = "tank"
                 },
                 nameplateColors = {
                     general = {
@@ -55,7 +55,8 @@ function NotPlater:LoadDefaultConfig()
                         tank = {
                             c1 = {0.5, 0.5, 1, 1},
                             c2 = {1, 0.8, 0, 1},
-                            c3 = {1, 0.109, 0, 1}
+                            c3 = {1, 0.109, 0, 1},
+							c4 = {0.7, 0.7, 0.7, 1},
                         },
                         hdps = {
                             c1 = {1, 0.109, 0, 1},

@@ -266,6 +266,7 @@ L["Swirl animation warning message"] = "Aviso: a recarga em espiral usa modelos 
 L["Switch to the imported profile as soon as it is created."] = "Alternar para o perfil importado assim que ele for criado."
 L["Tank"] = "Tank"
 L["Tank no Aggro"] = "Tank sem ameaça"
+L["Other Tank Aggro"] = "Aggro em outro tanque"
 L["Target"] = "Alvo"
 L["Target Frame"] = "Quadro do alvo"
 L["Target Border"] = "Borda do alvo"

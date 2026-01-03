@@ -266,6 +266,7 @@ L["Swirl animation warning message"] = "Предупреждение: вихре
 L["Switch to the imported profile as soon as it is created."] = "Переключиться на импортированный профиль сразу после его создания."
 L["Tank"] = "Танк"
 L["Tank no Aggro"] = "Танк без агро"
+L["Other Tank Aggro"] = "Агро у другого танка"
 L["Target"] = "Цель"
 L["Target Frame"] = "Фрейм цели"
 L["Target Border"] = "Рамка цели"

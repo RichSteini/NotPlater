@@ -266,6 +266,7 @@ L["Swirl animation warning message"]="警告：漩渦冷卻動畫使用舊版樣
 L["Switch to the imported profile as soon as it is created."]="匯入完成後立即切換到該設定。"
 L["Tank"]="坦克"
 L["Tank no Aggro"]="坦克未獲得仇恨"
+L["Other Tank Aggro"] = "仇恨在另一位坦克"
 L["Target"]="目標"
 L["Target Frame"]="目標框架"
 L["Target Border"]="目標邊框"
