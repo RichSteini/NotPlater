@@ -1,6 +1,7 @@
 if not NotPlater then return end
 
 local Config = NotPlater:NewModule("Config")
+local AceTimer = LibStub("AceTimer-3.0")
 local LDB = LibStub("LibDataBroker-1.1")
 local LDBIcon = LibStub("LibDBIcon-1.0")
 local registry = LibStub("AceConfigRegistry-3.0")
@@ -2159,6 +2160,10 @@ function Config:OpenConfig()
 			NotPlater:HideTemplateGallery()
 		end)
 	end
+
+	AceTimer:ScheduleTimer(function()
+		NotPlater:UpdateTemplateGalleryVisibility()
+	end, 0)
 end
 
 -- Slash commands
