@@ -232,8 +232,37 @@ function NotPlater:HideTemplateGallery()
 				end
 			end
 		end
+		self:ResetTemplateGallerySimulation()
 		gallery:Hide()
+		self.templateGallery = nil
 	end
+end
+
+function NotPlater:ResetTemplateGallerySimulation()
+	local gallery = self.templateGallery
+	if not gallery or not gallery.cards then
+		self.templateGalleryElapsed = nil
+		self.templateGalleryLastGroup = nil
+		return
+	end
+	for _, card in ipairs(gallery.cards) do
+		local preview = card.previewFrame
+		if preview then
+			preview.targetChanged = true
+			preview.npRaidIconElapsed = nil
+			preview.npRaidIconIndex = nil
+			if preview.castBar then
+				preview.castBar.casting = nil
+				preview.castBar.channeling = nil
+				preview.castBar.value = 0
+				preview.castBar.maxValue = 0
+				preview.castBar:SetValue(0)
+				preview.castBar:Hide()
+			end
+		end
+	end
+	self.templateGalleryElapsed = nil
+	self.templateGalleryLastGroup = nil
 end
 
 function NotPlater:CreateTemplateGallery(parent)
@@ -573,7 +602,7 @@ function NotPlater:LayoutTemplateGallery()
 	for index = 1, total do
 		local card = gallery.cards[index]
 		if card and card:IsShown() then
-			card:SetSize(cardWidth, TEMPLATE_HEIGHT)
+			self:SetSize(card, cardWidth, TEMPLATE_HEIGHT)
 			card.label:SetWidth(cardWidth - (TEMPLATE_PADDING * 2))
 			local row = math.floor((index - 1) / TEMPLATE_COLUMNS)
 			local col = (index - 1) % TEMPLATE_COLUMNS
