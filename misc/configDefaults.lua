@@ -680,6 +680,10 @@ function NotPlater:LoadDefaultConfig()
                     height = 16,
                     borderThickness = 1,
                 },
+				border = {
+					style = "SQUARE",
+					thickness = 1,
+				},
                 stackCounter = {
                     general = {
                         enable = true,

@@ -29,6 +29,8 @@ local tostring = tostring
 local format = string.format
 local floor = math.floor
 local huge = math.huge
+local DEFAULT_AURA_BORDER_STYLE = "SQUARE"
+local FALLBACK_AURA_BORDER_TEXTURE = "Interface\\Buttons\\WHITE8X8"
 local math_max = math.max
 local math_min = math.min
 local math_ceil = math.ceil
@@ -245,6 +247,7 @@ function Auras:RefreshConfig()
 	self.auraTimer = self.db.auraTimer or {}
 	self.swipe = self.db.swipeAnimation or {}
 	self.borderColors = self.db.borderColors or {}
+	self.border = self.db.border or {}
 	self.tracking = self.db.tracking or {}
 	self.tracking.mode = self.tracking.mode or "AUTOMATIC"
 	self.tracking.automatic = self.tracking.automatic or {}
@@ -252,6 +255,7 @@ function Auras:RefreshConfig()
 	self.swipe.showSwipe = self.swipe.showSwipe ~= false
 	self.swipe.invertSwipe = self.swipe.invertSwipe == true
 	self.swipe.style = self.swipe.style or DEFAULT_COOLDOWN_STYLE
+	self.border.style = self.border.style or DEFAULT_AURA_BORDER_STYLE
 	if self.tracker and self.tracker.ApplySettings then
 		self.tracker:ApplySettings()
 	end
@@ -650,15 +654,44 @@ function Auras:GetSizeConfig(index)
 	return self.auraFrameConfig[index] or EMPTY_TABLE
 end
 
+function Auras:GetBorderThickness(size)
+	local style = self.border and self.border.style or DEFAULT_AURA_BORDER_STYLE
+	if style == "NONE" then
+		return 0
+	end
+	local thickness = self.border and self.border.thickness
+	if thickness == nil then
+		thickness = size and size.borderThickness or 1
+	end
+	return thickness
+end
+
+function Auras:GetBorderTexture(style)
+	if NotPlater.SML and style and style ~= "" then
+		local resolved = NotPlater.SML:Fetch(NotPlater.SML.MediaType.BORDER, style)
+		if resolved then
+			return resolved
+		end
+	end
+	return FALLBACK_AURA_BORDER_TEXTURE
+end
+
 function Auras:ApplyIconSize(icon, index)
 	local size = self:GetSizeConfig(index)
 	local width = size.width or 22
 	local height = size.height or 22
 	NotPlater:SetSize(icon, width, height)
-	if icon.border then
-		local thickness = size.borderThickness or 1
-		icon.border:SetPoint("TOPLEFT", -thickness, thickness)
-		icon.border:SetPoint("BOTTOMRIGHT", thickness, -thickness)
+	if icon.borderFrame then
+		local thickness = self:GetBorderThickness(size)
+		icon.borderFrame:ClearAllPoints()
+		icon.borderFrame:SetPoint("TOPLEFT", icon, "TOPLEFT", -thickness, thickness)
+		icon.borderFrame:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", thickness, -thickness)
+	end
+	if icon.borderTexture then
+		local thickness = self:GetBorderThickness(size)
+		icon.borderTexture:ClearAllPoints()
+		icon.borderTexture:SetPoint("TOPLEFT", icon, "TOPLEFT", -thickness, thickness)
+		icon.borderTexture:SetPoint("BOTTOMRIGHT", icon, "BOTTOMRIGHT", thickness, -thickness)
 	end
 end
 
@@ -961,7 +994,7 @@ function Auras:DisplayContainer(frame, container, auras)
 	local iconWidth = (size and size.width or 22)
 	local iconHeight = (size and size.height or 22)
 	local rows = math_max(1, math_ceil(#auras / perRow))
-	local border = (size and size.borderThickness or 0)
+	local border = self:GetBorderThickness(size)
 	local effectiveSpacing = spacing + border * 2
 	local effectiveRowSpacing = rowSpacing + border * 2
 	local containerWidth = perRow * iconWidth + effectiveSpacing * math_max(0, perRow - 1)
@@ -994,8 +1027,10 @@ function Auras:CreateIcon(container)
 	icon:SetScale(1)
 	icon.icon = icon:CreateTexture(nil, "OVERLAY")
 	icon.icon:SetAllPoints()
-	icon.border = icon:CreateTexture(nil, "ARTWORK")
-	icon.border:SetTexture(1, 1, 1, 1)
+	icon.borderFrame = CreateFrame("Frame", nil, icon)
+	icon.borderFrame:SetAllPoints(icon)
+	icon.borderFrame:SetFrameLevel(icon:GetFrameLevel() + 1)
+	icon.borderTexture = icon:CreateTexture(nil, "ARTWORK")
 	icon.stackText = icon:CreateFontString(nil, "OVERLAY")
 	icon.timerText = icon:CreateFontString(nil, "OVERLAY")
 	icon:EnableMouse(true)
@@ -1056,11 +1091,50 @@ function Auras:SetupIcon(icon, aura, size, index)
 end
 
 function Auras:SetIconBorder(icon, aura, size)
+	local style = self.border and self.border.style or DEFAULT_AURA_BORDER_STYLE
+	if style == "NONE" then
+		if icon.borderFrame then
+			icon.borderFrame:Hide()
+		end
+		if icon.borderTexture then
+			icon.borderTexture:Hide()
+		end
+		return
+	end
+	local thickness = self:GetBorderThickness(size)
+	if thickness <= 0 then
+		if icon.borderFrame then
+			icon.borderFrame:Hide()
+		end
+		if icon.borderTexture then
+			icon.borderTexture:Hide()
+		end
+		return
+	end
 	local color = self:GetBorderColor(aura)
-	icon.border:SetTexture(color[1] or 0, color[2] or 0, color[3] or 0, color[4] or 1)
-	local thickness = (size and size.borderThickness) or 1
-	icon.border:SetPoint("TOPLEFT", -thickness, thickness)
-	icon.border:SetPoint("BOTTOMRIGHT", thickness, -thickness)
+	if style == "SQUARE" then
+		if icon.borderFrame then
+			icon.borderFrame:Hide()
+		end
+		if icon.borderTexture then
+			icon.borderTexture:SetTexture(color[1] or 0, color[2] or 0, color[3] or 0, color[4] or 1)
+			icon.borderTexture:Show()
+		end
+		return
+	end
+	if icon.borderTexture then
+		icon.borderTexture:Hide()
+	end
+	if not icon.borderFrame then
+		return
+	end
+	local texture = self:GetBorderTexture(style)
+	icon.borderFrame:SetBackdrop({
+		edgeFile = texture,
+		edgeSize = thickness,
+	})
+	icon.borderFrame:SetBackdropBorderColor(color[1] or 0, color[2] or 0, color[3] or 0, color[4] or 1)
+	icon.borderFrame:Show()
 end
 
 function Auras:GetBorderColor(aura)
@@ -1075,7 +1149,7 @@ end
 function Auras:PositionIcon(container, icon, index, perRow, totalAuras, growDirection, size, spacing, rowSpacing)
 	local iconWidth = (size and size.width or 22)
 	local iconHeight = (size and size.height or 22)
-	local border = (size and size.borderThickness or 0)
+	local border = self:GetBorderThickness(size)
 	local effectiveSpacing = spacing + border * 2
 	local effectiveRowSpacing = rowSpacing + border * 2
 	local stepX = iconWidth + effectiveSpacing

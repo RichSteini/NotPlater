@@ -349,6 +349,22 @@ local function GetSwipeTextureValues()
 	return values
 end
 
+local function GetAuraBorderStyleValues()
+	local values = {
+		SQUARE = L["Squared"],
+		NONE = L["None"],
+	}
+	local media = NotPlater.SML or SML or LibStub("LibSharedMedia-3.0", true)
+	if media then
+		for _, name in ipairs(media:List(media.MediaType.BORDER)) do
+			if name ~= "None" then
+				values[name] = name
+			end
+		end
+	end
+	return values
+end
+
 local function IsSwipeTextureDisabled(info)
 	local db = TraverseBuffDB(info)
 	if not db then
@@ -844,6 +860,7 @@ NotPlater.ConfigPrototypes.Buffs = NotPlater.ConfigPrototypes:BuildBuffsArgs({
 	GetSwipeTextureValues = GetSwipeTextureValues,
 	SetSwipeStyle = SetSwipeStyle,
 	IsSwipeTextureDisabled = IsSwipeTextureDisabled,
+	GetAuraBorderStyleValues = GetAuraBorderStyleValues,
 	IsAuraFrame2Disabled = IsAuraFrame2Disabled,
 	IsAuraTimerDisabled = IsAuraTimerDisabled,
 	IsAutomaticTracking = IsAutomaticTracking,
