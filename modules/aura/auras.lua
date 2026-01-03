@@ -434,6 +434,40 @@ function Auras:PlayIconAnimation(icon)
 	end
 end
 
+function Auras:GetFrameSignature(frame)
+	if not frame then
+		return nil
+	end
+	local nameText = frame.defaultNameText or frame.nameText
+	local levelText = frame.levelText
+	if (not nameText or not levelText) and NotPlater and NotPlater.GetFrameTexts then
+		nameText, levelText = NotPlater:GetFrameTexts(frame)
+	end
+	local name = nameText and nameText:GetText()
+	if not name or name == "" then
+		return nil
+	end
+	local level = levelText and levelText:GetText()
+	return name, level
+end
+
+function Auras:IsFrameSignatureValid(frame)
+	if not frame or not frame.npGUIDName then
+		return true
+	end
+	local name, level = self:GetFrameSignature(frame)
+	if not name then
+		return true
+	end
+	if frame.npGUIDName ~= name then
+		return false
+	end
+	if frame.npGUIDLevel and level and frame.npGUIDLevel ~= level then
+		return false
+	end
+	return true
+end
+
 function Auras:SetFrameGUID(frame, guid)
 	if frame.npGUID == guid then
 		return
@@ -444,6 +478,12 @@ function Auras:SetFrameGUID(frame, guid)
 	frame.npGUID = guid
 	if guid then
 		self.guidToFrame[guid] = frame
+		local name, level = self:GetFrameSignature(frame)
+		frame.npGUIDName = name
+		frame.npGUIDLevel = level
+	else
+		frame.npGUIDName = nil
+		frame.npGUIDLevel = nil
 	end
 end
 
@@ -734,13 +774,32 @@ function Auras:UpdateFrameAuras(frame, forcedUnit)
 	if forcedUnit and not SafeUnit(forcedUnit) then
 		forcedUnit = nil
 	end
-	local unit = forcedUnit or (frame.lastUnitMatch and SafeUnit(frame.lastUnitMatch) and frame.lastUnitMatch) or nil
+	local matchedUnit = frame.lastUnitMatch
+	if matchedUnit and not self:VerifyUnit(frame, matchedUnit) then
+		if NotPlater and NotPlater.ClearFrameMatch then
+			NotPlater:ClearFrameMatch(frame)
+		else
+			frame.lastUnitMatch = nil
+			frame.lastGuidMatch = nil
+		end
+		matchedUnit = nil
+	end
+	local unit = forcedUnit or (matchedUnit and SafeUnit(matchedUnit) and matchedUnit) or nil
 	if unit then
 		self:SetFrameUnit(frame, unit)
 	else
 		self:SetFrameUnit(frame, nil)
 	end
-	local guid = frame.lastGuidMatch or frame.npGUID or (unit and UnitGUID(unit)) or nil
+	local guid = nil
+	if unit then
+		guid = UnitGUID(unit)
+	else
+		guid = frame.lastGuidMatch or frame.npGUID
+		if guid and not self:IsFrameSignatureValid(frame) then
+			self:SetFrameGUID(frame, nil)
+			guid = nil
+		end
+	end
 	if guid then
 		self:SetFrameGUID(frame, guid)
 	end

@@ -152,6 +152,9 @@ function NotPlater:SetFrameMatch(frame, unit)
 	if guid then
 		self.matchGuidToFrame[guid] = frame
 	end
+	if self.Auras and self.Auras.UpdateFrameAuras then
+		self.Auras:UpdateFrameAuras(frame, unit)
+	end
 	return true
 end
 
@@ -242,6 +245,13 @@ function NotPlater:PLAYER_TARGET_CHANGED()
 			self:ClearFrameMatch(frame)
 		end
 		frame.targetChanged = true
+	end
+	if not UnitExists("target") then
+		return
+	end
+	local frame = self:GetMatchedFrameForUnit("target")
+	if frame and frame.lastUnitMatch ~= "focus" then
+		self:SetFrameMatch(frame, "target")
 	end
 end
 
