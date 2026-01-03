@@ -1083,6 +1083,18 @@ local function BuildFilterDefaults(name)
 				enable = false,
 				values = {hostile = false, neutral = false, friendlyNpc = false, friendlyPlayer = false, tapped = false},
 			},
+			npcType = {
+				enable = false,
+				values = {
+					vendor = false,
+					repair = false,
+					innkeeper = false,
+					flightMaster = false,
+					auctioneer = false,
+					banker = false,
+					classTrainer = false,
+				},
+			},
 		},
 	effects = {
 		hide = hideComponents,
@@ -1699,6 +1711,7 @@ local function LoadOptions()
 						order = 1,
 						type = "group",
 						name = L["Filter"],
+						inline = true,
 						hidden = function()
 							return GetEditingFilter() == nil
 						end,
@@ -1834,8 +1847,163 @@ local function LoadOptions()
 								inline = true,
 								args = classCriteriaArgs,
 							},
-							level = {
+							npcType = {
 								order = 3,
+								type = "group",
+								name = L["NPC Type"],
+								inline = true,
+								args = {
+									enable = {
+										order = 0,
+										type = "toggle",
+										name = L["Enable"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+									},
+									vendor = {
+										order = 1,
+										type = "toggle",
+										name = L["Vendor"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.npcType.values.vendor
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.npcType.values.vendor = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.npcType.enable)
+										end,
+									},
+									repair = {
+										order = 2,
+										type = "toggle",
+										name = L["Repair"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.npcType.values.repair
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.npcType.values.repair = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.npcType.enable)
+										end,
+									},
+									innkeeper = {
+										order = 3,
+										type = "toggle",
+										name = L["Innkeeper"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.npcType.values.innkeeper
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.npcType.values.innkeeper = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.npcType.enable)
+										end,
+									},
+									flightMaster = {
+										order = 4,
+										type = "toggle",
+										name = L["Flight Master"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.npcType.values.flightMaster
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.npcType.values.flightMaster = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.npcType.enable)
+										end,
+									},
+									auctioneer = {
+										order = 5,
+										type = "toggle",
+										name = L["Auctioneer"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.npcType.values.auctioneer
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.npcType.values.auctioneer = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.npcType.enable)
+										end,
+									},
+									banker = {
+										order = 6,
+										type = "toggle",
+										name = L["Banker"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.npcType.values.banker
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.npcType.values.banker = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.npcType.enable)
+										end,
+									},
+									classTrainer = {
+										order = 7,
+										type = "toggle",
+										name = L["Trainer"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.npcType.values.classTrainer
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.npcType.values.classTrainer = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.npcType.enable)
+										end,
+									},
+								},
+							},
+							level = {
+								order = 4,
 								type = "group",
 								name = L["Level Range"],
 								inline = true,

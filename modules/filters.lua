@@ -11,6 +11,20 @@ local abs = math.abs
 
 local playerFaction = UnitFactionGroup("player")
 
+local function IsFactionMatch(factionId)
+	local enums = NotPlater.NPCEnums and NotPlater.NPCEnums.Faction
+	if not enums then
+		return false
+	end
+	if playerFaction == "Horde" then
+		return factionId == enums.Horde
+	end
+	if playerFaction == "Alliance" then
+		return factionId == enums.Alliance
+	end
+	return false
+end
+
 local NAMEPLATE_COLORS = {
 	hostile = {1, 0, 0},
 	neutral = {1, 1, 0},
@@ -108,6 +122,40 @@ function NotPlater:FilterMatches(frame, filter)
 			classToken = select(2, UnitClass(matchedUnit))
 		end
 		if not criteria.class.values[classToken] then
+			return false
+		end
+	end
+
+	if criteria.npcType and criteria.npcType.enable then
+		if not npcData or not npcData.flags or not IsFactionMatch(npcData.faction) then
+			return false
+		end
+		local values = criteria.npcType.values or {}
+		local enums = NotPlater.NPCEnums
+		local flagEnums = enums and enums.Flags
+		local matched = false
+		if values.vendor and flagEnums and flagEnums.Vendor and bit.band(npcData.flags, flagEnums.Vendor) > 0 then
+			matched = true
+		end
+		if values.repair and flagEnums and flagEnums.Repair and bit.band(npcData.flags, flagEnums.Repair) > 0 then
+			matched = true
+		end
+		if values.innkeeper and flagEnums and flagEnums.Innkeeper and bit.band(npcData.flags, flagEnums.Innkeeper) > 0 then
+			matched = true
+		end
+		if values.flightMaster and flagEnums and flagEnums.FlightMaster and bit.band(npcData.flags, flagEnums.FlightMaster) > 0 then
+			matched = true
+		end
+		if values.auctioneer and flagEnums and flagEnums.Auctioneer and bit.band(npcData.flags, flagEnums.Auctioneer) > 0 then
+			matched = true
+		end
+		if values.banker and flagEnums and flagEnums.Banker and bit.band(npcData.flags, flagEnums.Banker) > 0 then
+			matched = true
+		end
+		if values.classTrainer and npcData.trainer and npcData.trainer > 0 then
+			matched = true
+		end
+		if not matched then
 			return false
 		end
 	end
