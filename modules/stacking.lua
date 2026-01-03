@@ -94,11 +94,11 @@ local function EnsureRegionContainer(frame, key, region, anchorFrame)
 		container = CreateFrame("Frame", nil, frame)
 		container:EnableMouse(false)
 		frame.stackingContainers[key] = container
+		container:SetFrameStrata(GetSafeStrata(anchorFrame or frame, "LOW"))
+		container:SetFrameLevel((anchorFrame and anchorFrame:GetFrameLevel()) or frame:GetFrameLevel())
 	end
 	container:ClearAllPoints()
 	container:SetAllPoints(anchorFrame or frame)
-	container:SetFrameStrata(GetSafeStrata(anchorFrame or frame, "LOW"))
-	container:SetFrameLevel((anchorFrame and anchorFrame:GetFrameLevel()) or frame:GetFrameLevel())
 	region:SetParent(container)
 	SyncContainerVisibility(container, anchorFrame)
 	return container
@@ -123,11 +123,11 @@ local function EnsureCompositeContainer(frame, key, regions, anchorFrame)
 	if not container then
 		container = CreateFrame("Frame", nil, frame)
 		frame.stackingContainers[key] = container
+		container:SetFrameStrata(GetSafeStrata(anchorFrame or frame, "LOW"))
+		container:SetFrameLevel((anchorFrame and anchorFrame:GetFrameLevel()) or frame:GetFrameLevel())
 	end
 	container:ClearAllPoints()
 	container:SetAllPoints(anchorFrame or frame)
-	container:SetFrameStrata(GetSafeStrata(anchorFrame or frame, "LOW"))
-	container:SetFrameLevel((anchorFrame and anchorFrame:GetFrameLevel()) or frame:GetFrameLevel())
 	for index = 1, #regions do
 		local region = regions[index]
 		if region then

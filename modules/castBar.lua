@@ -250,7 +250,6 @@ end
 function NotPlater:ConstructCastBar(frame)
 	local castFrame = CreateFrame("StatusBar", "$parentCastBar", frame)
 	castFrame:SetScript("OnUpdate", NotPlater.CastBarOnUpdate)
-	castFrame:SetFrameLevel(frame:GetFrameLevel() + 2)
 
     -- Create the icon
 	self:ConstructIcon(castFrame)

@@ -162,10 +162,6 @@ function NotPlater:UpdateNpcIcons(frame)
 	local anchorFrame = frame.nameText or frame.healthBar
 	container:ClearAllPoints()
 	container:SetPoint(self.oppositeAnchors[layout.anchor], anchorFrame, layout.anchor, layout.xOffset * scale, layout.yOffset * scale)
-	local strata = frame.healthBar:GetFrameStrata() or frame:GetFrameStrata() or "MEDIUM"
-	container:SetFrameStrata(strata)
-	local baseLevel = frame.healthBar:GetFrameLevel() or frame:GetFrameLevel()
-	container:SetFrameLevel(baseLevel + 1)
 
 	if frame.isSimulatorFrame then
 		local classToken = select(2, UnitClass("player"))
