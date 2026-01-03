@@ -907,7 +907,15 @@ function Auras:FilterAuras(candidates, targetIsPlayer)
 		if a.priority ~= b.priority then
 			return a.priority > b.priority
 		end
-		return (a.expirationTime or huge) < (b.expirationTime or huge)
+		local aExp = a.expirationTime or huge
+		local bExp = b.expirationTime or huge
+		if aExp ~= bExp then
+			return aExp < bExp
+		end
+		if a.spellID ~= b.spellID then
+			return (a.spellID or 0) < (b.spellID or 0)
+		end
+		return (a.casterGUID or "") < (b.casterGUID or "")
 	end)
 	if self.general.stackSimilarAuras then
 		return self:CollapseStacks(filtered)
