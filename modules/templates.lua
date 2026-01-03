@@ -7,6 +7,7 @@ local tsort = table.sort
 local ceil = math.ceil
 local ipairs = ipairs
 local pairs = pairs
+local unpack = unpack
 local UnitClass = UnitClass
 local UnitFactionGroup = UnitFactionGroup
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
@@ -48,6 +49,24 @@ local function RunWithProfile(profile, func, ...)
 	local result1, result2, result3, result4 = func(...)
 	NotPlater.db.profile = original
 	return result1, result2, result3, result4
+end
+
+local function RunWithProfileAndAuras(profile, func, ...)
+	if not profile then
+		return func(...)
+	end
+	local original = NotPlater.db.profile
+	local auraModule = NotPlater.Auras
+	NotPlater.db.profile = profile
+	if auraModule and auraModule.RefreshConfig then
+		auraModule:RefreshConfig()
+	end
+	local results = {func(...)}
+	NotPlater.db.profile = original
+	if auraModule and auraModule.RefreshConfig then
+		auraModule:RefreshConfig()
+	end
+	return unpack(results)
 end
 
 local function TemplateCastBarOnUpdate(self, elapsed)
@@ -451,7 +470,7 @@ function NotPlater:UpdateTemplatePreviewFrame(frame, elapsed)
 		return
 	end
 	local profile = frame.npTemplateProfile
-	RunWithProfile(profile, function()
+	RunWithProfileAndAuras(profile, function()
 		if frame.targetChanged then
 			NotPlater:TargetCheck(frame)
 			frame.targetChanged = nil
@@ -463,7 +482,7 @@ function NotPlater:UpdateTemplatePreviewFrame(frame, elapsed)
 	UpdateSimulatedRaidIcon(frame, elapsed)
 	local simAuras = NotPlater.SimulatorAuras
 	if simAuras and simAuras.OnUpdate then
-		RunWithProfile(profile, function()
+		RunWithProfileAndAuras(profile, function()
 			simAuras:OnUpdate(elapsed, frame)
 		end)
 	end
@@ -516,7 +535,7 @@ function NotPlater:UpdateTemplatePreview(card, profileData, templateName)
 		preview.simulatedTarget = true
 	end
 	preview.targetChanged = true
-	RunWithProfile(profileData, function()
+	RunWithProfileAndAuras(profileData, function()
 		NotPlater:PrepareFrame(preview)
 		if NotPlater.Auras then
 			if NotPlater.Auras.AttachToFrame then
