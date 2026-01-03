@@ -1335,16 +1335,27 @@ local function GetNameTextConfigValue(info)
 		end
 	end
 	if not startIndex then
+		for index = 1, #info do
+			if info[index] == "nameText" then
+				startIndex = index + 1
+				break
+			end
+		end
+	end
+	if not startIndex then
 		return nil
 	end
 	local target = config
 	for index = startIndex, #info do
 		target = target and target[info[index]]
 	end
+	if type(target) == "table" then
+		return unpack(target)
+	end
 	return target
 end
 
-local function SetNameTextConfigValue(info, value)
+local function SetNameTextConfigValue(info, ...)
 	local filter = GetEditingFilter()
 	if not filter or not filter.effects or not filter.effects.nameText then
 		return
@@ -1361,13 +1372,26 @@ local function SetNameTextConfigValue(info, value)
 		end
 	end
 	if not startIndex then
+		for index = 1, #info do
+			if info[index] == "nameText" then
+				startIndex = index + 1
+				break
+			end
+		end
+	end
+	if not startIndex then
 		return
 	end
 	local target = config
 	for index = startIndex, #info - 1 do
 		target = target[info[index]]
 	end
-	target[info[#info]] = value
+	local valueCount = select("#", ...)
+	if valueCount > 1 then
+		target[info[#info]] = {...}
+	else
+		target[info[#info]] = select(1, ...)
+	end
 	NotPlater:ApplyFiltersAll()
 end
 
