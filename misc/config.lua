@@ -1081,7 +1081,7 @@ local function BuildFilterDefaults(name)
 			},
 			healthColor = {
 				enable = false,
-				value = "hostile",
+				values = {hostile = false, neutral = false, friendlyNpc = false, friendlyPlayer = false, tapped = false},
 			},
 		},
 	effects = {
@@ -1989,15 +1989,106 @@ local function LoadOptions()
 										get = GetCriteriaValue,
 										set = SetCriteriaValue,
 									},
-									value = {
+									hostile = {
 										order = 1,
-										type = "select",
-										name = L["Nameplate Color"],
-										values = function()
-											return NotPlater:GetNameplateColorOptions()
+										type = "toggle",
+										name = L["Hostile"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.healthColor.values and filter.criteria.healthColor.values.hostile
 										end,
-										get = GetCriteriaValue,
-										set = SetCriteriaValue,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.healthColor.values = filter.criteria.healthColor.values or {}
+												filter.criteria.healthColor.values.hostile = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.healthColor.enable)
+										end,
+									},
+									neutral = {
+										order = 2,
+										type = "toggle",
+										name = L["Neutral"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.healthColor.values and filter.criteria.healthColor.values.neutral
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.healthColor.values = filter.criteria.healthColor.values or {}
+												filter.criteria.healthColor.values.neutral = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.healthColor.enable)
+										end,
+									},
+									friendlyNpc = {
+										order = 3,
+										type = "toggle",
+										name = L["Friendly NPC"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.healthColor.values and filter.criteria.healthColor.values.friendlyNpc
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.healthColor.values = filter.criteria.healthColor.values or {}
+												filter.criteria.healthColor.values.friendlyNpc = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.healthColor.enable)
+										end,
+									},
+									friendlyPlayer = {
+										order = 4,
+										type = "toggle",
+										name = L["Friendly Player"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.healthColor.values and filter.criteria.healthColor.values.friendlyPlayer
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.healthColor.values = filter.criteria.healthColor.values or {}
+												filter.criteria.healthColor.values.friendlyPlayer = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.healthColor.enable)
+										end,
+									},
+									tapped = {
+										order = 5,
+										type = "toggle",
+										name = L["Tapped"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.healthColor.values and filter.criteria.healthColor.values.tapped
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.healthColor.values = filter.criteria.healthColor.values or {}
+												filter.criteria.healthColor.values.tapped = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
 										disabled = function()
 											local filter = GetEditingFilter()
 											return not (filter and filter.criteria.healthColor.enable)

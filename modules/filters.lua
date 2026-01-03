@@ -15,6 +15,7 @@ local NAMEPLATE_COLORS = {
 	hostile = {1, 0, 0},
 	neutral = {1, 1, 0},
 	friendly = {0, 1, 0},
+	friendlyPlayer = {0, 0.6, 1},
 	tapped = {0.5, 0.5, 0.5},
 }
 
@@ -23,6 +24,9 @@ local function GetNameplateColorKey(r, g, b)
 		if abs(color[1] - r) <= 0.1 and abs(color[2] - g) <= 0.1 and abs(color[3] - b) <= 0.1 then
 			return key
 		end
+	end
+	if r and g and b and abs(r) <= 0.1 and abs(g) <= 0.1 and abs(b - 1) <= 0.1 then
+		return "friendlyPlayer"
 	end
 	return nil
 end
@@ -36,6 +40,7 @@ function NotPlater:GetNameplateColorOptions()
 		hostile = L["Hostile"],
 		neutral = L["Neutral"],
 		friendly = L["Friendly"],
+		friendlyPlayer = L["Friendly Player"],
 		tapped = L["Tapped"],
 	}
 end
@@ -150,8 +155,22 @@ function NotPlater:FilterMatches(frame, filter)
 		if not key and frame and frame.defaultHealthColor then
 			key = GetNameplateColorKey(frame.defaultHealthColor[1], frame.defaultHealthColor[2], frame.defaultHealthColor[3])
 		end
-		if not key or key ~= criteria.healthColor.value then
-			return false
+		if key == "friendly" then
+			key = "friendlyNpc"
+		end
+		local values = criteria.healthColor.values
+		if values then
+			if not (values[key] or (key == "friendlyNpc" and values.friendly)) then
+				return false
+			end
+		else
+			local value = criteria.healthColor.value
+			if value == "friendly" then
+				value = "friendlyNpc"
+			end
+			if not key or key ~= value then
+				return false
+			end
 		end
 	end
 
