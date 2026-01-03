@@ -259,6 +259,7 @@ function NotPlater:PrepareFrame(frame)
 				local cachedClass = classCache[unitName]
 				self.unitClass = cachedClass
 				self.unitClassToken = classTokenCache[unitName]
+				NotPlater:FactionCheck(self)
 				self.unitFaction = factionCache[unitName]
 				NotPlater:CastBarOnShow(self)
 				NotPlater:HealthBarOnShow(health)
@@ -293,11 +294,14 @@ function NotPlater:PrepareFrame(frame)
 							self.healthBar:SetStatusBarColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
 						end
 					end
+					if not self.unitClass then
+						NotPlater:ClassCheck(self)
+					end
+					if not self.unitFaction then
+						NotPlater:FactionCheck(self)
+					end
 					local nameTextConfig = NotPlater:GetActiveNameTextConfig(self)
 					if nameTextConfig.general.useClassColor and not self.filterHideNameText then
-						if not self.unitClass then
-							NotPlater:ClassCheck(self)
-						end
 						if self.unitClass then
 							self.nameText:SetTextColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
 						end
@@ -309,9 +313,6 @@ function NotPlater:PrepareFrame(frame)
 						NotPlater:UpdateClassIcon(self)
 					end
 					if NotPlater.db.profile.icons.factionIcon.general.enable then
-						if not self.unitFaction then
-							NotPlater:FactionCheck(self)
-						end
 						NotPlater:UpdateFactionIcon(self)
 					end
 					NotPlater:SetTargetTargetText(self)

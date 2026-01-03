@@ -5,9 +5,13 @@ local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local unpack = unpack
 local UIParent = UIParent
+local abs = math.abs
 local slen = string.len
 local ssub = string.sub
 local tinsert = table.insert
+local UnitFactionGroup = UnitFactionGroup
+
+local playerFaction = UnitFactionGroup("player")
 
 function NotPlater:GetClassColorFromRGB(r, g, b)
 	local tolerance = 0.1
@@ -414,6 +418,16 @@ function NotPlater:FactionCheck(frame)
 	if unitName and self.factionCache[unitName] then
 		frame.unitFaction = self.factionCache[unitName]
 		return
+	end
+	if frame.healthBar and playerFaction then
+		local r, g, b = frame.healthBar:GetStatusBarColor()
+		if r and g and b and abs(r) <= 0.1 and abs(g) <= 0.1 and abs(b - 1) <= 0.1 then
+			frame.unitFaction = playerFaction
+			if unitName then
+				self.factionCache[unitName] = playerFaction
+			end
+			return
+		end
 	end
 	if unitName and NotPlater.NPCData and NotPlater.NPCEnums and NotPlater.NPCEnums.Faction then
 		local npcData = NotPlater.NPCData[unitName]
