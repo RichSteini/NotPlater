@@ -1013,6 +1013,12 @@ local function BuildFilterDefaults(name)
 		nameTextConfig.general.size = 12
 		nameTextConfig.general.border = "OUTLINE"
 	end
+	if nameTextConfig and nameTextConfig.position then
+		nameTextConfig.position.anchor = "CENTER"
+		nameTextConfig.position.xOffset = 0
+		nameTextConfig.position.yOffset = 0
+		nameTextConfig.position.anchorTarget = "healthBar"
+	end
 	local hideComponents = {}
 	local componentOrder = NotPlater:GetStackingComponentOrder()
 	for index = 1, #componentOrder do
