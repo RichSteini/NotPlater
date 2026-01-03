@@ -659,11 +659,7 @@ function Auras:GetBorderThickness(size)
 	if style == "NONE" then
 		return 0
 	end
-	local thickness = self.border and self.border.thickness
-	if thickness == nil then
-		thickness = size and size.borderThickness or 1
-	end
-	return thickness
+	return size and size.borderThickness or 1
 end
 
 function Auras:GetBorderTexture(style)

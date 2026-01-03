@@ -1379,39 +1379,17 @@ function ConfigPrototypes:BuildBuffsArgs(api)
 			type = "group",
 			name = L["Aura Border"],
 			args = {
-				style = {
+				borderStyle = {
 					order = 0,
-					type = "group",
-					inline = true,
-					name = L["Style"],
-					args = {
-						borderStyle = {
-							order = 0,
-							type = "select",
-							name = L["Border Style"],
-							values = api.GetAuraBorderStyleValues,
-							get = function()
-								return api.BuffsGetValue("border", "style") or "SQUARE"
-							end,
-							set = function(_, value)
-								api.BuffsSetValue(value, "border", "style")
-							end,
-						},
-						borderThickness = {
-							order = 1,
-							type = "range",
-							name = L["Border Thickness"],
-							min = 0,
-							max = 10,
-							step = 1,
-							get = function()
-								return api.BuffsGetValue("border", "thickness") or 1
-							end,
-							set = function(_, value)
-								api.BuffsSetValue(value, "border", "thickness")
-							end,
-						},
-					},
+					type = "select",
+					name = L["Border Style"],
+					values = api.GetAuraBorderStyleValues,
+					get = function()
+						return api.BuffsGetValue("border", "style") or "SQUARE"
+					end,
+					set = function(_, value)
+						api.BuffsSetValue(value, "border", "style")
+					end,
 				},
 				useTypeColors = { order = 1, type = "toggle", name = L["Use Type Colors"] },
 				dispellable = { order = 2, type = "color", name = L["Dispellable"], hasAlpha = true, get = api.BuffsGetColor, set = api.BuffsSetColor },
