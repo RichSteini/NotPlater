@@ -160,8 +160,9 @@ function NotPlater:UpdateNpcIcons(frame)
 	local iconsToShow = {}
 	local scale = frame.npcIconsScale or 1
 	local anchorFrame = frame.nameText or frame.healthBar
+	local resolvedAnchor = self:GetAnchorTargetFrame(anchorFrame, layout.anchorTarget, anchorFrame)
 	container:ClearAllPoints()
-	container:SetPoint(self.oppositeAnchors[layout.anchor], anchorFrame, layout.anchor, layout.xOffset * scale, layout.yOffset * scale)
+	container:SetPoint(self.oppositeAnchors[layout.anchor], resolvedAnchor, layout.anchor, layout.xOffset * scale, layout.yOffset * scale)
 
 	if frame.isSimulatorFrame then
 		local classToken = select(2, UnitClass("player"))

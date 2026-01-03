@@ -585,10 +585,17 @@ function Auras:ConfigureFrame(frame)
 		container:ClearAllPoints()
 		local anchor = cfg.anchor or "TOP"
 		local relativeAnchor = NotPlater.oppositeAnchors[anchor] or anchor
-		local relativeFrame = frame.healthBar or frame
+		local baseAnchor = frame.healthBar or frame
+		local relativeFrame = NotPlater:GetAnchorTargetFrame(baseAnchor, cfg.anchorTarget, nil)
+		if relativeFrame == container then
+			relativeFrame = nil
+		end
+		if not relativeFrame then
+			relativeFrame = baseAnchor
+		end
 		if index > 1 then
 			local previous = frame.npAuras.frames[index - 1]
-			if previous then
+			if previous and not cfg.anchorTarget then
 				relativeFrame = previous
 				-- align to the opposite edge of the previous container so offsets are relative to its top
 				relativeAnchor = NotPlater.oppositeAnchors[anchor] or anchor
@@ -616,7 +623,11 @@ function Auras:ConfigureIconFonts(icon)
 			icon.stackText:ClearAllPoints()
 			local anchor = stackConfig.position.anchor
 			local relativeAnchor = NotPlater.oppositeAnchors[anchor] or anchor
-			icon.stackText:SetPoint(relativeAnchor, icon, anchor, stackConfig.position.xOffset or -1, stackConfig.position.yOffset or 1)
+			local anchorFrame = NotPlater:GetAnchorTargetFrame(icon, stackConfig.position.anchorTarget, icon)
+			if anchorFrame == icon.stackText then
+				anchorFrame = icon
+			end
+			icon.stackText:SetPoint(relativeAnchor, anchorFrame, anchor, stackConfig.position.xOffset or -1, stackConfig.position.yOffset or 1)
 		end
 	end
 	if icon.timerText then
@@ -625,7 +636,11 @@ function Auras:ConfigureIconFonts(icon)
 			icon.timerText:ClearAllPoints()
 			local anchor = timerConfig.position.anchor
 			local relativeAnchor = NotPlater.oppositeAnchors[anchor] or anchor
-			icon.timerText:SetPoint(relativeAnchor, icon, anchor, timerConfig.position.xOffset or 0, timerConfig.position.yOffset or 0)
+			local anchorFrame = NotPlater:GetAnchorTargetFrame(icon, timerConfig.position.anchorTarget, icon)
+			if anchorFrame == icon.timerText then
+				anchorFrame = icon
+			end
+			icon.timerText:SetPoint(relativeAnchor, anchorFrame, anchor, timerConfig.position.xOffset or 0, timerConfig.position.yOffset or 0)
 		end
 	end
 end

@@ -5,12 +5,151 @@ local fontBorders = {[""] = L["None"], ["OUTLINE"] = L["Outline"], ["THICKOUTLIN
 local anchors = {["CENTER"] = L["Center"], ["BOTTOM"] = L["Bottom"], ["TOP"] = L["Top"], ["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["BOTTOMLEFT"] = L["Bottom Left"], ["TOPRIGHT"] = L["Top Right"], ["BOTTOMRIGHT"] = L["Bottom Right"], ["TOPLEFT"] = L["Top Left"]}
 local frameStratas = {["BACKGROUND"] = L["Background"], ["LOW"] = L["Low"], ["MEDIUM"] = L["Medium"], ["HIGH"] = L["High"], ["DIALOG"] = L["Dialog"], ["FULLSCREEN"] = L["Fullscreen"], ["FULLSCREEN_DIALOG"] = L["Fullscreen Dialog"], ["TOOLTIP"] = L["Tooltip"]}
 local drawLayers = {["BACKGROUND"] = L["Background"], ["BORDER"] = L["Border"], ["ARTWORK"] = L["Artwork"], ["OVERLAY"] = L["Overlay"], ["HIGHLIGHT"] = L["Highlight"]}
+local anchorTargetOrder = {
+	"healthBar",
+	"healthText",
+	"nameText",
+	"npcIcons",
+	"castBar",
+	"castSpellIcon",
+	"castSpellNameText",
+	"castSpellTimeText",
+	"levelText",
+	"targetOverlay",
+	"targetIndicator",
+	"targetHighlight",
+	"targetBorder",
+	"mouseoverHighlight",
+	"bossIcon",
+	"raidIcon",
+	"eliteIcon",
+	"classIcon",
+	"factionIcon",
+	"threatPercentBar",
+	"threatPercentText",
+	"threatDifferentialText",
+	"threatNumberText",
+	"targetTargetText",
+	"auraIcon",
+	"aurasDebuffs",
+	"aurasBuffs",
+	"rangeStatusBar",
+	"rangeText",
+}
+local anchorTargetLabels = {
+	healthBar = L["Health Bar"],
+	healthText = L["Health Text"],
+	nameText = L["Name Text"],
+	npcIcons = L["NPC Icons"],
+	castBar = L["Cast Bar"],
+	castSpellIcon = L["Spell Icon"],
+	castSpellNameText = L["Spell Name Text"],
+	castSpellTimeText = L["Spell Time Text"],
+	levelText = L["Level Text"],
+	targetOverlay = L["Target Overlay"],
+	targetIndicator = L["Target Indicator"],
+	targetHighlight = L["Target Highlight"],
+	targetBorder = L["Target Border"],
+	mouseoverHighlight = L["Mouseover Highlight"],
+	bossIcon = L["Boss Icon"],
+	raidIcon = L["Raid Icon"],
+	eliteIcon = L["Elite / Rare Icon"],
+	classIcon = L["Class Icon"],
+	factionIcon = L["Faction Icon"],
+	threatPercentBar = L["Threat Percent Bar"],
+	threatPercentText = L["Threat Percent Text"],
+	threatDifferentialText = L["Threat Differential Text"],
+	threatNumberText = L["Threat Number Text"],
+	targetTargetText = L["Target-Target Text"],
+	auraIcon = L["Aura Icon"],
+	aurasDebuffs = L["Aura Frame 1"],
+	aurasBuffs = L["Aura Frame 2 (Buffs)"],
+	rangeStatusBar = L["Range Status Bar"],
+	rangeText = L["Range Text"],
+}
 local auraGrowthDirections = {["LEFT"] = L["Left"], ["RIGHT"] = L["Right"], ["CENTER"] = L["Center"]}
 local swipeStyleValues = {
 	vertical = L["Top to Bottom"],
 	swirl = L["Swirl"],
 	richsteini = L["RichSteini CD"],
 }
+
+local function BuildAnchorTargetValues(selfKey)
+	local values = {}
+	for _, key in ipairs(anchorTargetOrder) do
+		if key ~= selfKey then
+			values[key] = anchorTargetLabels[key] or key
+		end
+	end
+	return values
+end
+
+local function ResolveAnchorSelfKey(info)
+	if not info then
+		return nil
+	end
+	local top = info[1]
+	if top == "icons" then
+		return info[2]
+	elseif top == "healthBar" then
+		if info[2] == "healthText" then
+			return "healthText"
+		end
+	elseif top == "castBar" then
+		if info[2] == "statusBar" then
+			return "castBar"
+		elseif info[2] == "spellIcon" then
+			return "castSpellIcon"
+		elseif info[2] == "spellNameText" then
+			return "castSpellNameText"
+		elseif info[2] == "spellTimeText" then
+			return "castSpellTimeText"
+		end
+	elseif top == "nameText" then
+		return "nameText"
+	elseif top == "levelText" then
+		return "levelText"
+	elseif top == "threat" then
+		if info[2] == "percent" then
+			if info[3] == "statusBar" then
+				return "threatPercentBar"
+			elseif info[3] == "text" then
+				return "threatPercentText"
+			end
+		elseif info[2] == "differentialText" then
+			return "threatDifferentialText"
+		elseif info[2] == "numberText" then
+			return "threatNumberText"
+		end
+	elseif top == "target" then
+		if info[2] == "targetTargetText" then
+			return "targetTargetText"
+		end
+	elseif top == "range" then
+		if info[2] == "statusBar" then
+			return "rangeStatusBar"
+		elseif info[2] == "text" then
+			return "rangeText"
+		end
+	elseif top == "buffs" then
+		if info[2] == "auraFrame1" then
+			return "aurasDebuffs"
+		elseif info[2] == "auraFrame2" then
+			return "aurasBuffs"
+		end
+	end
+	for index = 1, #info do
+		local key = info[index]
+		if anchorTargetLabels[key] then
+			return key
+		end
+	end
+	return nil
+end
+
+local function GetAnchorTargetValues(info)
+	return BuildAnchorTargetValues(ResolveAnchorSelfKey(info))
+end
 
 local ConfigPrototypes = {}
 NotPlater.ConfigPrototypes = ConfigPrototypes
@@ -120,6 +259,12 @@ function ConfigPrototypes:GetGeneralisedPositionConfig()
         inline = true,
         name = L["Position"],
         args = {
+			anchorTarget = {
+				order = 0,
+				type = "select",
+				name = L["Anchor To"],
+				values = GetAnchorTargetValues,
+			},
             anchor = {
                 order = 1,
                 type = "select",
@@ -677,6 +822,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
             name = L["Frames"],
             args = {
                 growDirection = { order = 0, type = "select", name = L["Grow Direction"], values = auraGrowthDirections },
+                anchorTarget = { order = 0, type = "select", name = L["Anchor To"], values = GetAnchorTargetValues },
                 anchor = { order = 1, type = "select", name = L["Anchor"], values = anchors },
                 xOffset = { order = 2, type = "range", name = L["X Offset"], min = -100, max = 100, step = 1 },
                 yOffset = { order = 3, type = "range", name = L["Y Offset"], min = -100, max = 100, step = 1 },
@@ -1208,11 +1354,12 @@ function ConfigPrototypes:BuildBuffsArgs(api)
 			return value
 		end
 		local groupArgs = {
-			growDirection = { order = fieldOrder(0), type = "select", name = L["Grow Direction"], values = auraGrowthDirections, disabled = disabled },
-			anchor = { order = fieldOrder(1), type = "select", name = L["Anchor"], values = anchors, disabled = disabled },
-			xOffset = { order = fieldOrder(2), type = "range", name = L["X Offset"], min = -100, max = 100, step = 1, disabled = disabled },
-			yOffset = { order = fieldOrder(3), type = "range", name = L["Y Offset"], min = -100, max = 100, step = 1, disabled = disabled },
-			rowCount = FrameDimension(frameKey, "rowCount", fieldOrder(4), L["Auras per Row"], 1, 12, 1, 10, disabled),
+			anchorTarget = { order = fieldOrder(0), type = "select", name = L["Anchor To"], values = GetAnchorTargetValues, disabled = disabled },
+			growDirection = { order = fieldOrder(1), type = "select", name = L["Grow Direction"], values = auraGrowthDirections, disabled = disabled },
+			anchor = { order = fieldOrder(2), type = "select", name = L["Anchor"], values = anchors, disabled = disabled },
+			xOffset = { order = fieldOrder(3), type = "range", name = L["X Offset"], min = -100, max = 100, step = 1, disabled = disabled },
+			yOffset = { order = fieldOrder(4), type = "range", name = L["Y Offset"], min = -100, max = 100, step = 1, disabled = disabled },
+			rowCount = FrameDimension(frameKey, "rowCount", fieldOrder(5), L["Auras per Row"], 1, 12, 1, 10, disabled),
 			width = FrameDimension(frameKey, "width", 10, L["Width"], 10, 80, 1, 26, disabled),
 			height = FrameDimension(frameKey, "height", 11, L["Height"], 10, 80, 1, 16, disabled),
 			borderThickness = FrameDimension(frameKey, "borderThickness", 12, L["Border Thickness"], 0, 5, 0.1, 1, disabled),
@@ -1304,9 +1451,10 @@ function ConfigPrototypes:BuildBuffsArgs(api)
 					inline = true,
 					name = L["Position"],
 					args = {
-						anchor = { order = 0, type = "select", name = L["Anchor"], values = anchors },
-						xOffset = { order = 1, type = "range", name = L["X Offset"], min = -50, max = 50, step = 1 },
-						yOffset = { order = 2, type = "range", name = L["Y Offset"], min = -50, max = 50, step = 1 },
+						anchorTarget = { order = 0, type = "select", name = L["Anchor To"], values = GetAnchorTargetValues },
+						anchor = { order = 1, type = "select", name = L["Anchor"], values = anchors },
+						xOffset = { order = 2, type = "range", name = L["X Offset"], min = -50, max = 50, step = 1 },
+						yOffset = { order = 3, type = "range", name = L["Y Offset"], min = -50, max = 50, step = 1 },
 					},
 				},
 				shadow = {
@@ -1350,9 +1498,10 @@ function ConfigPrototypes:BuildBuffsArgs(api)
 					name = L["Position"],
 					disabled = api.IsAuraTimerDisabled,
 					args = {
-						anchor = { order = 0, type = "select", name = L["Anchor"], values = anchors },
-						xOffset = { order = 1, type = "range", name = L["X Offset"], min = -50, max = 50, step = 1 },
-						yOffset = { order = 2, type = "range", name = L["Y Offset"], min = -50, max = 50, step = 1 },
+						anchorTarget = { order = 0, type = "select", name = L["Anchor To"], values = GetAnchorTargetValues },
+						anchor = { order = 1, type = "select", name = L["Anchor"], values = anchors },
+						xOffset = { order = 2, type = "range", name = L["X Offset"], min = -50, max = 50, step = 1 },
+						yOffset = { order = 3, type = "range", name = L["Y Offset"], min = -50, max = 50, step = 1 },
 					},
 				},
 				shadow = {

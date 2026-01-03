@@ -4,6 +4,7 @@ local L = NotPlaterLocals
 local DEFAULT_CHAT_FRAME = DEFAULT_CHAT_FRAME
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local unpack = unpack
+local UIParent = UIParent
 local slen = string.len
 local ssub = string.sub
 local tinsert = table.insert
@@ -66,6 +67,50 @@ function NotPlater:SetupFontString(text, config)
 	end
 end
 
+function NotPlater:GetNameplateFrameFromRegion(region)
+	local frame = region
+	for _ = 1, 6 do
+		if not frame then
+			return nil
+		end
+		if frame.healthBar then
+			return frame
+		end
+		if frame == UIParent then
+			return nil
+		end
+		if frame.GetParent then
+			frame = frame:GetParent()
+		else
+			return nil
+		end
+	end
+	return nil
+end
+
+function NotPlater:GetAnchorTargetFrame(anchorFrame, targetKey, fallback)
+	if not targetKey or targetKey == "" then
+		return fallback
+	end
+	if targetKey == "auraIcon" then
+		return anchorFrame or fallback
+	end
+	local frame = self:GetNameplateFrameFromRegion(anchorFrame)
+	if frame and self.GetAnchorTargetRegion then
+		local target = self:GetAnchorTargetRegion(frame, targetKey)
+		if target then
+			return target
+		end
+	end
+	if frame and self.GetStackingComponentFrame then
+		local target = self:GetStackingComponentFrame(frame, targetKey)
+		if target then
+			return target
+		end
+	end
+	return fallback
+end
+
 function NotPlater:SetMaxLetterText(textObject, text, config)
 	local configMaxLength = config.general.maxLetters
 	if text and slen(text) > configMaxLength then
@@ -94,8 +139,15 @@ end
 
 function NotPlater:ConfigureGeneralisedText(text, anchorFrame, config)
     text:ClearAllPoints()
-	text:SetPoint(config.position.anchor, anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
-	text.npAnchorFrame = anchorFrame
+	local resolvedAnchor = anchorFrame
+	if config.position and config.position.anchorTarget then
+		resolvedAnchor = self:GetAnchorTargetFrame(anchorFrame, config.position.anchorTarget, anchorFrame)
+		if resolvedAnchor == text then
+			resolvedAnchor = anchorFrame
+		end
+	end
+	text:SetPoint(config.position.anchor, resolvedAnchor, config.position.anchor, config.position.xOffset, config.position.yOffset)
+	text.npAnchorFrame = resolvedAnchor
 	self:SetupFontString(text, config)
 	if config.general.enable then
 		text:Show()
@@ -125,8 +177,15 @@ end
 function NotPlater:ConfigureGeneralisedPositionedStatusBar(bar, anchorFrame, config)
 	bar:ClearAllPoints()
 	self:SetSize(bar, config.size.width, config.size.height)
-	bar:SetPoint(self.oppositeAnchors[config.position.anchor], anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
-	bar.npAnchorFrame = anchorFrame
+	local resolvedAnchor = anchorFrame
+	if config.position and config.position.anchorTarget then
+		resolvedAnchor = self:GetAnchorTargetFrame(anchorFrame, config.position.anchorTarget, anchorFrame)
+		if resolvedAnchor == bar then
+			resolvedAnchor = anchorFrame
+		end
+	end
+	bar:SetPoint(self.oppositeAnchors[config.position.anchor], resolvedAnchor, config.position.anchor, config.position.xOffset, config.position.yOffset)
+	bar.npAnchorFrame = resolvedAnchor
 	self:ConfigureGeneralisedStatusBar(bar, config)
 end
 
@@ -195,8 +254,15 @@ function NotPlater:ConfigureGeneralisedIcon(iconFrame, anchorFrame, config)
 
     iconFrame:ClearAllPoints()
     self:SetSize(iconFrame, config.size.width, config.size.height)
-    iconFrame:SetPoint(self.oppositeAnchors[config.position.anchor], anchorFrame, config.position.anchor, config.position.xOffset, config.position.yOffset)
-	iconFrame.npAnchorFrame = anchorFrame
+	local resolvedAnchor = anchorFrame
+	if config.position and config.position.anchorTarget then
+		resolvedAnchor = self:GetAnchorTargetFrame(anchorFrame, config.position.anchorTarget, anchorFrame)
+		if resolvedAnchor == iconFrame then
+			resolvedAnchor = anchorFrame
+		end
+	end
+    iconFrame:SetPoint(self.oppositeAnchors[config.position.anchor], resolvedAnchor, config.position.anchor, config.position.xOffset, config.position.yOffset)
+	iconFrame.npAnchorFrame = resolvedAnchor
 	local enabled = config.general.enable
 	if enabled == nil then
 		enabled = true

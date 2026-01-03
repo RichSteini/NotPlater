@@ -88,6 +88,7 @@ function NotPlater:LoadDefaultConfig()
                             height = 8,
                         },
                         position = {
+							anchorTarget = "healthBar",
                             anchor = "TOPLEFT",
                             xOffset = 31,
                             yOffset = 4,
@@ -115,6 +116,7 @@ function NotPlater:LoadDefaultConfig()
                             useThreatColors = false,
                         },
                         position = {
+							anchorTarget = "threatPercentBar",
                             anchor = "CENTER",
                             xOffset = 0,
                             yOffset = 0,
@@ -147,6 +149,7 @@ function NotPlater:LoadDefaultConfig()
                         border = "OUTLINE",
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "LEFT",
                         xOffset = -25,
                         yOffset = 0,
@@ -178,6 +181,7 @@ function NotPlater:LoadDefaultConfig()
                         border = "",
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "RIGHT",
                         xOffset = 25,
                         yOffset = 0,
@@ -220,6 +224,7 @@ function NotPlater:LoadDefaultConfig()
                         height = 10,
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "RIGHT",
                         xOffset = 5,
                         yOffset = 0,
@@ -240,6 +245,7 @@ function NotPlater:LoadDefaultConfig()
 						format = "{range} Yards",
 					},
 					position = {
+						anchorTarget = "healthBar",
 						anchor = "RIGHT",
 						xOffset = 45,
 						yOffset = 0,
@@ -310,6 +316,7 @@ function NotPlater:LoadDefaultConfig()
                         border = "OUTLINE",
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "CENTER",
                         xOffset = 0,
                         yOffset = 0,
@@ -339,6 +346,7 @@ function NotPlater:LoadDefaultConfig()
                         height = 14,
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "BOTTOM",
                         xOffset = 0,
                         yOffset = -1,
@@ -359,6 +367,7 @@ function NotPlater:LoadDefaultConfig()
                         height = 14
                     },
                     position = {
+						anchorTarget = "castBar",
                         anchor = "LEFT",
                         xOffset = 0,
                         yOffset = 0,
@@ -384,6 +393,7 @@ function NotPlater:LoadDefaultConfig()
                         name = "Arial Narrow"
                     },
                     position = {
+						anchorTarget = "castBar",
                         anchor = "RIGHT",
                         xOffset = 0,
                         yOffset = 0
@@ -405,6 +415,7 @@ function NotPlater:LoadDefaultConfig()
                         maxLetters = 10,
                     },
                     position = {
+						anchorTarget = "castBar",
                         anchor = "CENTER",
                         xOffset = 0,
                         yOffset = 0,
@@ -428,6 +439,7 @@ function NotPlater:LoadDefaultConfig()
 					maxLetters = 80,
 				},
                 position = {
+					anchorTarget = "healthBar",
                     anchor = "BOTTOM",
                     xOffset = 0,
                     yOffset = -12
@@ -450,6 +462,7 @@ function NotPlater:LoadDefaultConfig()
 					border = ""
 				},
                 position = {
+					anchorTarget = "healthBar",
                     anchor = "TOPRIGHT",
                     xOffset = -2,
                     yOffset = 10 
@@ -472,6 +485,7 @@ function NotPlater:LoadDefaultConfig()
                         height = 20,
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "RIGHT",
                         xOffset = 5,
                         yOffset = 0,
@@ -487,6 +501,7 @@ function NotPlater:LoadDefaultConfig()
                         height = 16,
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "LEFT",
                         xOffset = -20,
                         yOffset = 0,
@@ -502,6 +517,7 @@ function NotPlater:LoadDefaultConfig()
                         height = 12,
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "LEFT",
                         xOffset = -5,
                         yOffset = 0,
@@ -517,6 +533,7 @@ function NotPlater:LoadDefaultConfig()
                         height = 16,
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "LEFT",
                         xOffset = 16,
                         yOffset = 0,
@@ -532,6 +549,7 @@ function NotPlater:LoadDefaultConfig()
                         height = 12,
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "TOPLEFT",
                         xOffset = 6,
                         yOffset = -6,
@@ -546,6 +564,7 @@ function NotPlater:LoadDefaultConfig()
                     },
                     layout = {
                         growDirection = "RIGHT",
+						anchorTarget = "nameText",
                         anchor = "RIGHT",
                         xOffset = 4,
                         yOffset = -1,
@@ -635,6 +654,7 @@ function NotPlater:LoadDefaultConfig()
                         maxLetters = 6
                     },
                     position = {
+						anchorTarget = "healthBar",
                         anchor = "CENTER",
                         xOffset = 44,
                         yOffset = -3,
@@ -662,6 +682,7 @@ function NotPlater:LoadDefaultConfig()
 				},
                 auraFrame1 = {
                     growDirection = "CENTER",
+					anchorTarget = "healthBar",
                     anchor = "TOP",
                     xOffset = 0,
                     yOffset = 5,
@@ -674,6 +695,7 @@ function NotPlater:LoadDefaultConfig()
                 auraFrame2 = {
                     enable = false,
                     growDirection = "CENTER",
+					anchorTarget = "aurasDebuffs",
                     anchor = "TOP",
                     xOffset = 0,
                     yOffset = 10,
@@ -695,6 +717,7 @@ function NotPlater:LoadDefaultConfig()
                         color = {1, 1, 1, 1},
                     },
                     position = {
+						anchorTarget = "auraIcon",
                         anchor = "TOP",
                         xOffset = 0,
                         yOffset = 0,
@@ -717,6 +740,7 @@ function NotPlater:LoadDefaultConfig()
                         color = {1, 1, 1, 1},
                     },
                     position = {
+						anchorTarget = "auraIcon",
                         anchor = "CENTER",
                         xOffset = 0,
                         yOffset = 0,

@@ -333,6 +333,170 @@ local stackingComponentDefinitions = {
 	},
 }
 
+local anchorTargetDefinitions = {
+	healthBar = {
+		get = function(frame)
+			return frame and frame.healthBar
+		end,
+	},
+	healthText = {
+		get = function(frame)
+			return frame and frame.healthBar and frame.healthBar.healthText
+		end,
+	},
+	npcIcons = {
+		get = function(frame)
+			return frame and frame.npcIcons
+		end,
+	},
+	castBar = {
+		get = function(frame)
+			return frame and frame.castBar
+		end,
+	},
+	castSpellIcon = {
+		get = function(frame)
+			return frame and frame.castBar and frame.castBar.icon
+		end,
+	},
+	castSpellNameText = {
+		get = function(frame)
+			return frame and frame.castBar and frame.castBar.spellNameText
+		end,
+	},
+	castSpellTimeText = {
+		get = function(frame)
+			return frame and frame.castBar and frame.castBar.spellTimeText
+		end,
+	},
+	nameText = {
+		get = function(frame)
+			return frame and frame.nameText
+		end,
+	},
+	levelText = {
+		get = function(frame)
+			return frame and frame.levelText
+		end,
+	},
+	targetOverlay = {
+		get = function(frame)
+			return frame and frame.targetOverlay
+		end,
+	},
+	targetIndicator = {
+		get = function(frame)
+			if not frame then
+				return nil
+			end
+			local textures = frame.targetTextures4Sides
+			if textures and textures[1] then
+				return textures[1]
+			end
+			textures = frame.targetTextures2Sides
+			if textures and textures[1] then
+				return textures[1]
+			end
+			return nil
+		end,
+	},
+	targetHighlight = {
+		get = function(frame)
+			if not frame then
+				return nil
+			end
+			return frame.targetNeonUp or frame.targetNeonDown
+		end,
+	},
+	targetBorder = {
+		get = function(frame)
+			return frame and frame.targetBorderFrame
+		end,
+	},
+	mouseoverHighlight = {
+		get = function(frame)
+			if not frame then
+				return nil
+			end
+			return frame.highlightTexture or frame.mouseoverBorderFrame
+		end,
+	},
+	bossIcon = {
+		get = function(frame)
+			return frame and frame.bossIcon
+		end,
+	},
+	eliteIcon = {
+		get = function(frame)
+			return frame and frame.eliteIcon
+		end,
+	},
+	raidIcon = {
+		get = function(frame)
+			return frame and frame.raidIcon
+		end,
+	},
+	classIcon = {
+		get = function(frame)
+			return frame and frame.classIcon
+		end,
+	},
+	factionIcon = {
+		get = function(frame)
+			return frame and frame.factionIcon
+		end,
+	},
+	threatPercentBar = {
+		get = function(frame)
+			return frame and frame.healthBar and frame.healthBar.threatPercentBar
+		end,
+	},
+	threatPercentText = {
+		get = function(frame)
+			return frame and frame.healthBar and frame.healthBar.threatPercentText
+		end,
+	},
+	threatDifferentialText = {
+		get = function(frame)
+			return frame and frame.healthBar and frame.healthBar.threatDifferentialText
+		end,
+	},
+	threatNumberText = {
+		get = function(frame)
+			return frame and frame.healthBar and frame.healthBar.threatNumberText
+		end,
+	},
+	targetTargetText = {
+		get = function(frame)
+			return frame and frame.targetTargetText
+		end,
+	},
+	rangeStatusBar = {
+		get = function(frame)
+			return frame and frame.rangeBar
+		end,
+	},
+	rangeText = {
+		get = function(frame)
+			return frame and frame.rangeText
+		end,
+	},
+	aurasDebuffs = {
+		get = function(frame)
+			if frame and frame.npAuras and frame.npAuras.frames then
+				return frame.npAuras.frames[1]
+			end
+		end,
+	},
+	aurasBuffs = {
+		get = function(frame)
+			if frame and frame.npAuras and frame.npAuras.frames then
+				return frame.npAuras.frames[2]
+			end
+		end,
+	},
+}
+
 function NotPlater:EnsureStackingComponentOrder()
 	local defaults = self.defaultStackingComponents or DEFAULT_COMPONENT_ORDER
 	local stacking = self.db.profile.stacking
@@ -479,6 +643,14 @@ end
 function NotPlater:GetStackingComponentOrder()
 	self:EnsureStackingComponentOrder()
 	return self.db.profile.stacking.componentOrdering.components or {}
+end
+
+function NotPlater:GetAnchorTargetRegion(frame, key)
+	local definition = anchorTargetDefinitions[key]
+	if not definition then
+		return nil
+	end
+	return definition.get(frame)
 end
 
 function NotPlater:GetStackingComponentRegion(frame, key)
