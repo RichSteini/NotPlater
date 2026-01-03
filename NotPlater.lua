@@ -181,6 +181,7 @@ function NotPlater:OnInitialize()
 	self:RegisterEvent("RAID_ROSTER_UPDATE")
 	self:RegisterEvent("PLAYER_TARGET_CHANGED")
 	self:RegisterEvent("PLAYER_FOCUS_CHANGED")
+	self:RegisterEvent("UNIT_TARGET")
 	self:Reload()
 end
 

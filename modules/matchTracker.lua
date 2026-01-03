@@ -11,6 +11,10 @@ local UnitName = UnitName
 
 local DEFAULT_TRACKED_UNITS = {"target", "focus", "mouseover"}
 
+local function IsGroupTargetUnit(unit)
+	return type(unit) == "string" and (unit:match("^party%d+target$") or unit:match("^raid%d+target$"))
+end
+
 local function ReleaseFrameMatch(self, frame)
 	if not frame then
 		return
@@ -151,6 +155,17 @@ function NotPlater:SetFrameMatch(frame, unit)
 	return true
 end
 
+function NotPlater:ClearGroupTargetMatches()
+	if not self.matchUnitToFrame then
+		return
+	end
+	for unit, frame in pairs(self.matchUnitToFrame) do
+		if frame and frame.lastUnitMatch == unit and IsGroupTargetUnit(unit) and not UnitExists(unit) then
+			self:ClearFrameMatch(frame)
+		end
+	end
+end
+
 function NotPlater:UpdateFrameMatch(frame)
 	if not frame or not frame:IsShown() or not frame.healthBar then
 		return
@@ -168,6 +183,27 @@ function NotPlater:UpdateFrameMatch(frame)
 		end
 	else
 		self:ClearFrameMatch(frame, true)
+	end
+end
+
+function NotPlater:UNIT_TARGET(unitId)
+	if not unitId or not (unitId:match("^party%d+$") or unitId:match("^raid%d+$")) then
+		return
+	end
+	local targetUnit = unitId .. "target"
+	if not self.matchUnitToFrame then
+		self.matchUnitToFrame = {}
+	end
+	local trackedFrame = self.matchUnitToFrame[targetUnit]
+	if trackedFrame and trackedFrame.lastUnitMatch == targetUnit then
+		self:ClearFrameMatch(trackedFrame)
+	end
+	if not UnitExists(targetUnit) then
+		return
+	end
+	local frame = self:GetMatchedFrameForUnit(targetUnit)
+	if frame and frame.lastUnitMatch ~= "target" and frame.lastUnitMatch ~= "focus" and frame.lastUnitMatch ~= "mouseover" then
+		self:SetFrameMatch(frame, targetUnit)
 	end
 end
 

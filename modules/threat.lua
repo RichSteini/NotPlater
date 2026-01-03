@@ -215,6 +215,9 @@ function NotPlater:RAID_ROSTER_UPDATE()
 			i = i + 1
 		end
 	end
+	if self.ClearGroupTargetMatches then
+		self:ClearGroupTargetMatches()
+	end
 end
 
 function NotPlater:PARTY_MEMBERS_CHANGED()
@@ -242,6 +245,9 @@ function NotPlater:PARTY_MEMBERS_CHANGED()
 		if pet then
 			self.party[pet] = "pet"
 		end
+	end
+	if self.ClearGroupTargetMatches then
+		self:ClearGroupTargetMatches()
 	end
 end
 
