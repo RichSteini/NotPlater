@@ -15,6 +15,11 @@ local GetPartyMember = GetPartyMember
 local UnitCanAttack = UnitCanAttack
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local UnitDetailedThreatSituation = UnitDetailedThreatSituation
+local UnitBuff = UnitBuff
+local GetSpellInfo = GetSpellInfo
+local GetNumTalentTabs = GetNumTalentTabs
+local GetTalentTabInfo = GetTalentTabInfo
+local UnitGroupRolesAssigned = UnitGroupRolesAssigned
 local MAX_PARTY_MEMBERS = MAX_PARTY_MEMBERS
 local MAX_RAID_MEMBERS = MAX_RAID_MEMBERS
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
@@ -44,6 +49,8 @@ end
 local LegacyThreatLib = not USE_NATIVE_THREAT and LibStub("Threat-2.0") or nil
 
 local lastThreat = {}
+local tankBuffNames = {}
+local tankBuffIDs = {71, 25780, 5487, 9634, 48263}
 
 local function GetGroupSize(group)
 	local count = 0
@@ -74,6 +81,80 @@ local function CacheUnitClass(unitId)
 			classTokenCache[unitName] = classToken
 		end
 	end
+end
+
+for _, spellID in ipairs(tankBuffIDs) do
+	local name = GetSpellInfo(spellID)
+	if name and name ~= "" then
+		tankBuffNames[name] = true
+	end
+end
+
+local function PlayerHasTankBuff()
+	for i = 1, 40 do
+		local name = UnitBuff("player", i)
+		if not name then
+			break
+		end
+		if tankBuffNames[name] then
+			return true
+		end
+	end
+	return false
+end
+
+local function GetPrimaryTalentTabIndex()
+	if not GetNumTalentTabs or not GetTalentTabInfo then
+		return nil
+	end
+	local tabs = GetNumTalentTabs()
+	local maxPoints = 0
+	local maxIndex
+	for i = 1, tabs do
+		local _, _, points = GetTalentTabInfo(i)
+		if points and points > maxPoints then
+			maxPoints = points
+			maxIndex = i
+		end
+	end
+	return maxIndex
+end
+
+local function IsTankByTalents(classToken)
+	local tabIndex = GetPrimaryTalentTabIndex()
+	if not tabIndex or not classToken then
+		return nil
+	end
+	if classToken == "WARRIOR" then
+		return tabIndex == 3
+	elseif classToken == "PALADIN" then
+		return tabIndex == 2
+	elseif classToken == "DRUID" then
+		return tabIndex == 2
+	elseif classToken == "DEATHKNIGHT" then
+		return tabIndex == 1 or tabIndex == 2
+	end
+	return nil
+end
+
+local function GetAutomaticThreatMode()
+	if UnitGroupRolesAssigned then
+		local role = UnitGroupRolesAssigned("player")
+		if role == "TANK" then
+			return "tank"
+		end
+		if role == "HEALER" or role == "DAMAGER" then
+			return "hdps"
+		end
+	end
+	if PlayerHasTankBuff() then
+		return "tank"
+	end
+	local classToken = select(2, UnitClass("player"))
+	if IsTankByTalents(classToken) then
+		return "tank"
+	end
+	return "hdps"
 end
 
 function NotPlater:RAID_ROSTER_UPDATE()
@@ -186,6 +267,9 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 	end
 
 	local mode = threatConfig.general.mode
+	if mode == "auto" then
+		mode = GetAutomaticThreatMode()
+	end
 	if threatConfig.nameplateColors.general.enable or threatConfig.differentialText.general.enable then
 		local barColorConfig, textColorConfig = threatConfig.nameplateColors.colors, threatConfig.differentialText.colors
 		local barColor, textColor

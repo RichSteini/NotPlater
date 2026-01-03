@@ -513,7 +513,7 @@ function ConfigPrototypes:LoadConfigPrototypes()
             order = 0,
             type = "select",
             name = L["Mode"],
-            values = {["hdps"] = L["Healer / DPS"], ["tank"] = L["Tank"]},
+            values = {["auto"] = L["Automatic"], ["hdps"] = L["Healer / DPS"], ["tank"] = L["Tank"]},
         },
     }
     ConfigPrototypes.ThreatNameplateColors = {
