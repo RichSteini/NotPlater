@@ -252,111 +252,113 @@ function NotPlater:PrepareFrame(frame)
 		-- Hide old healthbar
 		health:Hide()
     
-		self:HookScript(frame, "OnShow", function(self)
-			local unitName = self.defaultNameText:GetText()
-			local cachedClass = classCache[unitName]
-			self.unitClass = cachedClass
-			self.unitClassToken = classTokenCache[unitName]
-			self.unitFaction = factionCache[unitName]
-			NotPlater:CastBarOnShow(self)
-			NotPlater:HealthBarOnShow(health)
-			NotPlater:StackingCheck(self)
-			NotPlater:ThreatComponentsOnShow(self)
-			NotPlater:RangeComponentsOnShow(self)
-			NotPlater:TargetCheck(self)
-			NotPlater:NameTextOnShow(self)
-			NotPlater:MatchTrackerOnShow(self)
-			NotPlater.Auras:OnPlateShow(self)
-			NotPlater:UpdateClassIcon(self)
-			NotPlater:UpdateEliteIcon(self)
-			NotPlater:UpdateFactionIcon(self)
-			NotPlater:UpdateNpcIcons(self)
-			NotPlater:ApplyFilters(self)
-			self.targetChanged = true
-		end)
-
-		self:HookScript(frame, 'OnUpdate', function(self, elapsed)
-			if not self.targetCheckElapsed then self.targetCheckElapsed = 0 end
-			self.targetCheckElapsed = self.targetCheckElapsed + elapsed
-			if self.targetCheckElapsed >= 0.1 then
-				if self.targetChanged then
-					NotPlater:TargetCheck(self)
-					self.targetChanged = nil
-				end
-				if NotPlater.db.profile.healthBar.statusBar.general.useClassColors then
-					if not self.unitClass then
-						NotPlater:ClassCheck(self)
-					end
-					if self.unitClass then
-						self.healthBar:SetStatusBarColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
-					end
-				end
-				local nameTextConfig = NotPlater:GetActiveNameTextConfig(self)
-				if nameTextConfig.general.useClassColor and not self.filterHideNameText then
-					if not self.unitClass then
-						NotPlater:ClassCheck(self)
-					end
-					if self.unitClass then
-						self.nameText:SetTextColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
-					end
-				end
-				if NotPlater.db.profile.icons.classIcon.general.enable then
-					if not self.unitClass then
-						NotPlater:ClassCheck(self)
-					end
-					NotPlater:UpdateClassIcon(self)
-				end
-				if NotPlater.db.profile.icons.factionIcon.general.enable then
-					if not self.unitFaction then
-						NotPlater:FactionCheck(self)
-					end
-					NotPlater:UpdateFactionIcon(self)
-				end
-				NotPlater:SetTargetTargetText(self)
-				NotPlater:RangeCheck(self, self.targetCheckElapsed)
+		if not frame.isTemplatePreview then
+			self:HookScript(frame, "OnShow", function(self)
+				local unitName = self.defaultNameText:GetText()
+				local cachedClass = classCache[unitName]
+				self.unitClass = cachedClass
+				self.unitClassToken = classTokenCache[unitName]
+				self.unitFaction = factionCache[unitName]
+				NotPlater:CastBarOnShow(self)
+				NotPlater:HealthBarOnShow(health)
+				NotPlater:StackingCheck(self)
+				NotPlater:ThreatComponentsOnShow(self)
+				NotPlater:RangeComponentsOnShow(self)
+				NotPlater:TargetCheck(self)
+				NotPlater:NameTextOnShow(self)
+				NotPlater:MatchTrackerOnShow(self)
+				NotPlater.Auras:OnPlateShow(self)
+				NotPlater:UpdateClassIcon(self)
+				NotPlater:UpdateEliteIcon(self)
+				NotPlater:UpdateFactionIcon(self)
+				NotPlater:UpdateNpcIcons(self)
 				NotPlater:ApplyFilters(self)
-				self.targetCheckElapsed = 0
-			end
-			local isMouseOver = self:IsMouseOver()
-			if NotPlater.isWrathClient and self.useHighlightProxy and self.highlightTexture then
-				if isMouseOver then
-					if not self.highlightTexture:IsShown() then
-						self.highlightTexture:Show()
+				self.targetChanged = true
+			end)
+
+			self:HookScript(frame, 'OnUpdate', function(self, elapsed)
+				if not self.targetCheckElapsed then self.targetCheckElapsed = 0 end
+				self.targetCheckElapsed = self.targetCheckElapsed + elapsed
+				if self.targetCheckElapsed >= 0.1 then
+					if self.targetChanged then
+						NotPlater:TargetCheck(self)
+						self.targetChanged = nil
 					end
+					if NotPlater.db.profile.healthBar.statusBar.general.useClassColors then
+						if not self.unitClass then
+							NotPlater:ClassCheck(self)
+						end
+						if self.unitClass then
+							self.healthBar:SetStatusBarColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
+						end
+					end
+					local nameTextConfig = NotPlater:GetActiveNameTextConfig(self)
+					if nameTextConfig.general.useClassColor and not self.filterHideNameText then
+						if not self.unitClass then
+							NotPlater:ClassCheck(self)
+						end
+						if self.unitClass then
+							self.nameText:SetTextColor(self.unitClass.r, self.unitClass.g, self.unitClass.b, 1)
+						end
+					end
+					if NotPlater.db.profile.icons.classIcon.general.enable then
+						if not self.unitClass then
+							NotPlater:ClassCheck(self)
+						end
+						NotPlater:UpdateClassIcon(self)
+					end
+					if NotPlater.db.profile.icons.factionIcon.general.enable then
+						if not self.unitFaction then
+							NotPlater:FactionCheck(self)
+						end
+						NotPlater:UpdateFactionIcon(self)
+					end
+					NotPlater:SetTargetTargetText(self)
+					NotPlater:RangeCheck(self, self.targetCheckElapsed)
+					NotPlater:ApplyFilters(self)
+					self.targetCheckElapsed = 0
+				end
+				local isMouseOver = self:IsMouseOver()
+				if NotPlater.isWrathClient and self.useHighlightProxy and self.highlightTexture then
+					if isMouseOver then
+						if not self.highlightTexture:IsShown() then
+							self.highlightTexture:Show()
+						end
+					else
+						if self.highlightTexture:IsShown() then
+							self.highlightTexture:Hide()
+						end
+					end
+				end
+				local mouseoverConfig = NotPlater.db.profile.target.mouseoverHighlight
+				if mouseoverConfig.enable and mouseoverConfig.border and mouseoverConfig.border.enable and isMouseOver then
+					self.mouseoverBorder:Show()
 				else
-					if self.highlightTexture:IsShown() then
-						self.highlightTexture:Hide()
+					self.mouseoverBorder:Hide()
+				end
+				if NotPlater:IsTarget(self) then
+					self:SetAlpha(1)
+				else
+					if NotPlater.db.profile.target.nonTargetAlpha.enable then
+						self:SetAlpha(NotPlater.db.profile.target.nonTargetAlpha.opacity)
 					end
 				end
-			end
-			local mouseoverConfig = NotPlater.db.profile.target.mouseoverHighlight
-			if mouseoverConfig.enable and mouseoverConfig.border and mouseoverConfig.border.enable and isMouseOver then
-				self.mouseoverBorder:Show()
-			else
-				self.mouseoverBorder:Hide()
-			end
-			if NotPlater:IsTarget(self) then
-				self:SetAlpha(1)
-			else
-				if NotPlater.db.profile.target.nonTargetAlpha.enable then
-					self:SetAlpha(NotPlater.db.profile.target.nonTargetAlpha.opacity)
+				if NotPlater.db.profile.levelText.general.enable then
+					NotPlater:LevelTextOnShow(levelText, self.healthBar)
+					levelText:Show()
+				else
+					levelText:Hide()
 				end
-			end
-			if NotPlater.db.profile.levelText.general.enable then
-				NotPlater:LevelTextOnShow(levelText, self.healthBar)
-				levelText:Show()
-			else
-				levelText:Hide()
-			end
-		end)
-		self:HookScript(frame, "OnHide", function(self)
-			NotPlater:MatchTrackerOnHide(self)
-			NotPlater.Auras:OnPlateHide(self)
-			self.unitClass = nil
-			self.unitClassToken = nil
-			self.unitFaction = nil
-			self.highlightTexture:Hide()
-		end)
+			end)
+			self:HookScript(frame, "OnHide", function(self)
+				NotPlater:MatchTrackerOnHide(self)
+				NotPlater.Auras:OnPlateHide(self)
+				self.unitClass = nil
+				self.unitClassToken = nil
+				self.unitFaction = nil
+				self.highlightTexture:Hide()
+			end)
+		end
 	end
 	
 	-- Configure everything
