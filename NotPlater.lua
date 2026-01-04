@@ -158,6 +158,9 @@ function NotPlater:UpdateNameplateCastBarCVar()
 end
 
 function NotPlater:UpdateNameplateClassColorCVar()
+	if not GetCVar or not SetCVar or not self.isWrathClient then
+		return
+	end
 	local shouldEnable = self.db.profile.healthBar.statusBar.general.useClassColors or self.db.profile.nameText.general.useClassColor
 	if shouldEnable then
 		local current = GetCVar(NAMEPLATE_CLASS_COLOR_CVAR)
