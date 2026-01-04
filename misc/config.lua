@@ -1105,7 +1105,190 @@ local function ApplyFilterDefaults(filter)
 	end
 	local name = filter.name or L["Filter"]
 	local defaults = BuildFilterDefaults(name)
-	return MergeTables(defaults, filter)
+	local merged = MergeTables(defaults, filter)
+	if merged.criteria and merged.criteria.healthColor and merged.criteria.healthColor.values then
+		local values = merged.criteria.healthColor.values
+		local legacy = merged.criteria.healthColor.value
+		if legacy and values[legacy] == nil then
+			if legacy == "friendly" then
+				legacy = "friendlyNpc"
+			end
+		end
+		if legacy and values[legacy] ~= nil then
+			local hasSelection = false
+			for _, selected in pairs(values) do
+				if selected then
+					hasSelection = true
+					break
+				end
+			end
+			if not hasSelection then
+				values[legacy] = true
+			end
+		end
+	end
+	return merged
+end
+
+local selectedFilterPreset = "CUSTOM"
+local filterPresetLabels = {
+	CUSTOM = L["Custom"],
+	FRIENDLY_PLAYER = L["Friendly Player"],
+	FRIENDLY_NPC = L["Friendly NPC"],
+	NPC_TYPES_ALL = L["All NPC Types"],
+	TOTEMS = L["Totems"],
+	NEUTRAL = L["Neutral NPCs"],
+	TAPPED = L["Tapped Units"],
+	LOW_LEVEL = L["Low-level Clutter"],
+	CITY_FACTION = L["Main Cities"],
+}
+
+local function SetFilterHideComponents(filter, hideKeys, hideValue)
+	if not filter or not filter.effects or not filter.effects.hide then
+		return
+	end
+	for _, key in ipairs(hideKeys or {}) do
+		filter.effects.hide[key] = hideValue and true or false
+	end
+end
+
+local function ApplyMinimalNameStyle(filter)
+	if not filter or not filter.effects or not filter.effects.nameText or not filter.effects.nameText.config then
+		return
+	end
+	local config = filter.effects.nameText.config
+	if config.general then
+		config.general.enable = true
+		config.general.useClassColor = true
+	end
+end
+
+local function ApplyNpcNameStyle(filter)
+	if not filter or not filter.effects or not filter.effects.nameText or not filter.effects.nameText.config then
+		return
+	end
+	local config = filter.effects.nameText.config
+	if config.general then
+		config.general.enable = true
+		config.general.useClassColor = false
+	end
+end
+
+local function BuildPresetFilter(name, presetKey)
+	local filter = BuildFilterDefaults(name)
+	local criteria = filter.criteria
+	local hide = filter.effects.hide
+	if presetKey == "CUSTOM" then
+		return filter
+	end
+	if presetKey == "FRIENDLY_PLAYER" then
+		criteria.healthColor.enable = true
+		criteria.healthColor.values.friendlyPlayer = true
+		SetFilterHideComponents(filter, {
+			"healthBar", "healthText", "castBar", "castSpellIcon", "castSpellNameText", "castSpellTimeText",
+			"threatPercentBar", "threatPercentText", "threatDifferentialText", "threatNumberText",
+			"targetOverlay", "targetIndicator", "targetBorder", "targetHighlight", "mouseoverHighlight",
+			"targetTargetText", "rangeStatusBar", "rangeText", "aurasDebuffs", "aurasBuffs",
+		}, true)
+		hide.classIcon = false
+		ApplyMinimalNameStyle(filter)
+		return filter
+	end
+	if presetKey == "FRIENDLY_NPC" then
+		criteria.healthColor.enable = true
+		criteria.healthColor.values.friendlyNpc = true
+		SetFilterHideComponents(filter, {
+			"healthBar", "healthText", "castBar", "castSpellIcon", "castSpellNameText", "castSpellTimeText",
+			"threatPercentBar", "threatPercentText", "threatDifferentialText", "threatNumberText",
+			"targetOverlay", "targetIndicator", "targetBorder", "targetHighlight", "mouseoverHighlight",
+			"targetTargetText", "rangeStatusBar", "rangeText", "aurasDebuffs", "aurasBuffs",
+		}, true)
+		hide.npcIcons = false
+		ApplyNpcNameStyle(filter)
+		return filter
+	end
+	if presetKey == "NPC_TYPES_ALL" then
+		criteria.npcType.enable = true
+		for key in pairs(criteria.npcType.values) do
+			criteria.npcType.values[key] = true
+		end
+		SetFilterHideComponents(filter, {"healthBar", "healthText"}, true)
+		hide.npcIcons = false
+		ApplyNpcNameStyle(filter)
+		return filter
+	end
+	if presetKey == "TOTEMS" then
+		criteria.name.enable = true
+		criteria.name.matchMode = "CONTAINS"
+		criteria.name.value = L["Totem"]
+		SetFilterHideComponents(filter, {
+			"healthBar", "healthText", "castBar", "castSpellIcon", "castSpellNameText", "castSpellTimeText",
+			"threatPercentBar", "threatPercentText", "threatDifferentialText", "threatNumberText",
+			"targetOverlay", "targetIndicator", "targetBorder", "targetHighlight", "mouseoverHighlight",
+			"targetTargetText", "rangeStatusBar", "rangeText", "aurasDebuffs", "aurasBuffs",
+		}, true)
+		ApplyNpcNameStyle(filter)
+		return filter
+	end
+	if presetKey == "NEUTRAL" then
+		criteria.healthColor.enable = true
+		criteria.healthColor.values.neutral = true
+		SetFilterHideComponents(filter, {
+			"threatPercentBar", "threatPercentText", "threatDifferentialText", "threatNumberText",
+			"aurasDebuffs", "aurasBuffs",
+		}, true)
+		return filter
+	end
+	if presetKey == "TAPPED" then
+		criteria.healthColor.enable = true
+		criteria.healthColor.values.tapped = true
+		SetFilterHideComponents(filter, {
+			"threatPercentBar", "threatPercentText", "threatDifferentialText", "threatNumberText",
+			"castBar", "castSpellIcon", "castSpellNameText", "castSpellTimeText",
+			"aurasDebuffs", "aurasBuffs",
+		}, true)
+		return filter
+	end
+	if presetKey == "LOW_LEVEL" then
+		criteria.level.enable = true
+		local playerLevel = UnitLevel and UnitLevel("player") or nil
+		if playerLevel then
+			criteria.level.max = math.max(1, playerLevel - 5)
+		end
+		SetFilterHideComponents(filter, {
+			"aurasDebuffs", "aurasBuffs", "threatPercentBar", "threatPercentText", "threatDifferentialText", "threatNumberText",
+		}, true)
+		return filter
+	end
+	return filter
+end
+
+local function BuildCityFiltersForFaction()
+	local function GetCityName(key, fallback)
+		local value = rawget(_G, key)
+		if type(value) == "string" and value ~= "" then
+			return value
+		end
+		return fallback
+	end
+	local cities = {}
+	local faction = UnitFactionGroup and UnitFactionGroup("player") or nil
+	if faction == "Horde" then
+		cities = {
+			GetCityName("ORGRIMMAR", "Orgrimmar"),
+			GetCityName("THUNDER_BLUFF", "Thunder Bluff"),
+			GetCityName("UNDERCITY", "Undercity"),
+			GetCityName("SILVERMOON_CITY", "Silvermoon City"),
+		}
+	elseif faction == "Alliance" then
+		cities = {
+			GetCityName("STORMWIND", "Stormwind City"),
+			GetCityName("IRONFORGE", "Ironforge"),
+			GetCityName("DARNASSUS", "Darnassus"),
+			GetCityName("THE_EXODAR", "The Exodar"),
+		}
+	end
+	return cities
 end
 
 local function GetFilterList()
@@ -1803,15 +1986,47 @@ local function LoadOptions()
 				type = "group",
 				name = L["Filter List"],
 				args = {
-					addFilter = {
+					preset = {
 						order = 0,
+						type = "select",
+						name = L["Filter Preset"],
+						values = function()
+							return filterPresetLabels
+						end,
+						get = function()
+							return selectedFilterPreset or "CUSTOM"
+						end,
+						set = function(_, value)
+							selectedFilterPreset = value
+						end,
+					},
+					addFilter = {
+						order = 0.5,
 						type = "execute",
 						name = L["Add Filter"],
 						func = function()
 							local filters = GetFilterList()
-							local name = sformat("%s %d", L["Filter"], #filters + 1)
-							tinsert(filters, BuildFilterDefaults(name))
-							filterEditingIndex = #filters
+							local presetKey = selectedFilterPreset or "CUSTOM"
+							if presetKey == "CITY_FACTION" then
+								local cities = BuildCityFiltersForFaction()
+								if #cities == 0 then
+									return
+								end
+								for _, cityName in ipairs(cities) do
+									local name = sformat("%s - %s %d", L["Main Cities"], cityName, #filters + 1)
+									local filter = BuildFilterDefaults(name)
+									filter.criteria.zone.enable = true
+									filter.criteria.zone.matchMode = "CONTAINS"
+									filter.criteria.zone.value = cityName
+									tinsert(filters, filter)
+								end
+								filterEditingIndex = #filters
+							else
+								local presetName = filterPresetLabels[presetKey] or L["Filter"]
+								local name = sformat("%s %d", presetName, #filters + 1)
+								tinsert(filters, BuildPresetFilter(name, presetKey))
+								filterEditingIndex = #filters
+							end
 							RefreshFilterListOptions()
 							NotPlater:ApplyFiltersAll()
 							if dialog and dialog.SelectGroup then
