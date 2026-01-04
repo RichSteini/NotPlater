@@ -341,7 +341,19 @@ function WhatsNew:BeginConfigSession()
 	self._manualOverride = false
 	if self._sessionVisible then
 		self:MarkSeen()
+		self._templatesFocused = false
 	end
+end
+
+function WhatsNew:ShouldFocusTemplates()
+	if not self._sessionVisible then
+		return false
+	end
+	if self._templatesFocused then
+		return false
+	end
+	self._templatesFocused = true
+	return true
 end
 
 function WhatsNew:IsSessionVisible()

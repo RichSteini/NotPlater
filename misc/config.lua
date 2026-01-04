@@ -1636,14 +1636,8 @@ local function LoadOptions()
 	if whatsNewModule and whatsNewModule.GetConfigOptions then
 		options.args.whatsNew = whatsNewModule:GetConfigOptions()
 	end
-	options.args.templates = {
-		order = 0,
-		type = "group",
-		name = WithCategoryIcon("templates", L["Templates"]),
-		args = {},
-	}
 	options.args.threat = {
-		order = 1,
+		order = 0,
 		type = "group",
 		name = WithCategoryIcon("threat", L["Threat"]),
 		get = GetValue,
@@ -1698,7 +1692,7 @@ local function LoadOptions()
 	}
 	options.args.healthBar = {
 		type = "group",
-		order = 2,
+		order = 1,
 		name = WithCategoryIcon("healthBar", L["Health Bar"]),
 		get = GetValue,
 		set = SetValue,
@@ -1720,7 +1714,7 @@ local function LoadOptions()
 	}
 	options.args.castBar = {
 		type = "group",
-		order = 3,
+		order = 2,
 		name = WithCategoryIcon("castBar", L["Cast Bar"]),
 		get = GetValue,
 		set = SetValue,
@@ -1753,7 +1747,7 @@ local function LoadOptions()
 		},
 	}
 	options.args.nameText = {
-		order = 4,
+		order = 3,
 		type = "group",
 		name = WithCategoryIcon("nameText", L["Name Text"]),
 		get = GetValue,
@@ -1761,7 +1755,7 @@ local function LoadOptions()
 		args = NotPlater.ConfigPrototypes.NameText
 	}
 	options.args.levelText = {
-		order = 5,
+		order = 4,
 		type = "group",
 		name = WithCategoryIcon("levelText", L["Level Text"]),
 		get = GetValue,
@@ -1807,7 +1801,7 @@ local function LoadOptions()
 		},
 	}
 	options.args.icons = {
-		order = 6,
+		order = 5,
 		type = "group",
 		name = WithCategoryIcon("icons", L["Icons"]),
 		get = GetValue,
@@ -1976,7 +1970,7 @@ local function LoadOptions()
 	}
 
 	options.args.filters = {
-		order = 7,
+		order = 6,
 		type = "group",
 		name = WithCategoryIcon("filters", L["Filters"]),
 		childGroups = "tab",
@@ -2699,7 +2693,7 @@ local function LoadOptions()
 		},
 	}
 	options.args.target = {
-		order = 8,
+		order = 7,
 		type = "group",
 		name = WithCategoryIcon("target", L["Target"]),
 		get = GetValue,
@@ -2721,7 +2715,7 @@ local function LoadOptions()
 		}
 	}
 	options.args.range = {
-		order = 9,
+		order = 8,
 		type = "group",
 		name = WithCategoryIcon("range", L["Range Indicator"]),
 		get = GetValue,
@@ -2734,7 +2728,7 @@ local function LoadOptions()
 		},
 	}
 	options.args.buffs = {
-		order = 10,
+		order = 9,
 		type = "group",
 		name = WithCategoryIcon("buffs", L["Buffs"]),
 		childGroups = "tab",
@@ -2743,7 +2737,7 @@ local function LoadOptions()
 		args = NotPlater.ConfigPrototypes.Buffs,
 	}
 	options.args.stacking = {
-		order = 11,
+		order = 10,
         type = "group",
         childGroups = "tab",
 		name = WithCategoryIcon("stacking", L["Stacking"]),
@@ -2752,12 +2746,18 @@ local function LoadOptions()
 		args = NotPlater.ConfigPrototypes.Stacking,
 	}
 	options.args.simulator = {
-		order = 12,
+		order = 11,
 		type = "group",
 		name = WithCategoryIcon("simulator", L["Simulator"]),
 		get = GetValue,
 		set = SetValue,
 		args = NotPlater.ConfigPrototypes.Simulator
+	}
+	options.args.templates = {
+		order = 12,
+		type = "group",
+		name = WithCategoryIcon("templates", L["Templates"]),
+		args = {},
 	}
 
 	local aceProfileOptions = LibStub("AceDBOptions-3.0"):GetOptionsTable(NotPlater.db)
@@ -2978,6 +2978,11 @@ function Config:OpenConfig()
 		NotPlater:ShowSimulatorFrame()
 	end
 	dialog:Open("NotPlater")
+	if whatsNew and whatsNew.ShouldFocusTemplates and whatsNew:ShouldFocusTemplates() then
+		if dialog and dialog.SelectGroup then
+			dialog:SelectGroup("NotPlater", "templates")
+		end
+	end
 
 	local frame = dialog.OpenFrames["NotPlater"]
 	if frame and frame.SetStatusText then
