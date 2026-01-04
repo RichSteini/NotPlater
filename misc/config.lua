@@ -1152,11 +1152,13 @@ local function BuildFilterDefaults(name)
 				enable = false,
 				matchMode = "EXACT",
 				value = "",
+				id = nil,
 			},
 			subzone = {
 				enable = false,
 				matchMode = "EXACT",
 				value = "",
+				id = nil,
 			},
 			healthColor = {
 				enable = false,
@@ -2639,7 +2641,7 @@ local function LoadOptions()
 							zone = {
 								order = 7,
 								type = "group",
-								name = L["Zone Name"],
+								name = L["Zone"],
 								inline = true,
 								args = {
 									enable = {
@@ -2661,8 +2663,30 @@ local function LoadOptions()
 											return not (filter and filter.criteria.zone.enable)
 										end,
 									},
-									value = {
+									id = {
 										order = 2,
+										type = "input",
+										name = L["Zone ID"],
+										get = function()
+											local filter = GetEditingFilter()
+											local value = filter and filter.criteria.zone.id
+											return value and tostring(value) or ""
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if not filter then
+												return
+											end
+											filter.criteria.zone.id = tonumber(value)
+											NotPlater:ApplyFiltersAll()
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.zone.enable)
+										end,
+									},
+									value = {
+										order = 3,
 										type = "input",
 										width = "full",
 										name = L["Zone Name"],
@@ -2678,7 +2702,7 @@ local function LoadOptions()
 							subzone = {
 								order = 8,
 								type = "group",
-								name = L["Subzone Name"],
+								name = L["Subzone"],
 								inline = true,
 								args = {
 									enable = {
@@ -2700,8 +2724,30 @@ local function LoadOptions()
 											return not (filter and filter.criteria.subzone.enable)
 										end,
 									},
-									value = {
+									id = {
 										order = 2,
+										type = "input",
+										name = L["Subzone ID"],
+										get = function()
+											local filter = GetEditingFilter()
+											local value = filter and filter.criteria.subzone.id
+											return value and tostring(value) or ""
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if not filter then
+												return
+											end
+											filter.criteria.subzone.id = tonumber(value)
+											NotPlater:ApplyFiltersAll()
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.subzone.enable)
+										end,
+									},
+									value = {
+										order = 3,
 										type = "input",
 										width = "full",
 										name = L["Subzone Name"],

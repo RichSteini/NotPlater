@@ -9,6 +9,8 @@ local sfind = string.find
 local slower = string.lower
 local GetZoneText = GetZoneText
 local GetSubZoneText = GetSubZoneText
+local SetMapToCurrentZone = SetMapToCurrentZone
+local GetCurrentMapAreaID = GetCurrentMapAreaID
 local abs = math.abs
 
 local playerFaction = UnitFactionGroup("player")
@@ -34,6 +36,43 @@ local NAMEPLATE_COLORS = {
 	friendlyPlayer = {0, 0.6, 1},
 	tapped = {0.5, 0.5, 0.5},
 }
+
+local cachedZoneName
+local cachedZoneId
+local cachedSubzoneName
+local cachedSubzoneId
+
+local function GetCurrentZoneAreaId()
+	if not SetMapToCurrentZone or not GetCurrentMapAreaID then
+		return nil
+	end
+	local zoneName = GetZoneText()
+	if cachedZoneName == zoneName and cachedZoneId then
+		return cachedZoneId
+	end
+	SetMapToCurrentZone()
+	cachedZoneName = zoneName
+	cachedSubzoneName = nil
+	cachedSubzoneId = nil
+	cachedZoneId = GetCurrentMapAreaID()
+	return cachedZoneId
+end
+
+local function GetCurrentSubzoneAreaId()
+	if not SetMapToCurrentZone or not GetCurrentMapAreaID then
+		return nil
+	end
+	local zoneName = GetZoneText()
+	local subzoneName = GetSubZoneText()
+	if cachedZoneName == zoneName and cachedSubzoneName == subzoneName and cachedSubzoneId then
+		return cachedSubzoneId
+	end
+	SetMapToCurrentZone()
+	cachedZoneName = zoneName
+	cachedSubzoneName = subzoneName
+	cachedSubzoneId = GetCurrentMapAreaID()
+	return cachedSubzoneId
+end
 
 local function GetNameplateColorKey(r, g, b)
 	for key, color in pairs(NAMEPLATE_COLORS) do
@@ -182,41 +221,57 @@ function NotPlater:FilterMatches(frame, filter)
 	end
 
 	if criteria.zone.enable then
-		local zoneName = GetZoneText()
-		local value = criteria.zone.value
-		if not value or value == "" or not zoneName then
-			return false
-		end
-		local mode = criteria.zone.matchMode or "EXACT"
-		local haystack = slower(zoneName)
-		local needle = slower(value)
-		if mode == "CONTAINS" then
-			if not sfind(haystack, needle, 1, true) then
+		local zoneId = criteria.zone.id
+		if zoneId then
+			local currentZoneId = GetCurrentZoneAreaId()
+			if not currentZoneId or currentZoneId ~= zoneId then
 				return false
 			end
 		else
-			if haystack ~= needle then
+			local zoneName = GetZoneText()
+			local value = criteria.zone.value
+			if not value or value == "" or not zoneName then
 				return false
+			end
+			local mode = criteria.zone.matchMode or "EXACT"
+			local haystack = slower(zoneName)
+			local needle = slower(value)
+			if mode == "CONTAINS" then
+				if not sfind(haystack, needle, 1, true) then
+					return false
+				end
+			else
+				if haystack ~= needle then
+					return false
+				end
 			end
 		end
 	end
 
 	if criteria.subzone.enable then
-		local subzoneName = GetSubZoneText()
-		local value = criteria.subzone.value
-		if not value or value == "" or not subzoneName then
-			return false
-		end
-		local mode = criteria.subzone.matchMode or "EXACT"
-		local haystack = slower(subzoneName)
-		local needle = slower(value)
-		if mode == "CONTAINS" then
-			if not sfind(haystack, needle, 1, true) then
+		local subzoneId = criteria.subzone.id
+		if subzoneId then
+			local currentSubzoneId = GetCurrentSubzoneAreaId()
+			if not currentSubzoneId or currentSubzoneId ~= subzoneId then
 				return false
 			end
 		else
-			if haystack ~= needle then
+			local subzoneName = GetSubZoneText()
+			local value = criteria.subzone.value
+			if not value or value == "" or not subzoneName then
 				return false
+			end
+			local mode = criteria.subzone.matchMode or "EXACT"
+			local haystack = slower(subzoneName)
+			local needle = slower(value)
+			if mode == "CONTAINS" then
+				if not sfind(haystack, needle, 1, true) then
+					return false
+				end
+			else
+				if haystack ~= needle then
+					return false
+				end
 			end
 		end
 	end
