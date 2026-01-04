@@ -585,7 +585,10 @@ local function BuildAuraListIDString(listKey)
 			ids[#ids + 1] = tostring(spellID)
 		end
 	end
-	return tconcat(ids, ",")
+	if #ids == 0 then
+		return ""
+	end
+	return tconcat(ids, ",\n") .. ","
 end
 
 local function ImportAuraListIDs(listKey, text)
@@ -657,17 +660,165 @@ local function ShowAuraPrompt(listKey, inputType)
 	end
 end
 
+local function EnsureAuraListDialog()
+    if NotPlater and NotPlater.auraListDialog then
+        return NotPlater.auraListDialog
+    end
+    local frame = CreateFrame("Frame", "NotPlaterAuraListDialog", UIParent)
+    frame:SetSize(420, 320)
+    frame:SetFrameStrata("FULLSCREEN_DIALOG")
+    frame:SetFrameLevel(100)
+    frame:SetPoint("CENTER")
+    frame:EnableMouse(true)
+    frame:SetMovable(true)
+    frame:RegisterForDrag("LeftButton")
+    frame:SetScript("OnDragStart", function(self)
+        self:StartMoving()
+    end)
+    frame:SetScript("OnDragStop", function(self)
+        self:StopMovingOrSizing()
+    end)
+
+    -- Background layer
+    local titleBG = frame:CreateTexture("NotPlaterAuraListDialogTitleBG", "BACKGROUND")
+    titleBG:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background")
+    titleBG:SetPoint("TOPLEFT", 8, -7)
+    titleBG:SetPoint("BOTTOMRIGHT", frame, "TOPRIGHT", -8, -24)
+
+    local dialogBG = frame:CreateTexture("NotPlaterAuraListDialogDialogBG", "BACKGROUND")
+    dialogBG:SetTexture("Interface\\PaperDollInfoFrame\\UI-Character-CharacterTab-L1")
+    dialogBG:SetPoint("TOPLEFT", 8, -24)
+    dialogBG:SetPoint("BOTTOMRIGHT", -6, 8)
+    dialogBG:SetTexCoord(0.255, 1, 0.29, 1)
+
+    -- Overlay layer for borders
+    local topLeft = frame:CreateTexture(nil, "OVERLAY")
+    topLeft:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    topLeft:SetSize(64, 64)
+    topLeft:SetPoint("TOPLEFT")
+    topLeft:SetTexCoord(0.501953125, 0.625, 0, 1)
+
+    local topRight = frame:CreateTexture(nil, "OVERLAY")
+    topRight:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    topRight:SetSize(64, 64)
+    topRight:SetPoint("TOPRIGHT")
+    topRight:SetTexCoord(0.625, 0.75, 0, 1)
+
+    local top = frame:CreateTexture(nil, "OVERLAY")
+    top:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    top:SetPoint("TOPLEFT", topLeft, "TOPRIGHT")
+    top:SetPoint("TOPRIGHT", topRight, "TOPLEFT")
+    top:SetHeight(64)
+    top:SetTexCoord(0.25, 0.369140625, 0, 1)
+
+    local bottomLeft = frame:CreateTexture(nil, "OVERLAY")
+    bottomLeft:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    bottomLeft:SetSize(64, 64)
+    bottomLeft:SetPoint("BOTTOMLEFT")
+    bottomLeft:SetTexCoord(0.751953125, 0.875, 0, 1)
+
+    local bottomRight = frame:CreateTexture(nil, "OVERLAY")
+    bottomRight:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    bottomRight:SetSize(64, 64)
+    bottomRight:SetPoint("BOTTOMRIGHT")
+    bottomRight:SetTexCoord(0.875, 1, 0, 1)
+
+    local bottom = frame:CreateTexture(nil, "OVERLAY")
+    bottom:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    bottom:SetPoint("BOTTOMLEFT", bottomLeft, "BOTTOMRIGHT")
+    bottom:SetPoint("BOTTOMRIGHT", bottomRight, "BOTTOMLEFT")
+    bottom:SetHeight(64)
+    bottom:SetTexCoord(0.376953125, 0.498046875, 0, 1)
+
+    local left = frame:CreateTexture(nil, "OVERLAY")
+    left:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    left:SetPoint("TOPLEFT", topLeft, "BOTTOMLEFT")
+    left:SetPoint("BOTTOMLEFT", bottomLeft, "TOPLEFT")
+    left:SetWidth(64)
+    left:SetTexCoord(0.001953125, 0.125, 0, 1)
+
+    local right = frame:CreateTexture(nil, "OVERLAY")
+    right:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
+    right:SetPoint("TOPRIGHT", topRight, "BOTTOMRIGHT")
+    right:SetPoint("BOTTOMRIGHT", bottomRight, "TOPRIGHT")
+    right:SetWidth(64)
+    right:SetTexCoord(0.1171875, 0.2421875, 0, 1)
+
+    -- Title
+    local title = frame:CreateFontString("NotPlaterAuraListDialogTitle", "OVERLAY", "GameFontNormal")
+    title:SetPoint("TOPLEFT", 12, -8)
+    title:SetPoint("TOPRIGHT", -32, -8)
+    title:SetText(L["Export/Import IDs"])
+    frame.Title = title  -- for compatibility
+
+    -- Close button
+    local closeButton = CreateFrame("Button", "NotPlaterAuraListDialogClose", frame, "UIPanelCloseButton")
+    closeButton:SetPoint("TOPRIGHT", 2, 1)
+    closeButton:SetScript("OnClick", function()
+        frame:Hide()
+    end)
+
+    local hint = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
+    hint:SetPoint("TOP", title, "BOTTOM", 0, -6)
+    hint:SetText(L["Paste spell IDs separated by commas."])
+
+    local scrollFrame = CreateFrame("ScrollFrame", "NotPlaterAuraListScrollFrame", frame, "UIPanelScrollFrameTemplate")
+    scrollFrame:SetPoint("TOPLEFT", 16, -50)
+    scrollFrame:SetPoint("BOTTOMRIGHT", -30, 52)
+
+    local editBox = CreateFrame("EditBox", nil, scrollFrame)
+    editBox:SetMultiLine(true)
+    editBox:SetAutoFocus(false)
+    editBox:SetFontObject("GameFontHighlightSmall")
+    editBox:SetWidth(360)
+    editBox:SetHeight(140)
+    editBox:SetScript("OnEscapePressed", function(self)
+        self:ClearFocus()
+        self:GetParent():GetParent():Hide()
+    end)
+    editBox:SetScript("OnEnterPressed", function(self)
+        self:Insert("\n")
+    end)
+    scrollFrame:SetScrollChild(editBox)
+
+    local okButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    okButton:SetText(ACCEPT)
+    okButton:SetSize(110, 22)
+    okButton:SetPoint("BOTTOMLEFT", 16, 16)
+
+    local cancelButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
+    cancelButton:SetText(CANCEL)
+    cancelButton:SetSize(110, 22)
+    cancelButton:SetPoint("BOTTOMRIGHT", -16, 16)
+
+    okButton:SetScript("OnClick", function()
+        if frame.listKey then
+            ImportAuraListIDs(frame.listKey, editBox:GetText())
+        end
+        frame:Hide()
+    end)
+    cancelButton:SetScript("OnClick", function()
+        frame:Hide()
+    end)
+
+    frame:SetScript("OnShow", function(self)
+        self:SetFrameStrata("FULLSCREEN_DIALOG")
+        self:SetFrameLevel(100)
+        self:Raise()
+    end)
+    frame.editBox = editBox
+    NotPlater.auraListDialog = frame
+    frame:Hide()
+    return frame
+end
+
 local function ShowAuraListPrompt(listKey)
-	auraListPopupContext = { listKey = listKey }
-	local dialog = StaticPopup_Show("NOTPLATER_AURA_LIST_PROMPT")
-	if dialog then
-		dialog.text:SetText(L["Paste spell IDs separated by commas."])
-		dialog.editBox:SetNumeric(false)
-		dialog.editBox:SetAutoFocus(true)
-		dialog.editBox:SetText(BuildAuraListIDString(listKey))
-		dialog.editBox:HighlightText()
-		dialog.editBox:SetFocus()
-	end
+	local dialog = EnsureAuraListDialog()
+	dialog.listKey = listKey
+	dialog.editBox:SetText(BuildAuraListIDString(listKey))
+	dialog.editBox:HighlightText()
+	dialog:Show()
+	dialog.editBox:SetFocus()
 end
 
 if NotPlater.isWrathClient then
@@ -746,81 +897,6 @@ else
 	}
 end
 
-if NotPlater.isWrathClient then
-	StaticPopupDialogs["NOTPLATER_AURA_LIST_PROMPT"] = {
-		button1 = ACCEPT,
-		button2 = CANCEL,
-		hasEditBox = true,
-		timeout = 0,
-		whileDead = true,
-		hideOnEscape = true,
-		OnShow = function(self)
-			self:SetFrameStrata("FULLSCREEN_DIALOG")
-			self:Raise()
-		end,
-		OnAccept = function(self)
-			local text = self.editBox:GetText()
-			if auraListPopupContext then
-				ImportAuraListIDs(auraListPopupContext.listKey, text)
-			end
-			self.editBox:SetText("")
-		end,
-		OnHide = function(self)
-			self.editBox:SetText("")
-			auraListPopupContext = nil
-		end,
-		EditBoxOnEnterPressed = function(editBox)
-			local parent = editBox:GetParent()
-			if parent and parent.button1 and parent.button1.Click then
-				parent.button1:Click()
-			end
-		end,
-		EditBoxOnEscapePressed = function(editBox)
-			local parent = editBox:GetParent()
-			if parent then
-				parent:Hide()
-			end
-		end,
-		text = "",
-	}
-else
-	StaticPopupDialogs["NOTPLATER_AURA_LIST_PROMPT"] = {
-		button1 = ACCEPT,
-		button2 = CANCEL,
-		hasEditBox = true,
-		timeout = 0,
-		whileDead = true,
-		hideOnEscape = true,
-		OnShow = function()
-			this:SetFrameStrata("FULLSCREEN_DIALOG")
-			this:Raise()
-		end,
-		OnAccept = function()
-			local text = this.editBox:GetText()
-			if auraListPopupContext then
-				ImportAuraListIDs(auraListPopupContext.listKey, text)
-			end
-			this.editBox:SetText("")
-		end,
-		OnHide = function()
-			this.editBox:SetText("")
-			auraListPopupContext = nil
-		end,
-		EditBoxOnEnterPressed = function()
-			local parent = this:GetParent()
-			if parent and parent.button1 and parent.button1.Click then
-				parent.button1:Click()
-			end
-		end,
-		EditBoxOnEscapePressed = function()
-			local parent = this:GetParent()
-			if parent then
-				parent:Hide()
-			end
-		end,
-		text = "",
-	}
-end
 
 if NotPlater.isWrathClient then
 	StaticPopupDialogs["NOTPLATER_SWIRL_WARNING"] = {
