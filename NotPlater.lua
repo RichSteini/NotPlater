@@ -232,19 +232,15 @@ function NotPlater:PrepareFrame(frame)
 		frame.raidIcon = raidIcon or frame.raidIcon
 		frame.eliteIcon = eliteIcon or frame.eliteIcon
 		frame.nameText = CreateNameTextProxy(frame, frame.defaultNameText)
-		if NotPlater.isWrathClient then
-			if not frame.highlightTexture or frame.highlightTexture == highlightTexture then
-				frame.highlightTexture = frame:CreateTexture(nil, "ARTWORK")
-			end
-		else
-			frame.highlightTexture = highlightTexture or frame.highlightTexture or frame:CreateTexture(nil, "ARTWORK")
+		if not frame.highlightTexture or frame.highlightTexture == highlightTexture then
+			frame.highlightTexture = frame:CreateTexture(nil, "ARTWORK")
 		end
 
 		-- Hide default border
 		if healthBorder then healthBorder:Hide() end
 		if threatGlow then threatGlow:SetTexCoord(0, 0, 0, 0) end
 		if castNoStop then castNoStop:SetTexCoord(0, 0, 0, 0) end
-		if highlightTexture and NotPlater.isWrathClient then
+		if highlightTexture then
 			frame.defaultHighlightTexture = highlightTexture
 			highlightTexture:SetTexCoord(0, 0, 0, 0)
 			frame.useHighlightProxy = not frame.isSimulatorFrame
@@ -335,7 +331,7 @@ function NotPlater:PrepareFrame(frame)
 					self.targetCheckElapsed = 0
 				end
 				local isMouseOver = IsFrameMouseOver(self)
-				if NotPlater.isWrathClient and self.useHighlightProxy and self.highlightTexture then
+				if self.useHighlightProxy and self.highlightTexture then
 					if isMouseOver then
 						if not self.highlightTexture:IsShown() then
 							self.highlightTexture:Show()
