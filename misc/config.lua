@@ -1286,6 +1286,16 @@ local filterPresetLabels = {
 	TAPPED = L["Tapped Units"],
 	LOW_LEVEL = L["Low-level Clutter"],
 	CITY_FACTION = L["Main Cities"],
+	LOW_HEALTH = L["Low Health (Execute Range)"],
+	HIGH_HEALTH = L["High Health (Full/Healthy)"],
+	PARTY_ONLY = L["Party Members Only"],
+	NOT_PARTY = L["Not In Party"],
+	RAID_ONLY = L["Raid Members Only"],
+	NOT_RAID = L["Not In Raid"],
+	DUNGEON = L["Dungeon (5-man)"],
+	RAID_INSTANCE = L["Raid Instance"],
+	BATTLEGROUND = L["Battleground"],
+	ARENA = L["Arena"],
 }
 
 local function SetFilterHideComponents(filter, hideKeys, hideValue)
@@ -1403,6 +1413,58 @@ local function BuildPresetFilter(name, presetKey)
 		SetFilterHideComponents(filter, {
 			"aurasDebuffs", "aurasBuffs", "threatPercentBar", "threatPercentText", "threatDifferentialText", "threatNumberText",
 		}, true)
+		return filter
+	end
+	if presetKey == "LOW_HEALTH" then
+		criteria.healthPercent.enable = true
+		criteria.healthPercent.min = 0
+		criteria.healthPercent.max = 25
+		return filter
+	end
+	if presetKey == "HIGH_HEALTH" then
+		criteria.healthPercent.enable = true
+		criteria.healthPercent.min = 90
+		criteria.healthPercent.max = 100
+		return filter
+	end
+	if presetKey == "PARTY_ONLY" then
+		criteria.groupMembers.enable = true
+		criteria.groupMembers.values.partyMember = true
+		return filter
+	end
+	if presetKey == "NOT_PARTY" then
+		criteria.groupMembers.enable = true
+		criteria.groupMembers.values.notPartyMember = true
+		return filter
+	end
+	if presetKey == "RAID_ONLY" then
+		criteria.groupMembers.enable = true
+		criteria.groupMembers.values.raidMember = true
+		return filter
+	end
+	if presetKey == "NOT_RAID" then
+		criteria.groupMembers.enable = true
+		criteria.groupMembers.values.notRaidMember = true
+		return filter
+	end
+	if presetKey == "DUNGEON" then
+		criteria.instanceType.enable = true
+		criteria.instanceType.values.party = true
+		return filter
+	end
+	if presetKey == "RAID_INSTANCE" then
+		criteria.instanceType.enable = true
+		criteria.instanceType.values.raid = true
+		return filter
+	end
+	if presetKey == "BATTLEGROUND" then
+		criteria.instanceType.enable = true
+		criteria.instanceType.values.pvp = true
+		return filter
+	end
+	if presetKey == "ARENA" then
+		criteria.instanceType.enable = true
+		criteria.instanceType.values.arena = true
 		return filter
 	end
 	return filter
