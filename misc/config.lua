@@ -1138,6 +1138,16 @@ local function BuildFilterDefaults(name)
 				min = nil,
 				max = nil,
 			},
+			instanceType = {
+				enable = false,
+				values = {
+					world = false,
+					party = false,
+					raid = false,
+					pvp = false,
+					arena = false,
+				},
+			},
 			healthPercent = {
 				enable = false,
 				min = 0,
@@ -2495,8 +2505,123 @@ local function LoadOptions()
 									},
 								},
 							},
-							level = {
+							instanceType = {
 								order = 4,
+								type = "group",
+								name = L["Instance Type"],
+								inline = true,
+								args = {
+									enable = {
+										order = 0,
+										type = "toggle",
+										name = L["Enable"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+									},
+									world = {
+										order = 1,
+										type = "toggle",
+										name = L["World"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.instanceType.values.world
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.instanceType.values.world = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.instanceType.enable)
+										end,
+									},
+									party = {
+										order = 2,
+										type = "toggle",
+										name = L["Party"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.instanceType.values.party
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.instanceType.values.party = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.instanceType.enable)
+										end,
+									},
+									raid = {
+										order = 3,
+										type = "toggle",
+										name = L["Raid"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.instanceType.values.raid
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.instanceType.values.raid = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.instanceType.enable)
+										end,
+									},
+									pvp = {
+										order = 4,
+										type = "toggle",
+										name = L["PvP"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.instanceType.values.pvp
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.instanceType.values.pvp = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.instanceType.enable)
+										end,
+									},
+									arena = {
+										order = 5,
+										type = "toggle",
+										name = L["Arena"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.instanceType.values.arena
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.instanceType.values.arena = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.instanceType.enable)
+										end,
+									},
+								},
+							},
+							level = {
+								order = 5,
 								type = "group",
 								name = L["Level Range"],
 								inline = true,
@@ -2557,7 +2682,7 @@ local function LoadOptions()
 								},
 							},
 							healthPercent = {
-								order = 5,
+								order = 6,
 								type = "group",
 								name = L["Health Percent"],
 								inline = true,
@@ -2600,7 +2725,7 @@ local function LoadOptions()
 								},
 							},
 							name = {
-								order = 6,
+								order = 7,
 								type = "group",
 								name = L["Name"],
 								inline = true,
@@ -2639,7 +2764,7 @@ local function LoadOptions()
 								},
 							},
 							zone = {
-								order = 7,
+								order = 8,
 								type = "group",
 								name = L["Zone"],
 								inline = true,
@@ -2700,7 +2825,7 @@ local function LoadOptions()
 								},
 							},
 							subzone = {
-								order = 8,
+								order = 9,
 								type = "group",
 								name = L["Subzone"],
 								inline = true,
@@ -2761,7 +2886,7 @@ local function LoadOptions()
 								},
 							},
 							healthColor = {
-								order = 9,
+								order = 10,
 								type = "group",
 								name = L["Default Healthbar Color"],
 								inline = true,

@@ -5,6 +5,7 @@ local L = NotPlaterLocals
 local UnitClass = UnitClass
 local UnitExists = UnitExists
 local UnitFactionGroup = UnitFactionGroup
+local IsInInstance = IsInInstance
 local sfind = string.find
 local slower = string.lower
 local GetZoneText = GetZoneText
@@ -197,6 +198,15 @@ function NotPlater:FilterMatches(frame, filter)
 			matched = true
 		end
 		if not matched then
+			return false
+		end
+	end
+
+	if criteria.instanceType and criteria.instanceType.enable then
+		local _, instanceType = IsInInstance()
+		local key = instanceType == "none" and "world" or instanceType
+		local values = criteria.instanceType.values or {}
+		if not values[key] then
 			return false
 		end
 	end
