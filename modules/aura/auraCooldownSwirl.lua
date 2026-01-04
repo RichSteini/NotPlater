@@ -129,6 +129,9 @@ function Swirl:Setup(icon, aura, config, module)
 
 	local hideExternal = module and module.auraTimer and module.auraTimer.general and module.auraTimer.general.hideExternalTimer
 	icon.noCooldownCount = hideExternal or nil
+	icon.noOCC = hideExternal or nil
+	cooldown.noCooldownCount = hideExternal or nil
+	cooldown.noOCC = hideExternal or nil
 
 	ApplyCooldownConfig(icon, config)
 	local start = (aura.expirationTime or 0) - duration
@@ -146,6 +149,12 @@ function Swirl:Reset(icon)
 		return
 	end
 	local cooldown = icon.swirlCooldown
+	if cooldown then
+		cooldown.noCooldownCount = nil
+		cooldown.noOCC = nil
+	end
+	icon.noCooldownCount = nil
+	icon.noOCC = nil
 	if cooldown then
 		ClearCooldown(cooldown)
 		cooldown:Hide()

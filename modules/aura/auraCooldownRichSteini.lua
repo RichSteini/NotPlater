@@ -198,6 +198,7 @@ function Rich:Setup(icon, aura, config, module)
     HolderOnUpdate(holder)
     local hideExternal = module and module.auraTimer and module.auraTimer.general and module.auraTimer.general.hideExternalTimer
     icon.noCooldownCount = hideExternal or nil
+    icon.noOCC = hideExternal or nil
     icon.richSteiniCooldownActive = true
 end
 
@@ -218,6 +219,8 @@ function Rich:Reset(icon)
     if not icon then
         return
     end
+    icon.noCooldownCount = nil
+    icon.noOCC = nil
     local holder = icon.richSteiniCooldownHolder
     if holder then
         holder.active = nil
