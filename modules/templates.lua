@@ -193,17 +193,25 @@ function NotPlater:TemplateGalleryOnUpdate(elapsed)
 end
 
 function NotPlater:HookTemplateGalleryWatcher(frame)
-	if self.templateGalleryWatcher then
-		return
-	end
-	local anchor = frame and frame.frame or frame
-	if not anchor or not anchor.HookScript then
-		return
-	end
-	self.templateGalleryWatcher = true
-	anchor:HookScript("OnUpdate", function(_, elapsed)
-		NotPlater:TemplateGalleryOnUpdate(elapsed)
-	end)
+    if self.templateGalleryWatcher then
+        return
+    end
+    local anchor = frame and frame.frame or frame
+    if not anchor or not anchor.SetScript then
+        return
+    end
+    self.templateGalleryWatcher = true
+    
+    local function GalleryOnUpdate(_, elapsed)
+        NotPlater:TemplateGalleryOnUpdate(elapsed)
+    end
+    
+    local oldOnUpdate = anchor:GetScript("OnUpdate")
+    if oldOnUpdate then
+        anchor:HookScript("OnUpdate", GalleryOnUpdate)
+    else
+        anchor:SetScript("OnUpdate", GalleryOnUpdate)
+    end
 end
 
 function NotPlater:UpdateTemplateGalleryVisibility()
