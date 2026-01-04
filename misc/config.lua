@@ -1452,6 +1452,7 @@ local function RefreshFilterListOptions()
 		}
 	else
 		for index, filter in ipairs(filters) do
+			local filterIndex = index
 			local filterName = filter.name or sformat("%s %d", L["Filter"], index)
 			entries["filter" .. index] = {
 				order = index,
@@ -1464,11 +1465,17 @@ local function RefreshFilterListOptions()
 						type = "toggle",
 						name = L["Enable"],
 						get = function()
-							return filter.enabled
+							local list = GetFilterList()
+							local current = list[filterIndex]
+							return current and current.enabled
 						end,
 						set = function(_, value)
-							filter.enabled = value
-							NotPlater:ApplyFiltersAll()
+							local list = GetFilterList()
+							local current = list[filterIndex]
+							if current then
+								current.enabled = value
+								NotPlater:ApplyFiltersAll()
+							end
 						end,
 					},
 					edit = {
@@ -1477,7 +1484,7 @@ local function RefreshFilterListOptions()
 						name = L["Edit"],
 						width = "half",
 						func = function()
-							filterEditingIndex = index
+							filterEditingIndex = filterIndex
 							if dialog and dialog.SelectGroup then
 								dialog:SelectGroup("NotPlater", "filters", "editor")
 							end
@@ -1488,10 +1495,16 @@ local function RefreshFilterListOptions()
 						type = "execute",
 						name = L["Duplicate"],
 						func = function()
-							local copy = CopyTable and CopyTable(filter) or DeepCopyTable(filter)
-							copy.name = sformat(L["Copy of %s"], filterName)
-							local insertIndex = index + 1
-							tinsert(filters, insertIndex, copy)
+							local list = GetFilterList()
+							local current = list[filterIndex]
+							if not current then
+								return
+							end
+							local currentName = current.name or sformat("%s %d", L["Filter"], filterIndex)
+							local copy = CopyTable and CopyTable(current) or DeepCopyTable(current)
+							copy.name = sformat(L["Copy of %s"], currentName)
+							local insertIndex = filterIndex + 1
+							tinsert(list, insertIndex, copy)
 							filterEditingIndex = insertIndex
 							RefreshFilterListOptions()
 							NotPlater:ApplyFiltersAll()
@@ -1506,14 +1519,21 @@ local function RefreshFilterListOptions()
 						name = L["Delete"],
 						width = "half",
 						confirm = function()
-							return sformat(L["Delete filter '%s'?"], filterName)
+							local list = GetFilterList()
+							local current = list[filterIndex]
+							local currentName = current and current.name or sformat("%s %d", L["Filter"], filterIndex)
+							return sformat(L["Delete filter '%s'?"], currentName)
 						end,
 						func = function()
-							tremove(filters, index)
-							if filterEditingIndex and filterEditingIndex > #filters then
-								filterEditingIndex = #filters
+							local list = GetFilterList()
+							if not list[filterIndex] then
+								return
 							end
-							if #filters == 0 then
+							tremove(list, filterIndex)
+							if filterEditingIndex and filterEditingIndex > #list then
+								filterEditingIndex = #list
+							end
+							if #list == 0 then
 								filterEditingIndex = nil
 							end
 							RefreshFilterListOptions()
