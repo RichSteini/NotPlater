@@ -1148,6 +1148,15 @@ local function BuildFilterDefaults(name)
 					arena = false,
 				},
 			},
+			groupMembers = {
+				enable = false,
+				values = {
+					partyMember = false,
+					notPartyMember = false,
+					raidMember = false,
+					notRaidMember = false,
+				},
+			},
 			healthPercent = {
 				enable = false,
 				min = 0,
@@ -2620,8 +2629,103 @@ local function LoadOptions()
 									},
 								},
 							},
-							level = {
+							groupMembers = {
 								order = 5,
+								type = "group",
+								name = L["Group Members"],
+								inline = true,
+								args = {
+									enable = {
+										order = 0,
+										type = "toggle",
+										name = L["Enable"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+									},
+									partyMember = {
+										order = 1,
+										type = "toggle",
+										name = L["Party Member"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.groupMembers.values.partyMember
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.groupMembers.values.partyMember = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.groupMembers.enable)
+										end,
+									},
+									notPartyMember = {
+										order = 2,
+										type = "toggle",
+										name = L["Not Party Member"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.groupMembers.values.notPartyMember
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.groupMembers.values.notPartyMember = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.groupMembers.enable)
+										end,
+									},
+									raidMember = {
+										order = 3,
+										type = "toggle",
+										name = L["Raid Member"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.groupMembers.values.raidMember
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.groupMembers.values.raidMember = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.groupMembers.enable)
+										end,
+									},
+									notRaidMember = {
+										order = 4,
+										type = "toggle",
+										name = L["Not Raid Member"],
+										get = function()
+											local filter = GetEditingFilter()
+											return filter and filter.criteria.groupMembers.values.notRaidMember
+										end,
+										set = function(_, value)
+											local filter = GetEditingFilter()
+											if filter then
+												filter.criteria.groupMembers.values.notRaidMember = value
+												NotPlater:ApplyFiltersAll()
+											end
+										end,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.groupMembers.enable)
+										end,
+									},
+								},
+							},
+							level = {
+								order = 6,
 								type = "group",
 								name = L["Level Range"],
 								inline = true,
@@ -2682,7 +2786,7 @@ local function LoadOptions()
 								},
 							},
 							healthPercent = {
-								order = 6,
+								order = 7,
 								type = "group",
 								name = L["Health Percent"],
 								inline = true,
@@ -2725,7 +2829,7 @@ local function LoadOptions()
 								},
 							},
 							name = {
-								order = 7,
+								order = 8,
 								type = "group",
 								name = L["Name"],
 								inline = true,
@@ -2764,7 +2868,7 @@ local function LoadOptions()
 								},
 							},
 							zone = {
-								order = 8,
+								order = 9,
 								type = "group",
 								name = L["Zone"],
 								inline = true,
@@ -2825,7 +2929,7 @@ local function LoadOptions()
 								},
 							},
 							subzone = {
-								order = 9,
+								order = 10,
 								type = "group",
 								name = L["Subzone"],
 								inline = true,
@@ -2886,7 +2990,7 @@ local function LoadOptions()
 								},
 							},
 							healthColor = {
-								order = 10,
+								order = 11,
 								type = "group",
 								name = L["Default Healthbar Color"],
 								inline = true,

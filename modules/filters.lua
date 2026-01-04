@@ -6,6 +6,8 @@ local UnitClass = UnitClass
 local UnitExists = UnitExists
 local UnitFactionGroup = UnitFactionGroup
 local IsInInstance = IsInInstance
+local UnitIsPlayer = UnitIsPlayer
+local UnitName = UnitName
 local sfind = string.find
 local slower = string.lower
 local GetZoneText = GetZoneText
@@ -42,6 +44,21 @@ local cachedZoneName
 local cachedZoneId
 local cachedSubzoneName
 local cachedSubzoneId
+
+local function IsNameInGroup(group, name)
+	if not group or not name then
+		return false
+	end
+	for _, unitId in pairs(group) do
+		if UnitIsPlayer(unitId) then
+			local unitName = UnitName(unitId)
+			if unitName == name then
+				return true
+			end
+		end
+	end
+	return false
+end
 
 local function GetCurrentZoneAreaId()
 	if not SetMapToCurrentZone or not GetCurrentMapAreaID then
@@ -207,6 +224,31 @@ function NotPlater:FilterMatches(frame, filter)
 		local key = instanceType == "none" and "world" or instanceType
 		local values = criteria.instanceType.values or {}
 		if not values[key] then
+			return false
+		end
+	end
+
+	if criteria.groupMembers and criteria.groupMembers.enable then
+		if not unitName or unitName == "" then
+			return false
+		end
+		local isPartyMember = IsNameInGroup(NotPlater.party, unitName)
+		local isRaidMember = IsNameInGroup(NotPlater.raid, unitName)
+		local values = criteria.groupMembers.values or {}
+		local matched = false
+		if values.partyMember and isPartyMember then
+			matched = true
+		end
+		if values.notPartyMember and not isPartyMember then
+			matched = true
+		end
+		if values.raidMember and isRaidMember then
+			matched = true
+		end
+		if values.notRaidMember and not isRaidMember then
+			matched = true
+		end
+		if not matched then
 			return false
 		end
 	end
