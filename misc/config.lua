@@ -1226,6 +1226,29 @@ local function ApplyFilterDefaults(filter)
 	return merged
 end
 
+local function BuildUniqueFilterName(baseName, filters)
+	if not baseName or baseName == "" then
+		baseName = L["Filter"]
+	end
+	local used = {}
+	for index = 1, #filters do
+		local existing = filters[index] and filters[index].name
+		if existing and existing ~= "" then
+			used[existing] = true
+		end
+	end
+	if not used[baseName] then
+		return baseName
+	end
+	local suffix = 2
+	local candidate = sformat("%s %d", baseName, suffix)
+	while used[candidate] do
+		suffix = suffix + 1
+		candidate = sformat("%s %d", baseName, suffix)
+	end
+	return candidate
+end
+
 local selectedFilterPreset = "CUSTOM"
 local filterPresetLabels = {
 	CUSTOM = L["Custom"],
@@ -1502,7 +1525,8 @@ local function RefreshFilterListOptions()
 							end
 							local currentName = current.name or sformat("%s %d", L["Filter"], filterIndex)
 							local copy = CopyTable and CopyTable(current) or DeepCopyTable(current)
-							copy.name = sformat(L["Copy of %s"], currentName)
+							local copyBase = sformat("%s %s", currentName, L["Copy"])
+							copy.name = BuildUniqueFilterName(copyBase, list)
 							local insertIndex = filterIndex + 1
 							tinsert(list, insertIndex, copy)
 							filterEditingIndex = insertIndex
@@ -2123,7 +2147,8 @@ local function LoadOptions()
 									return
 								end
 								for _, cityName in ipairs(cities) do
-									local name = sformat("%s - %s %d", L["Main Cities"], cityName, #filters + 1)
+									local baseName = sformat("%s - %s", L["Main Cities"], cityName)
+									local name = BuildUniqueFilterName(baseName, filters)
 									local filter = BuildFilterDefaults(name)
 									filter.criteria.zone.enable = true
 									filter.criteria.zone.matchMode = "CONTAINS"
@@ -2133,7 +2158,7 @@ local function LoadOptions()
 								filterEditingIndex = #filters
 							else
 								local presetName = filterPresetLabels[presetKey] or L["Filter"]
-								local name = sformat("%s %d", presetName, #filters + 1)
+								local name = BuildUniqueFilterName(presetName, filters)
 								tinsert(filters, BuildPresetFilter(name, presetKey))
 								filterEditingIndex = #filters
 							end

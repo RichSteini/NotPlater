@@ -8,6 +8,7 @@ L["/np minimap - Toggle the minimap icon"] = "/np minimap - 미니맵 아이콘 
 L["/np simulator - Toggle the simulator frame"] = "/np simulator - 시뮬레이터 프레임 표시 전환"
 L["/np share - Send a profile link to your party or raid chat"] = "/np share - 파티/공대 채팅에 프로필 링크 보내기"
 L["/np whatsnew - Show the latest release notes"] = "/np whatsnew - 최신 업데이트 내역 표시"
+L["Copy"] = "복사본"
 L["|cffeda55fLeft-Click and Drag|r on the outer area to move the simulator frame"] = "|cffeda55f왼쪽 클릭 후 드래그|r하여 바깥 영역에서 시뮬레이터 프레임을 이동합니다"
 L["|cffeda55fLeft-Click or Right-Click|r target/untarget the simulated frame"] = "|cffeda55f왼쪽 또는 오른쪽 클릭|r으로 시뮬레이션 프레임을 선택/해제합니다"
 L["|cffeda55fLeft-Click|r to toggle the config window"] = "|cffeda55f왼쪽 클릭|r으로 설정 창을 표시/숨깁니다"

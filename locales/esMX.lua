@@ -8,6 +8,7 @@ L["/np minimap - Toggle the minimap icon"] = "/np minimap - Mostrar/ocultar el i
 L["/np share - Send a profile link to your party or raid chat"] = "/np share - Enviar un enlace de perfil al chat del grupo o banda"
 L["/np simulator - Toggle the simulator frame"] = "/np simulator - Mostrar/ocultar el marco del simulador"
 L["/np whatsnew - Show the latest release notes"] = "/np whatsnew - Mostrar las últimas notas de la versión"
+L["Copy"] = "Copia"
 L["|cffeda55fLeft-Click and Drag|r on the outer area to move the simulator frame"] = "|cffeda55fClic izquierdo y arrastrar|r en el área exterior para mover el marco del simulador"
 L["|cffeda55fLeft-Click or Right-Click|r target/untarget the simulated frame"] = "|cffeda55fClic izquierdo o derecho|r para seleccionar/deseleccionar el marco simulado"
 L["|cffeda55fLeft-Click|r to toggle the config window"] = "|cffeda55fClic izquierdo|r para mostrar/ocultar la ventana de configuración"

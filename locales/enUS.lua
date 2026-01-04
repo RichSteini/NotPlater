@@ -337,6 +337,7 @@ NotPlaterLocals = {
 	["Edit"] = "Edit",
 	["Duplicate"] = "Duplicate",
 	["Copy of %s"] = "Copy of %s",
+	["Copy"] = "Copy",
 	["Delete"] = "Delete",
 	["Delete filter '%s'?"] = "Delete filter '%s'?",
 	["No filters have been created yet."] = "No filters have been created yet.",

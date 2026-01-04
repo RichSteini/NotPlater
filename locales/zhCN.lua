@@ -8,6 +8,7 @@ L["/np simulator - Toggle the simulator frame"]="/np simulator - 显示隐藏模
 L["/np minimap - Toggle the minimap icon"]="/np minimap - 显示隐藏小地图旁图标"
 L["/np share - Send a profile link to your party or raid chat"]="/np share - 在队伍或团队聊天中发送可点击的配置链接"
 L["/np whatsnew - Show the latest release notes"]="/np whatsnew - 显示最新版本说明"
+L["Copy"]="副本"
 L["|cffeda55fLeft-Click|r to toggle the config window"]="|cffeda55f左键点击|r 显示隐藏配置窗口"
 L["|cffeda55fLeft-Click and Drag|r on the outer area to move the simulator frame"]="|cffeda55f左键点击并拖动|r 在外部区域移动模拟器框体"
 L["|cffeda55fLeft-Click or Right-Click|r target/untarget the simulated frame"]="|cffeda55f左键点击或右键点击|r 选中/取消选中模拟框体"
