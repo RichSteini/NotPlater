@@ -19,6 +19,7 @@ local UnitIsDeadOrGhost = UnitIsDeadOrGhost
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local GetCVar = GetCVar
 local SetCVar = SetCVar
+local MouseIsOver = MouseIsOver
 
 local NAMEPLATE_CASTBAR_CVAR = "ShowVKeyCastbar"
 local NAMEPLATE_CLASS_COLOR_CVAR = "ShowClassColorInNameplate"
@@ -41,6 +42,19 @@ local function GetOrderedFrameRegions(frame)
 	end
 	local healthBorder, castBorder, spellIcon, highlightTexture, nameText, levelText, bossIcon, raidIcon = frame:GetRegions()
 	return nil, healthBorder, castBorder, nil, spellIcon, highlightTexture, nameText, levelText, bossIcon, raidIcon
+end
+
+local function IsFrameMouseOver(frame)
+	if not frame then
+		return false
+	end
+	if frame.IsMouseOver then
+		return frame:IsMouseOver()
+	end
+	if MouseIsOver then
+		return MouseIsOver(frame)
+	end
+	return false
 end
 
 function NotPlater:GetFrameTexts(frame)
@@ -320,7 +334,7 @@ function NotPlater:PrepareFrame(frame)
 					NotPlater:ApplyFilters(self)
 					self.targetCheckElapsed = 0
 				end
-				local isMouseOver = self:IsMouseOver()
+				local isMouseOver = IsFrameMouseOver(self)
 				if NotPlater.isWrathClient and self.useHighlightProxy and self.highlightTexture then
 					if isMouseOver then
 						if not self.highlightTexture:IsShown() then

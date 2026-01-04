@@ -327,7 +327,12 @@ local tostring = tostring
 local print = print
 local next = next
 local type = type
-local wipe = wipe
+local function wipe(tbl)
+	for k in pairs(tbl) do
+		tbl[k] = nil
+	end
+	return tbl
+end
 local tinsert = tinsert
 local tremove = tremove
 local BOOKTYPE_SPELL = BOOKTYPE_SPELL

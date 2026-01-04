@@ -307,7 +307,7 @@ function NotPlater:CreateTemplateGallery(parent)
 
 	gallery.activateButton = CreateFrame("Button", "NotPlaterTemplateGalleryActivateButton", gallery, "UIPanelButtonTemplate")
 	gallery.activateButton:SetPoint("TOPLEFT", gallery.description, "BOTTOMLEFT", 0, -10)
-	gallery.activateButton:SetSize(200, 22)
+	self:SetSize(gallery.activateButton, 200, 22)
 	gallery.activateButton:SetText(L["Activate Selected Template"])
 	gallery.activateButton:SetScript("OnClick", function()
 		NotPlater:ActivateSelectedTemplate()
@@ -322,7 +322,7 @@ function NotPlater:CreateTemplateGallery(parent)
 
 	gallery.scrollChild = CreateFrame("Frame", nil, gallery.scrollFrame)
 	gallery.scrollChild:SetPoint("TOPLEFT")
-	gallery.scrollChild:SetSize(1, 1)
+	self:SetSize(gallery.scrollChild, 1, 1)
 	gallery.scrollFrame:SetScrollChild(gallery.scrollChild)
 
 	gallery.emptyText = gallery.scrollChild:CreateFontString(nil, "ARTWORK", "GameFontHighlightSmall")

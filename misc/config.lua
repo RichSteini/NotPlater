@@ -536,6 +536,9 @@ local function ResolveSpell(token)
 	if not name then
 		return
 	end
+	if spellID and spellID == 0 then
+		spellID = tonumber(token)
+	end
 	return spellID or tonumber(token), name, icon or "Interface\\Icons\\INV_Misc_QuestionMark"
 end
 
@@ -651,6 +654,10 @@ local function ShowAuraPrompt(listKey, inputType)
 	}
 	local dialog = StaticPopup_Show("NOTPLATER_AURA_PROMPT")
 	if dialog then
+		if not NotPlater.isWrathClient then
+			dialog.text = _G[dialog:GetName() .. "Text"]
+		 	dialog.editBox = _G[dialog:GetName() .. "EditBox"]
+		end
 		local text = inputType == "ID" and L["Enter a spell ID"] or L["Enter a spell name"]
 		dialog.text:SetText(text)
 		dialog.editBox:SetNumeric(inputType == "ID")
@@ -664,8 +671,9 @@ local function EnsureAuraListDialog()
     if NotPlater and NotPlater.auraListDialog then
         return NotPlater.auraListDialog
     end
+	local isWrathClient = NotPlater and NotPlater.isWrathClient
     local frame = CreateFrame("Frame", "NotPlaterAuraListDialog", UIParent)
-    frame:SetSize(420, 320)
+    NotPlater:SetSize(frame, 420, 320)
     frame:SetFrameStrata("FULLSCREEN_DIALOG")
     frame:SetFrameLevel(100)
     frame:SetPoint("CENTER")
@@ -680,6 +688,7 @@ local function EnsureAuraListDialog()
     end)
 
     -- Background layer
+	if isWrathClient then
     local titleBG = frame:CreateTexture("NotPlaterAuraListDialogTitleBG", "BACKGROUND")
     titleBG:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Title-Background")
     titleBG:SetPoint("TOPLEFT", 8, -7)
@@ -694,13 +703,13 @@ local function EnsureAuraListDialog()
     -- Overlay layer for borders
     local topLeft = frame:CreateTexture(nil, "OVERLAY")
     topLeft:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
-    topLeft:SetSize(64, 64)
+		NotPlater:SetSize(topLeft, 64, 64)
     topLeft:SetPoint("TOPLEFT")
     topLeft:SetTexCoord(0.501953125, 0.625, 0, 1)
 
     local topRight = frame:CreateTexture(nil, "OVERLAY")
     topRight:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
-    topRight:SetSize(64, 64)
+		NotPlater:SetSize(topRight, 64, 64)
     topRight:SetPoint("TOPRIGHT")
     topRight:SetTexCoord(0.625, 0.75, 0, 1)
 
@@ -713,13 +722,13 @@ local function EnsureAuraListDialog()
 
     local bottomLeft = frame:CreateTexture(nil, "OVERLAY")
     bottomLeft:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
-    bottomLeft:SetSize(64, 64)
+		NotPlater:SetSize(bottomLeft, 64, 64)
     bottomLeft:SetPoint("BOTTOMLEFT")
     bottomLeft:SetTexCoord(0.751953125, 0.875, 0, 1)
 
     local bottomRight = frame:CreateTexture(nil, "OVERLAY")
     bottomRight:SetTexture("Interface\\PaperDollInfoFrame\\UI-GearManager-Border")
-    bottomRight:SetSize(64, 64)
+		NotPlater:SetSize(bottomRight, 64, 64)
     bottomRight:SetPoint("BOTTOMRIGHT")
     bottomRight:SetTexCoord(0.875, 1, 0, 1)
 
@@ -744,19 +753,30 @@ local function EnsureAuraListDialog()
     right:SetWidth(64)
     right:SetTexCoord(0.1171875, 0.2421875, 0, 1)
 
-    -- Title
-    local title = frame:CreateFontString("NotPlaterAuraListDialogTitle", "OVERLAY", "GameFontNormal")
-    title:SetPoint("TOPLEFT", 12, -8)
-    title:SetPoint("TOPRIGHT", -32, -8)
-    title:SetText(L["Export/Import IDs"])
-    frame.Title = title  -- for compatibility
-
     -- Close button
     local closeButton = CreateFrame("Button", "NotPlaterAuraListDialogClose", frame, "UIPanelCloseButton")
     closeButton:SetPoint("TOPRIGHT", 2, 1)
     closeButton:SetScript("OnClick", function()
         frame:Hide()
     end)
+	else
+		frame:SetBackdrop({
+			bgFile = "Interface\\DialogFrame\\UI-DialogBox-Background",
+			edgeFile = "Interface\\DialogFrame\\UI-DialogBox-Border",
+			tile = true,
+			tileSize = 32,
+			edgeSize = 32,
+			insets = { left = 11, right = 12, top = 12, bottom = 11 },
+		})
+		frame:SetBackdropColor(0, 0, 0, 1)
+	end
+
+    -- Title
+    local title = frame:CreateFontString("NotPlaterAuraListDialogTitle", "OVERLAY", "GameFontNormal")
+    title:SetPoint("TOPLEFT", 12, -8)
+    title:SetPoint("TOPRIGHT", -32, -8)
+    title:SetText(L["Export/Import IDs"])
+    frame.Title = title  -- for compatibility
 
     local hint = frame:CreateFontString(nil, "OVERLAY", "GameFontHighlightSmall")
     hint:SetPoint("TOP", title, "BOTTOM", 0, -6)
@@ -783,12 +803,12 @@ local function EnsureAuraListDialog()
 
     local okButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     okButton:SetText(ACCEPT)
-    okButton:SetSize(110, 22)
+    NotPlater:SetSize(okButton, 110, 22)
     okButton:SetPoint("BOTTOMLEFT", 16, 16)
 
     local cancelButton = CreateFrame("Button", nil, frame, "UIPanelButtonTemplate")
     cancelButton:SetText(CANCEL)
-    cancelButton:SetSize(110, 22)
+    NotPlater:SetSize(cancelButton, 110, 22)
     cancelButton:SetPoint("BOTTOMRIGHT", -16, 16)
 
     okButton:SetScript("OnClick", function()
@@ -871,14 +891,14 @@ else
 			this:Raise()
 		end,
 		OnAccept = function()
-			local text = this.editBox:GetText()
+			local editBox = this:GetParent().editBox 
+			local text = editBox:GetText()
 			if auraPopupContext then
 				AddAuraToList(auraPopupContext.listKey, text)
 			end
-			this.editBox:SetText("")
+			editBox:SetText("")
 		end,
 		OnHide = function()
-			this.editBox:SetText("")
 			auraPopupContext = nil
 		end,
 		EditBoxOnEnterPressed = function()
