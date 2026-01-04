@@ -263,6 +263,28 @@ function NotPlater:FilterMatches(frame, filter)
 		end
 	end
 
+	if criteria.healthPercent and criteria.healthPercent.enable then
+		local healthBar = frame and frame.healthBar
+		if not healthBar or not healthBar.GetMinMaxValues or not healthBar.GetValue then
+			return false
+		end
+		local minValue, maxValue = healthBar:GetMinMaxValues()
+		local value = healthBar:GetValue()
+		local range = maxValue and minValue and (maxValue - minValue) or nil
+		if not value or not range or range <= 0 then
+			return false
+		end
+		local percent = (value - minValue) / range * 100
+		local minPercent = criteria.healthPercent.min
+		local maxPercent = criteria.healthPercent.max
+		if minPercent and percent < minPercent then
+			return false
+		end
+		if maxPercent and percent > maxPercent then
+			return false
+		end
+	end
+
 	return true
 end
 

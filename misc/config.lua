@@ -1138,6 +1138,11 @@ local function BuildFilterDefaults(name)
 				min = nil,
 				max = nil,
 			},
+			healthPercent = {
+				enable = false,
+				min = 0,
+				max = 100,
+			},
 			name = {
 				enable = false,
 				matchMode = "EXACT",
@@ -2549,8 +2554,51 @@ local function LoadOptions()
 									},
 								},
 							},
+							healthPercent = {
+								order = 5,
+								type = "group",
+								name = L["Health Percent"],
+								inline = true,
+								args = {
+									enable = {
+										order = 0,
+										type = "toggle",
+										name = L["Enable"],
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+									},
+									min = {
+										order = 1,
+										type = "range",
+										name = L["Minimum Health %"],
+										min = 0,
+										max = 100,
+										step = 1,
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.healthPercent.enable)
+										end,
+									},
+									max = {
+										order = 2,
+										type = "range",
+										name = L["Maximum Health %"],
+										min = 0,
+										max = 100,
+										step = 1,
+										get = GetCriteriaValue,
+										set = SetCriteriaValue,
+										disabled = function()
+											local filter = GetEditingFilter()
+											return not (filter and filter.criteria.healthPercent.enable)
+										end,
+									},
+								},
+							},
 							name = {
-								order = 4,
+								order = 6,
 								type = "group",
 								name = L["Name"],
 								inline = true,
@@ -2589,7 +2637,7 @@ local function LoadOptions()
 								},
 							},
 							zone = {
-								order = 5,
+								order = 7,
 								type = "group",
 								name = L["Zone Name"],
 								inline = true,
@@ -2628,7 +2676,7 @@ local function LoadOptions()
 								},
 							},
 							subzone = {
-								order = 6,
+								order = 8,
 								type = "group",
 								name = L["Subzone Name"],
 								inline = true,
@@ -2667,7 +2715,7 @@ local function LoadOptions()
 								},
 							},
 							healthColor = {
-								order = 7,
+								order = 9,
 								type = "group",
 								name = L["Default Healthbar Color"],
 								inline = true,
