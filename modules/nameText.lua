@@ -47,7 +47,13 @@ function NotPlater:NameTextOnShow(frame, configOverride)
 		frame.defaultNameText:Hide()
 		return
 	end
-	frame.nameText:SetTextColor(self:GetColor(config.general.color))
+	local color = config.general.color
+	if config.general.useClassColor and frame.unitClass then
+		local alpha = color and color[4] or 1
+		frame.nameText:SetTextColor(frame.unitClass.r, frame.unitClass.g, frame.unitClass.b, alpha)
+	else
+		frame.nameText:SetTextColor(self:GetColor(color))
+	end
 	if config.general.maxLetters then
 		NotPlater:SetMaxLetterText(frame.nameText, frame.defaultNameText:GetText(), config)
 	else
