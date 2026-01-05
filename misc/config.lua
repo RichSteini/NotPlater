@@ -542,14 +542,14 @@ local function ResolveSpell(token)
 	return spellID or tonumber(token), name, icon or "Interface\\Icons\\INV_Misc_QuestionMark"
 end
 
-local function AuraEntriesMatch(entry, spellID, name)
+local function AuraEntriesMatch(entry, spellID, name, matchName)
 	if not entry then
 		return false
 	end
 	if spellID and spellID ~= 0 and entry.spellID and entry.spellID ~= 0 and entry.spellID == spellID then
 		return true
 	end
-	if name and name ~= "" and entry.name and entry.name ~= "" then
+	if matchName and name and name ~= "" and entry.name and entry.name ~= "" then
 		if slower(entry.name) == slower(name) then
 			return true
 		end
@@ -564,8 +564,9 @@ local function AddAuraToList(listKey, token)
 		return
 	end
 	local list = GetAuraList(listKey)
+	local matchName = not tonumber(token)
 	for _, entry in ipairs(list) do
-		if AuraEntriesMatch(entry, spellID, name) then
+		if AuraEntriesMatch(entry, spellID, name, matchName) then
 			entry.spellID = spellID
 			entry.name = name
 			entry.icon = icon
@@ -613,7 +614,7 @@ local function ImportAuraListIDs(listKey, text)
 				end
 				local matched = false
 				for _, entry in ipairs(list) do
-					if AuraEntriesMatch(entry, spellID, name) then
+					if AuraEntriesMatch(entry, spellID, name, false) then
 						entry.spellID = spellID
 						entry.name = name or entry.name
 						entry.icon = icon or entry.icon
