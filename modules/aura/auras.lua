@@ -51,8 +51,15 @@ local function GetAuraAnchorVertical(anchor)
 	return "CENTER"
 end
 
-local function GetAuraLayoutAnchor(anchor, growDirection)
+local function GetAuraLayoutAnchor(anchor, growDirection, invertVertical)
 	local vertical = GetAuraAnchorVertical(anchor)
+	if invertVertical then
+		if vertical == "TOP" then
+			vertical = "BOTTOM"
+		elseif vertical == "BOTTOM" then
+			vertical = "TOP"
+		end
+	end
 	local grow = growDirection or "RIGHT"
 	if grow == "LEFT" then
 		if vertical == "TOP" then
@@ -664,7 +671,7 @@ function Auras:ConfigureFrame(frame)
 		container:ClearAllPoints()
 		local anchor = cfg.anchor or "TOP"
 		local growDirection = cfg.growDirection or "RIGHT"
-		local relativeAnchor = GetAuraLayoutAnchor(anchor, growDirection)
+		local relativeAnchor = GetAuraLayoutAnchor(anchor, growDirection, true)
 		local baseAnchor = frame.healthBar or frame
 		local relativeFrame = NotPlater:GetAnchorTargetFrame(baseAnchor, cfg.anchorTarget, nil)
 		if relativeFrame == container then
@@ -677,8 +684,7 @@ function Auras:ConfigureFrame(frame)
 			local previous = frame.npAuras.frames[index - 1]
 			if previous and not cfg.anchorTarget then
 				relativeFrame = previous
-				-- align to the opposite edge of the previous container so offsets are relative to its top
-				relativeAnchor = NotPlater.oppositeAnchors[anchor] or anchor
+				relativeAnchor = GetAuraLayoutAnchor(anchor, growDirection, true)
 			end
 		end
 		container:SetPoint(relativeAnchor, relativeFrame, anchor, cfg.xOffset or 0, cfg.yOffset or 0)
@@ -1292,15 +1298,18 @@ function Auras:PositionIcon(container, icon, index, perRow, totalAuras, growDire
 	local totalRows = math_max(1, math_ceil(totalAuras / perRow))
 	local isLastRow = (row == totalRows - 1)
 	local iconsInRow = isLastRow and math_max(1, totalAuras - row * perRow) or perRow
-	local baseAnchor = GetAuraLayoutAnchor(container.config and container.config.anchor or "TOP", growDirection)
+	local anchor = container.config and container.config.anchor or "TOP"
+	local baseAnchor = GetAuraLayoutAnchor(anchor, growDirection, true)
+	local vertical = GetAuraAnchorVertical(anchor)
+	local rowDirection = (vertical == "TOP") and 1 or -1
 	icon:ClearAllPoints()
 	if growDirection == "LEFT" then
-		icon:SetPoint(baseAnchor, container, baseAnchor, -(column * stepX), -row * stepY)
+		icon:SetPoint(baseAnchor, container, baseAnchor, -(column * stepX), row * stepY * rowDirection)
 	elseif growDirection == "CENTER" then
 		local offset = column - ((iconsInRow - 1) / 2)
-		icon:SetPoint(baseAnchor, container, baseAnchor, offset * stepX, -row * stepY)
+		icon:SetPoint(baseAnchor, container, baseAnchor, offset * stepX, row * stepY * rowDirection)
 	else
-		icon:SetPoint(baseAnchor, container, baseAnchor, column * stepX, -row * stepY)
+		icon:SetPoint(baseAnchor, container, baseAnchor, column * stepX, row * stepY * rowDirection)
 	end
 end
 

@@ -687,7 +687,7 @@ function NotPlater:LoadDefaultConfig()
 					anchorTarget = "healthBar",
                     anchor = "TOP",
                     xOffset = 0,
-                    yOffset = 20,
+                    yOffset = 5,
                     rowCount = 10,
                     width = 26,
                     height = 16,
