@@ -370,6 +370,13 @@ function NotPlater:SimulatorFrameOnShow()
     NotPlater.oldUpdateEliteIcon = NotPlater.UpdateEliteIcon
 	NotPlater.UpdateEliteIcon = function(name, frame, ...)
         if frame.isSimulatorFrame then
+            local eliteIconConfig = NotPlater.db.profile.icons.eliteIcon
+            if eliteIconConfig and eliteIconConfig.general and eliteIconConfig.general.enable == false then
+                if frame.eliteIcon then
+                    frame.eliteIcon:SetAlpha(0)
+                end
+                return
+            end
             NotPlater:SetEliteIcon(frame)
             return
         end
