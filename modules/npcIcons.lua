@@ -7,6 +7,52 @@ local floor = math.floor
 local max = math.max
 local tinsert = table.insert
 
+local function GetIconAnchorVertical(anchor)
+	if not anchor then
+		return "CENTER"
+	end
+	if anchor:find("TOP") then
+		return "TOP"
+	end
+	if anchor:find("BOTTOM") then
+		return "BOTTOM"
+	end
+	return "CENTER"
+end
+
+local function GetIconLayoutAnchor(anchor, growDirection, invertVertical)
+	local vertical = GetIconAnchorVertical(anchor)
+	if invertVertical then
+		if vertical == "TOP" then
+			vertical = "BOTTOM"
+		elseif vertical == "BOTTOM" then
+			vertical = "TOP"
+		end
+	end
+	local grow = growDirection or "RIGHT"
+	if grow == "LEFT" then
+		if vertical == "TOP" then
+			return "TOPRIGHT"
+		elseif vertical == "BOTTOM" then
+			return "BOTTOMRIGHT"
+		end
+		return "RIGHT"
+	elseif grow == "CENTER" then
+		if vertical == "TOP" then
+			return "TOP"
+		elseif vertical == "BOTTOM" then
+			return "BOTTOM"
+		end
+		return "CENTER"
+	end
+	if vertical == "TOP" then
+		return "TOPLEFT"
+	elseif vertical == "BOTTOM" then
+		return "BOTTOMLEFT"
+	end
+	return "LEFT"
+end
+
 local ICONS = {
 	{ key = "vendor", texture = "Interface\\ICONS\\INV_Misc_Bag_10", flag = "Vendor" },
 	{ key = "repair", texture = "Interface\\MINIMAP\\TRACKING\\Repair", flag = "Repair" },
@@ -104,14 +150,18 @@ local function PositionIcon(container, icon, index, perRow, totalIcons, growDire
 	local totalRows = max(1, ceil(totalIcons / perRow))
 	local isLastRow = (row == totalRows - 1)
 	local iconsInRow = isLastRow and max(1, totalIcons - row * perRow) or perRow
+	local anchor = container.layoutAnchor or "TOP"
+	local baseAnchor = GetIconLayoutAnchor(anchor, growDirection, true)
+	local vertical = GetIconAnchorVertical(anchor)
+	local rowDirection = (vertical == "TOP") and 1 or -1
 	icon:ClearAllPoints()
 	if growDirection == "LEFT" then
-		icon:SetPoint("TOPRIGHT", container, "TOPRIGHT", -(column * stepX), -row * stepY)
+		icon:SetPoint(baseAnchor, container, baseAnchor, -(column * stepX), row * stepY * rowDirection)
 	elseif growDirection == "CENTER" then
 		local offset = column - ((iconsInRow - 1) / 2)
-		icon:SetPoint("TOP", container, "TOP", offset * stepX, -row * stepY)
+		icon:SetPoint(baseAnchor, container, baseAnchor, offset * stepX, row * stepY * rowDirection)
 	else
-		icon:SetPoint("TOPLEFT", container, "TOPLEFT", column * stepX, -row * stepY)
+		icon:SetPoint(baseAnchor, container, baseAnchor, column * stepX, row * stepY * rowDirection)
 	end
 end
 
@@ -162,7 +212,9 @@ function NotPlater:UpdateNpcIcons(frame)
 	local anchorFrame = frame.nameText or frame.healthBar
 	local resolvedAnchor = self:GetAnchorTargetFrame(anchorFrame, layout.anchorTarget, anchorFrame)
 	container:ClearAllPoints()
-	container:SetPoint(self.oppositeAnchors[layout.anchor], resolvedAnchor, layout.anchor, layout.xOffset * scale, layout.yOffset * scale)
+	container.layoutAnchor = layout.anchor
+	local relativeAnchor = GetIconLayoutAnchor(layout.anchor, layout.growDirection, true)
+	container:SetPoint(relativeAnchor, resolvedAnchor, layout.anchor, layout.xOffset * scale, layout.yOffset * scale)
 
 	if frame.isSimulatorFrame then
 		local classToken = select(2, UnitClass("player"))
