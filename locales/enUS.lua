@@ -325,6 +325,7 @@ NotPlaterLocals = {
 	["No import has been processed yet."] = "No import has been processed yet.",
 	["Invalid import string"] = "Invalid import string",
 	["Imported as "] = "Imported as ",
+	["Imported Plater profile as "] = "Imported Plater profile as ",
 	["Use Type Colors"] = "Use Type Colors",
 	["When enabled, debuffs are shown in Aura Frame 1 and buffs in Aura Frame 2."] = "When enabled, debuffs are shown in Aura Frame 1 and buffs in Aura Frame 2.",
 	["Width"] = "Width",
