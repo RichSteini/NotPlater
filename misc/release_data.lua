@@ -13,17 +13,16 @@ NotPlaterReleaseData = {
 	title = NotPlater.revision .. " Snapshot",
 	markdown = NotPlater.revision .. [[ 
 
-- Implemented target indicator scaling  
-- Fixed automatic aura tracking
-- Implemented health text showing min / max / % at the same time  
-- Fixed name text length working incorrectly  
-- Fixed non-target level offset zooming/scaling not working properly  
-- Implemented target indicator border on hover and for selected targets  
-- Implemented option to paint names in class colors  
-- Fixed simulator frame with auras overlapping the close button  
-- Fixed buffs tracking error with manual aura tracking method  
-- Implemented distance indicator
-- Various other minor fixes  
+- Implemented filters to filter out nameplates based on criterias
+- Implemented nameplate template category
+- Implemented elite / rare icon
+- Implemented class icon
+- Implemented NPC icons
+- Implemented icon zoom for aura / spell icons
+- Added aura borders
+- Fixed aura container grow direction / rows
+- Fixed aura matching
+- Various bug fixes  
 
 	]],
 }
