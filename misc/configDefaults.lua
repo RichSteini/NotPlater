@@ -360,7 +360,8 @@ function NotPlater:LoadDefaultConfig()
 				spellIcon = {
 					general = {
 						enable = true,
-						opacity = 1
+						opacity = 1,
+						iconZoom = 65,
 					},
                     size = {
                         width = 14,
@@ -377,7 +378,6 @@ function NotPlater:LoadDefaultConfig()
                         color = {0, 0, 0, 1},
                         thickness = 1,
 						style = "",
-						iconZoom = 65,
                     },
                     background = {
                         enable = false,

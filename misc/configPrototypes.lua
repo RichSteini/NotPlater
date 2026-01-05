@@ -811,8 +811,8 @@ function ConfigPrototypes:LoadConfigPrototypes()
     ConfigPrototypes.CastBarIcon = ConfigPrototypes:GetGeneralisedIconConfig()
     ConfigPrototypes.CastBarIcon.border = ConfigPrototypes:GetGeneralisedBorderConfig()
     ConfigPrototypes.CastBarIcon.background = ConfigPrototypes:GetGeneralisedBackgroundConfig()
-    ConfigPrototypes.CastBarIcon.border.args.iconZoom = {
-        order = 4,
+    ConfigPrototypes.CastBarIcon.general.args.iconZoom = {
+        order = 2,
         type = "range",
         name = L["Icon Zoom"],
         min = 0, max = 100, step = 1,
