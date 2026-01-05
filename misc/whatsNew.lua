@@ -360,6 +360,10 @@ function WhatsNew:IsSessionVisible()
 	return self._sessionVisible
 end
 
+function WhatsNew:ShouldHideTemplatesCategory()
+	return self._sessionVisible == true
+end
+
 function WhatsNew:DismissSession()
 	self._sessionVisible = false
 	if AceConfigRegistry then

@@ -3284,6 +3284,10 @@ local function LoadOptions()
 		order = 12,
 		type = "group",
 		name = WithCategoryIcon("templates", L["Templates"]),
+		hidden = function()
+			local whatsNew = NotPlater:GetModule("WhatsNew", true)
+			return whatsNew and whatsNew.ShouldHideTemplatesCategory and whatsNew:ShouldHideTemplatesCategory()
+		end,
 		args = {},
 	}
 
@@ -3506,8 +3510,10 @@ function Config:OpenConfig()
 	end
 	dialog:Open("NotPlater")
 	if whatsNew and whatsNew.ShouldFocusTemplates and whatsNew:ShouldFocusTemplates() then
-		if dialog and dialog.SelectGroup then
-			dialog:SelectGroup("NotPlater", "templates")
+		if not (whatsNew.ShouldHideTemplatesCategory and whatsNew:ShouldHideTemplatesCategory()) then
+			if dialog and dialog.SelectGroup then
+				dialog:SelectGroup("NotPlater", "templates")
+			end
 		end
 	end
 
