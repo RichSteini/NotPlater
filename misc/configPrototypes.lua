@@ -174,6 +174,15 @@ local function GetFonts()
 	return fonts
 end
 
+-- Return all registered SML borders
+local function GetBorders()
+	local borders = {[""] = L["None"]}
+	for _, name in pairs(NotPlater.SML:List(NotPlater.SML.MediaType.BORDER)) do
+		borders[name] = name
+	end
+	return borders
+end
+
 local function GetIndicators()
 	local indicators = {}
 	for name, _ in pairs(NotPlater.targetIndicators) do
@@ -802,6 +811,12 @@ function ConfigPrototypes:LoadConfigPrototypes()
     ConfigPrototypes.CastBarIcon = ConfigPrototypes:GetGeneralisedIconConfig()
     ConfigPrototypes.CastBarIcon.border = ConfigPrototypes:GetGeneralisedBorderConfig()
     ConfigPrototypes.CastBarIcon.background = ConfigPrototypes:GetGeneralisedBackgroundConfig()
+    ConfigPrototypes.CastBarIcon.border.args.iconZoom = {
+        order = 4,
+        type = "range",
+        name = L["Icon Zoom"],
+        min = 0, max = 100, step = 1,
+    }
     ConfigPrototypes.NpcIcons = {
         general = {
             order = 0,

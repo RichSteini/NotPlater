@@ -375,7 +375,9 @@ function NotPlater:LoadDefaultConfig()
                     border = {
                         enable = false,
                         color = {0, 0, 0, 1},
-                        thickness = 1
+                        thickness = 1,
+						style = "",
+						iconZoom = 65,
                     },
                     background = {
                         enable = false,

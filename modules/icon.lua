@@ -126,6 +126,16 @@ end
 
 function NotPlater:ConfigureIcon(iconFrame, anchorFrame, config)
     self:ConfigureGeneralisedIcon(iconFrame, anchorFrame, config)
+	-- Set icon zoom
+	if iconFrame.texture and config.border and config.border.iconZoom then
+		local zoom = config.border.iconZoom
+		if zoom <= 0 then
+			iconFrame.texture:SetTexCoord(0, 1, 0, 1)
+		else
+			local inset = (zoom / 100) * 0.1
+			iconFrame.texture:SetTexCoord(inset, 1 - inset, inset, 1 - inset)
+		end
+	end
 	-- Set border
 	if config.border.enable then
 		self:ConfigureFullBorder(iconFrame.border, iconFrame, config.border)
