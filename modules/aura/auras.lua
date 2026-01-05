@@ -38,6 +38,45 @@ local math_ceil = math.ceil
 
 local DEFAULT_COOLDOWN_STYLE = "vertical"
 
+local function GetAuraAnchorVertical(anchor)
+	if not anchor then
+		return "CENTER"
+	end
+	if anchor:find("TOP") then
+		return "TOP"
+	end
+	if anchor:find("BOTTOM") then
+		return "BOTTOM"
+	end
+	return "CENTER"
+end
+
+local function GetAuraLayoutAnchor(anchor, growDirection)
+	local vertical = GetAuraAnchorVertical(anchor)
+	local grow = growDirection or "RIGHT"
+	if grow == "LEFT" then
+		if vertical == "TOP" then
+			return "TOPRIGHT"
+		elseif vertical == "BOTTOM" then
+			return "BOTTOMRIGHT"
+		end
+		return "RIGHT"
+	elseif grow == "CENTER" then
+		if vertical == "TOP" then
+			return "TOP"
+		elseif vertical == "BOTTOM" then
+			return "BOTTOM"
+		end
+		return "CENTER"
+	end
+	if vertical == "TOP" then
+		return "TOPLEFT"
+	elseif vertical == "BOTTOM" then
+		return "BOTTOMLEFT"
+	end
+	return "LEFT"
+end
+
 local function SafeUnit(unit)
 	return unit and UnitExists(unit) and not UnitIsDeadOrGhost(unit)
 end
@@ -624,7 +663,8 @@ function Auras:ConfigureFrame(frame)
 		container.config = cfg
 		container:ClearAllPoints()
 		local anchor = cfg.anchor or "TOP"
-		local relativeAnchor = NotPlater.oppositeAnchors[anchor] or anchor
+		local growDirection = cfg.growDirection or "RIGHT"
+		local relativeAnchor = GetAuraLayoutAnchor(anchor, growDirection)
 		local baseAnchor = frame.healthBar or frame
 		local relativeFrame = NotPlater:GetAnchorTargetFrame(baseAnchor, cfg.anchorTarget, nil)
 		if relativeFrame == container then
@@ -1252,14 +1292,15 @@ function Auras:PositionIcon(container, icon, index, perRow, totalAuras, growDire
 	local totalRows = math_max(1, math_ceil(totalAuras / perRow))
 	local isLastRow = (row == totalRows - 1)
 	local iconsInRow = isLastRow and math_max(1, totalAuras - row * perRow) or perRow
+	local baseAnchor = GetAuraLayoutAnchor(container.config and container.config.anchor or "TOP", growDirection)
 	icon:ClearAllPoints()
 	if growDirection == "LEFT" then
-		icon:SetPoint("TOPRIGHT", container, "TOPRIGHT", -(column * stepX), -row * stepY)
+		icon:SetPoint(baseAnchor, container, baseAnchor, -(column * stepX), -row * stepY)
 	elseif growDirection == "CENTER" then
 		local offset = column - ((iconsInRow - 1) / 2)
-		icon:SetPoint("TOP", container, "TOP", offset * stepX, -row * stepY)
+		icon:SetPoint(baseAnchor, container, baseAnchor, offset * stepX, -row * stepY)
 	else
-		icon:SetPoint("TOPLEFT", container, "TOPLEFT", column * stepX, -row * stepY)
+		icon:SetPoint(baseAnchor, container, baseAnchor, column * stepX, -row * stepY)
 	end
 end
 

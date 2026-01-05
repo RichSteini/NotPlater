@@ -20,8 +20,8 @@ end
 local UPDATE_INTERVAL = 0.25
 local DEFAULT_DURATION_RANGE = {8, 16}
 local NO_DURATION_FALLBACK = 20
-local MAX_PER_FRAME = 10
-local MAX_TOTAL = 10
+local MAX_PER_FRAME = 8
+local MAX_TOTAL = 8
 
 local GUID_PREFIX = "Creature-0-0-0-0-90000-"
 local SOURCE_PLAYER_GUID = "Player-0-0-0-0-90000-1"
