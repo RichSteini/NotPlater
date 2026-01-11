@@ -823,8 +823,8 @@ local function EnsureAuraListDialog()
     end)
 
     frame:SetScript("OnShow", function(self)
-        self:SetFrameStrata("FULLSCREEN_DIALOG")
-        self:SetFrameLevel(100)
+        self:SetFrameStrata("TOOLTIP")
+        self:SetFrameLevel(200)
         self:Raise()
     end)
     frame.editBox = editBox
@@ -838,6 +838,8 @@ local function ShowAuraListPrompt(listKey)
 	dialog.listKey = listKey
 	dialog.editBox:SetText(BuildAuraListIDString(listKey))
 	dialog.editBox:HighlightText()
+	dialog:SetFrameStrata("TOOLTIP")
+	dialog:SetFrameLevel(200)
 	dialog:Show()
 	dialog.editBox:SetFocus()
 end
