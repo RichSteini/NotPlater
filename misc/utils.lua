@@ -387,7 +387,7 @@ end
 function NotPlater:ClassCheck(frame)
 	if frame.unitClass then return end
 
-	local r, g, b = frame.healthBar:GetStatusBarColor()
+	local r, g, b = frame.defaultHealthBar:GetStatusBarColor()
 	local classColor = NotPlater:GetClassColorFromRGB(r, g, b)
 	if classColor then
 		frame.unitClass = classColor
