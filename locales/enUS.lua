@@ -129,7 +129,6 @@ NotPlaterLocals = {
 	["Margin"] = "Margin",
 	["Max. Letters"] = "Max. Letters",
 	["Medium"] = "Medium",
-	["Min / Max"] = "Min / Max",
 	["Monochrome"] = "Monochrome",
 	["Move Down"] = "Move Down",
 	["Move Up"] = "Move Up",
