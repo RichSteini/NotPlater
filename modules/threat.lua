@@ -239,8 +239,11 @@ function NotPlater:PARTY_MEMBERS_CHANGED()
 			end
 			i = i + 1
 		end
-		self.party[UnitGUID("player")] = "player"
-		CacheUnitClass("player")
+		local player = UnitGUID("player")
+		if player then
+			self.party[player] = "player"
+			CacheUnitClass("player")
+		end
 		local pet = UnitGUID("pet")
 		if pet then
 			self.party[pet] = "pet"
