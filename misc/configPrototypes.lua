@@ -1295,8 +1295,32 @@ local function BuildAuraListGroup(order, listKey, name, addNameLabel, addIDLabel
 		type = "group",
 		name = name,
 		args = {
-			entries = {
+			addByName = {
 				order = 0,
+				type = "execute",
+				name = addNameLabel,
+				func = function()
+					api.ShowAuraPrompt(listKey, "NAME")
+				end,
+			},
+			addByID = {
+				order = 1,
+				type = "execute",
+				name = addIDLabel,
+				func = function()
+					api.ShowAuraPrompt(listKey, "ID")
+				end,
+			},
+			importExportIDs = {
+				order = 2,
+				type = "execute",
+				name = L["Export/Import IDs"],
+				func = function()
+					api.ShowAuraListPrompt(listKey)
+				end,
+			},
+			entries = {
+				order = 3,
 				type = "multiselect",
 				name = L["Click an entry to remove it."],
 				values = function()
@@ -1309,30 +1333,6 @@ local function BuildAuraListGroup(order, listKey, name, addNameLabel, addIDLabel
 					api.RemoveAuraFromList(listKey, key)
 				end,
 				width = "full",
-			},
-			addByName = {
-				order = 1,
-				type = "execute",
-				name = addNameLabel,
-				func = function()
-					api.ShowAuraPrompt(listKey, "NAME")
-				end,
-			},
-			addByID = {
-				order = 2,
-				type = "execute",
-				name = addIDLabel,
-				func = function()
-					api.ShowAuraPrompt(listKey, "ID")
-				end,
-			},
-			importExportIDs = {
-				order = 3,
-				type = "execute",
-				name = L["Export/Import IDs"],
-				func = function()
-					api.ShowAuraListPrompt(listKey)
-				end,
 			},
 		},
 	}
