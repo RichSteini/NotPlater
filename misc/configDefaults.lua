@@ -682,7 +682,7 @@ function NotPlater:LoadDefaultConfig()
                     rowSpacing = 12,
 					stackSimilarAuras = false,
 					showShortestStackTime = true,
-					sortAuras = false,
+					sortAuras = true,
 					showAnimations = true,
 					enableCombatLogTracking = true,
 				},
