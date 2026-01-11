@@ -420,7 +420,7 @@ function NotPlater:FactionCheck(frame)
 		return
 	end
 	if frame.healthBar and playerFaction then
-		local r, g, b = frame.healthBar:GetStatusBarColor()
+		local r, g, b = frame.defaultHealthBar:GetStatusBarColor()
 		if r and g and b and abs(r) <= 0.1 and abs(g) <= 0.1 and abs(b - 1) <= 0.1 then
 			frame.unitFaction = playerFaction
 			if unitName then

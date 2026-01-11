@@ -252,6 +252,7 @@ function NotPlater:PrepareFrame(frame)
 
 		local resolvedNameText, resolvedLevelText = self:GetFrameTexts(frame)
 		frame.defaultNameText = resolvedNameText or nameText
+		frame.defaultHealthBar = health
 		frame.levelText = resolvedLevelText or levelText
 		frame.bossIcon = bossIcon or frame.bossIcon
 		frame.raidIcon = raidIcon or frame.raidIcon

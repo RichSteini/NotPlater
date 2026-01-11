@@ -274,9 +274,6 @@ function NotPlater:UpdateEliteIcon(frame)
 end
 
 function NotPlater:UpdateFactionIcon(frame)
-	if not frame or not frame.factionIcon then
-		return
-	end
 	local factionIconConfig = self.db.profile.icons.factionIcon
 	local enabled = factionIconConfig.general.enable
 	if enabled == nil then
