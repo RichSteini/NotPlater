@@ -16,6 +16,7 @@ local UnitIsPlayer = UnitIsPlayer
 local UnitExists = UnitExists
 local UnitCanAttack = UnitCanAttack
 local UnitIsDeadOrGhost = UnitIsDeadOrGhost
+local unpack = unpack
 local RAID_CLASS_COLORS = RAID_CLASS_COLORS
 local GetCVar = GetCVar
 local SetCVar = SetCVar
@@ -70,6 +71,27 @@ function NotPlater:GetFrameTexts(frame)
 		end
 	end
 	return nameText, levelText
+end
+
+function NotPlater:UpdateMouseoverNameText(frame, isMouseover)
+	local mouseoverConfig = self.db.profile.target and self.db.profile.target.mouseoverHighlight
+	local nameConfig = mouseoverConfig and mouseoverConfig.nameText
+	if not nameConfig or not nameConfig.enable then
+		isMouseover = false
+	end
+	local nameText = frame.nameText
+	if isMouseover then
+		if not nameText.npMouseoverColor then
+			local r, g, b, a = nameText:GetTextColor()
+			nameText.npMouseoverColor = {r, g, b, a}
+		end
+		nameText:SetTextColor(self:GetColor(nameConfig.color))
+	else
+		if nameText.npMouseoverColor then
+			nameText:SetTextColor(unpack(nameText.npMouseoverColor))
+			nameText.npMouseoverColor = nil
+		end
+	end
 end
 
 local function CreateNameTextProxy(frame, defaultNameText)
@@ -345,6 +367,7 @@ function NotPlater:PrepareFrame(frame)
 						end
 					end
 				end
+				NotPlater:UpdateMouseoverNameText(self, isMouseOver)
 				local mouseoverConfig = NotPlater.db.profile.target.mouseoverHighlight
 				if mouseoverConfig.enable and mouseoverConfig.border and mouseoverConfig.border.enable and isMouseOver then
 					self.mouseoverBorder:Show()

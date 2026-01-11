@@ -1091,6 +1091,28 @@ function ConfigPrototypes:LoadConfigPrototypes()
                     name = L["Opacity"],
                     min = 0, max = 1, step = 0.01,
                 },
+				nameText = {
+					order = 2,
+					type = "group",
+					inline = true,
+					name = L["Name Text"] .. " " .. L["Highlight"],
+					args = {
+						enable = {
+							order = 0,
+							type = "toggle",
+							name = L["Enable"],
+						},
+						color = {
+							order = 1,
+							type = "color",
+							name = L["Color"],
+							hasAlpha = true,
+							disabled = function()
+								return not (NotPlater.db.profile.target.mouseoverHighlight.nameText and NotPlater.db.profile.target.mouseoverHighlight.nameText.enable)
+							end,
+						},
+					},
+				},
                 border = ConfigPrototypes:GetGeneralisedBorderConfig(),
             },
         },

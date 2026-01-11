@@ -640,6 +640,10 @@ function NotPlater:LoadDefaultConfig()
                 mouseoverHighlight = {
                     enable = true,
                     opacity = 0.5,
+					nameText = {
+						enable = false,
+						color = {1, 0, 0, 1},
+					},
                     border = {
                         enable = false,
                         color = {1, 1, 1, 1},
