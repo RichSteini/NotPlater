@@ -132,6 +132,8 @@ function Auras:Init()
 	self.guidToFrame = {}
 	self.unitToFrame = {}
 	self.activeIcons = {}
+	self.pendingUpdates = {}
+	self.pendingUpdateAll = false
 	self.elapsed = 0
 	self.playerGUID = UnitGUID("player")
 	self.updater = CreateFrame("Frame")
@@ -265,6 +267,7 @@ function Auras:Disable()
 end
 
 function Auras:OnUpdate(elapsed)
+	self:ProcessQueuedUpdates()
 	if not self.general or not self.general.enable then
 		return
 	end
@@ -276,6 +279,44 @@ function Auras:OnUpdate(elapsed)
 	for icon in pairs(self.activeIcons) do
 		self:UpdateIconTimer(icon)
 		self:UpdateIconCooldown(icon)
+	end
+end
+
+function Auras:QueueAuraUpdate(guid)
+	if not self.enabled then
+		return
+	end
+	if not guid then
+		self.pendingUpdateAll = true
+		return
+	end
+	if not self.guidToFrame or not self.guidToFrame[guid] then
+		return
+	end
+	self.pendingUpdates[guid] = true
+end
+
+function Auras:ProcessQueuedUpdates()
+	if not self.enabled then
+		return
+	end
+	if self.pendingUpdateAll then
+		self.pendingUpdateAll = false
+		for guid in pairs(self.pendingUpdates) do
+			self.pendingUpdates[guid] = nil
+		end
+		self:UpdateAllFrames()
+		return
+	end
+	if not next(self.pendingUpdates) then
+		return
+	end
+	for guid in pairs(self.pendingUpdates) do
+		self.pendingUpdates[guid] = nil
+		local frame = self.guidToFrame[guid]
+		if frame then
+			self:UpdateFrameAuras(frame, nil, true)
+		end
 	end
 end
 
@@ -636,13 +677,10 @@ end
 
 function Auras:OnAuraTrackerUpdate(guid)
 	if not guid then
-		self:UpdateAllFrames()
+		self:QueueAuraUpdate(nil)
 		return
 	end
-	local frame = self.guidToFrame[guid]
-	if frame then
-		self:UpdateFrameAuras(frame)
-	end
+	self:QueueAuraUpdate(guid)
 end
 
 function Auras:UpdateAllFrames()
@@ -812,7 +850,7 @@ function Auras:GetAurasPerRow(index, defaultWidth)
 	return config.rowCount or fallback
 end
 
-function Auras:UpdateFrameAuras(frame, forcedUnit)
+function Auras:UpdateFrameAuras(frame, forcedUnit, skipUnitScan)
 	if not self.general.enable then
 		self:HideContainers(frame)
 		return
@@ -860,7 +898,11 @@ function Auras:UpdateFrameAuras(frame, forcedUnit)
 		targetIsPlayer = UnitIsPlayer(unit)
 	end
 	frame.npIsPlayer = targetIsPlayer
-	local auras = self:CollectAuras(unit, frame.npGUID)
+	local scanUnit = unit
+	if skipUnitScan and not forcedUnit then
+		scanUnit = nil
+	end
+	local auras = self:CollectAuras(scanUnit, frame.npGUID)
 	if not auras or #auras == 0 then
 		self:HideContainers(frame)
 		return
@@ -949,20 +991,22 @@ function Auras:FilterAuras(candidates, targetIsPlayer)
 			tinsert(filtered, aura)
 		end
 	end
-	table.sort(filtered, function(a, b)
-		if a.priority ~= b.priority then
-			return a.priority > b.priority
-		end
-		local aExp = a.expirationTime or huge
-		local bExp = b.expirationTime or huge
-		if aExp ~= bExp then
-			return aExp < bExp
-		end
-		if a.spellID ~= b.spellID then
-			return (a.spellID or 0) < (b.spellID or 0)
-		end
-		return (a.casterGUID or "") < (b.casterGUID or "")
-	end)
+	if self.general.sortAuras then
+		table.sort(filtered, function(a, b)
+			if a.priority ~= b.priority then
+				return a.priority > b.priority
+			end
+			local aExp = a.expirationTime or huge
+			local bExp = b.expirationTime or huge
+			if aExp ~= bExp then
+				return aExp < bExp
+			end
+			if a.spellID ~= b.spellID then
+				return (a.spellID or 0) < (b.spellID or 0)
+			end
+			return (a.casterGUID or "") < (b.casterGUID or "")
+		end)
+	end
 	if self.general.stackSimilarAuras then
 		return self:CollapseStacks(filtered)
 	end

@@ -36,27 +36,6 @@ local function BuildAuraKey(spellID, casterGUID, isDebuff)
 	return (spellID or 0) .. ":" .. (casterGUID or "0") .. ":" .. (isDebuff and "D" or "B")
 end
 
-local function CopyTable(source, seen)
-	if not source then
-		return nil
-	end
-	-- guard against self-referential tables causing recursive overflows
-	if seen and seen[source] then
-		return seen[source]
-	end
-	seen = seen or {}
-	local target = {}
-	seen[source] = target
-	for key, value in pairs(source) do
-		if type(value) == "table" then
-			target[key] = CopyTable(value, seen)
-		else
-			target[key] = value
-		end
-	end
-	return target
-end
-
 function Tracker:GetNameKey(name, isDebuff)
 	local label = (name and name:lower()) or "unknown"
 	return label .. ":" .. (isDebuff and "D" or "B")
@@ -198,10 +177,9 @@ function Tracker:UpdateGuidAurasFromUnit(unit, guid, results, lookup)
 				aura.appliedAt = GetTime()
 			end
 			entries[key] = aura
-			local copy = CopyTable(aura)
-			results[#results + 1] = copy
+			results[#results + 1] = aura
 			if lookup then
-				lookup[key] = copy
+				lookup[key] = aura
 			end
 			index = index + 1
 		end
@@ -235,7 +213,7 @@ function Tracker:CollectFromGuid(guid, results, lookup)
 			if lookup and lookup[key] then
 				-- prefer direct unit data that already populated lookup
 			else
-				results[#results + 1] = CopyTable(aura)
+				results[#results + 1] = aura
 			end
 		end
 	end
