@@ -442,13 +442,15 @@ function NotPlater:OnNameplateMatch(healthFrame, group, ThreatLib)
 end
 
 function NotPlater:MouseoverThreatCheck(healthFrame, guid)
-	local plateFrame = healthFrame:GetParent()
 	if UnitInParty("party1") or UnitInRaid("player") then
 		local group = self.raid or self.party
 		if group then
 			self:OnNameplateMatch(healthFrame, group)
 		end
 	else
+		local plateFrame = healthFrame:GetParent()
+		local _, healthMaxValue = healthFrame:GetMinMaxValues()
+		local healthValue = healthFrame:GetValue()
 		if UnitCanAttack("player", "mouseover") and not UnitIsDeadOrGhost("mouseover") and UnitAffectingCombat("mouseover") and healthValue ~= healthMaxValue then
 			local unitClass = plateFrame.unitClass
 			if not (self.db.profile.healthBar.statusBar.general.useClassColors and unitClass) then
@@ -469,6 +471,8 @@ function NotPlater:ThreatCheck(frame)
 			self:OnNameplateMatch(healthFrame, group)
 		end
 	else -- Not in party
+		local _, healthMaxValue = healthFrame:GetMinMaxValues()
+		local healthValue = healthFrame:GetValue()
 		if frame.lastUnitMatch == "target" and UnitCanAttack("player", "target") and not UnitIsDeadOrGhost("target") and UnitAffectingCombat("target") and healthValue ~= healthMaxValue then
 			local unitClass = frame.unitClass
 			if not (self.db.profile.healthBar.statusBar.general.useClassColors and unitClass) then
