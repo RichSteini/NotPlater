@@ -407,7 +407,7 @@ function NotPlater:ClassCheck(frame)
 	end
 
 	local matchedUnit = frame.lastUnitMatch
-	if matchedUnit and self:IsTrackedMatchUnit(matchedUnit) and UnitExists(matchedUnit) then
+	if matchedUnit and UnitExists(matchedUnit) then
 		SetFrameClassColorFromUnit(frame, matchedUnit)
 	end
 end
@@ -448,7 +448,7 @@ function NotPlater:FactionCheck(frame)
 		faction = UnitFactionGroup("target")
 	end
 	local matchedUnit = frame.lastUnitMatch
-	if not faction and matchedUnit and self:IsTrackedMatchUnit(matchedUnit) and UnitExists(matchedUnit) then
+	if not faction and matchedUnit and UnitExists(matchedUnit) then
 		faction = UnitFactionGroup(matchedUnit)
 	end
 	if faction then

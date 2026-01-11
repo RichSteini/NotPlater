@@ -2,6 +2,7 @@ if( not NotPlater ) then return end
 
 local CreateFrame = CreateFrame
 local GetTime = GetTime
+local UnitExists = UnitExists
 local UnitCastingInfo = UnitCastingInfo
 local UnitChannelInfo = UnitChannelInfo
 local FAILED = FAILED
@@ -271,7 +272,7 @@ function NotPlater:RegisterCastBarEvents(frame)
 	if not frame.npCastBarEventsHooked then
 		frame.npCastBarEventsHooked = true
 		frame:SetScript("OnEvent", function(self, event, unit)
-			if not unit or not NotPlater:IsTrackedMatchUnit(unit) then
+			if not unit or not UnitExists(unit) then
 				return
 			end
 			local matchedFrame = NotPlater:GetMatchedFrameForUnit(unit)

@@ -52,18 +52,6 @@ function NotPlater:GetTrackedMatchUnits()
 	return self.trackedMatchUnits
 end
 
-function NotPlater:IsTrackedMatchUnit(unit)
-	if not unit then
-		return false
-	end
-	for _, tracked in ipairs(self:GetTrackedMatchUnits()) do
-		if unit == tracked then
-			return true
-		end
-	end
-	return false
-end
-
 function NotPlater:PlateMatchesUnit(frame, unit)
 	if not unit or not UnitExists(unit) then
 		return false
@@ -189,7 +177,7 @@ function NotPlater:UpdateFrameMatch(frame)
 	end
 end
 
-function NotPlater:UNIT_TARGET(unitId)
+function NotPlater:UNIT_TARGET(event, unitId)
 	if not unitId or not (unitId:match("^party%d+$") or unitId:match("^raid%d+$")) then
 		return
 	end
@@ -205,8 +193,9 @@ function NotPlater:UNIT_TARGET(unitId)
 		return
 	end
 	local frame = self:GetMatchedFrameForUnit(targetUnit)
-	if frame and frame.lastUnitMatch ~= "target" and frame.lastUnitMatch ~= "focus" and frame.lastUnitMatch ~= "mouseover" then
+	if frame and frame.lastUnitMatch ~= "target" and frame.lastUnitMatch ~= "focus" then
 		self:SetFrameMatch(frame, targetUnit)
+		self:ThreatCheck(frame)
 	end
 end
 
