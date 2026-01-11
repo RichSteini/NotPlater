@@ -435,17 +435,18 @@ function Auras:AttachToFrame(frame)
 end
 
 function Auras:CreateContainer(frame, index)
-	local parent = frame.healthBar or frame
-	local container = CreateFrame("Frame", nil, parent)
+	local anchor = frame.healthBar or frame
+	local container = CreateFrame("Frame", nil, frame)
 	container.index = index
 	container.icons = {}
-	local baseLevel = (parent and parent:GetFrameLevel()) or (frame and frame:GetFrameLevel()) or 0
+	local baseLevel = (anchor and anchor:GetFrameLevel()) or (frame and frame:GetFrameLevel()) or 0
 	container:SetFrameLevel(baseLevel + 10 + index)
-	local parentStrata = (parent and parent:GetFrameStrata()) or (frame and frame:GetFrameStrata()) or "MEDIUM"
+	local parentStrata = (anchor and anchor:GetFrameStrata()) or (frame and frame:GetFrameStrata()) or "MEDIUM"
 	if parentStrata == "UNKNOWN" or not parentStrata then
 		parentStrata = "HIGH"
 	end
 	container:SetFrameStrata(parentStrata)
+	container.npVisibilityAnchor = frame.healthBar
 	container:Hide()
 	return container
 end
