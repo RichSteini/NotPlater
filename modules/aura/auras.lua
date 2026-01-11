@@ -25,6 +25,7 @@ local GetSpellInfo = GetSpellInfo
 local tinsert = table.insert
 local ipairs = ipairs
 local pairs = pairs
+local unpack = unpack
 local tostring = tostring
 local format = string.format
 local floor = math.floor
@@ -86,6 +87,19 @@ end
 
 local function SafeUnit(unit)
 	return unit and UnitExists(unit) and not UnitIsDeadOrGhost(unit)
+end
+
+local function RunWithAuraProfile(profile, func, ...)
+	if not profile or not NotPlater or not NotPlater.db then
+		return func(...)
+	end
+	local original = NotPlater.db.profile
+	NotPlater.db.profile = profile
+	Auras:RefreshConfig()
+	local results = {func(...)}
+	NotPlater.db.profile = original
+	Auras:RefreshConfig()
+	return unpack(results)
 end
 
 local function ToGUID(candidate)
@@ -852,6 +866,14 @@ function Auras:GetAurasPerRow(index, defaultWidth)
 end
 
 function Auras:UpdateFrameAuras(frame, forcedUnit, skipUnitScan)
+	if frame and frame.npTemplateProfile and not frame.npAuraProfileContext then
+		return RunWithAuraProfile(frame.npTemplateProfile, function()
+			frame.npAuraProfileContext = true
+			local results = {self:UpdateFrameAuras(frame, forcedUnit, skipUnitScan)}
+			frame.npAuraProfileContext = nil
+			return unpack(results)
+		end)
+	end
 	if not self.general.enable then
 		self:HideContainers(frame)
 		return
