@@ -19,6 +19,7 @@ NotPlaterReleaseData = {
 - Implemented class icon
 - Implemented NPC icons
 - Implemented icon zoom for aura / spell icons
+- Implemented name text mouseover highlight
 - Added aura borders
 - Fixed aura container grow direction / rows
 - Fixed aura matching
